@@ -9,7 +9,6 @@ As a car owner, I want to store all the data about maintenance of my car in one 
 
 ## US-02: Interact with AI-agent
 **Requirement status:** Active
-
 **MoSCoW priority:** Must Have
 
 As a car owner, I want to interact with car-relevant information through an AI agent so that I can pull requested data fast 
@@ -65,4 +64,5 @@ As a car owner, I want to be able to follow to my friends, so I can see main inf
 
 ## US-10: Analyzing data by AI
 **Requirement status:** Active
+
 **MoSCoW priority:** Should Have
