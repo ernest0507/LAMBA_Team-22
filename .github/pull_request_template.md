@@ -12,6 +12,7 @@ Closes #
 
 ## Checklist
 
-- [ ] Linked to an issue
-- [ ] Acceptance criteria satisfied
-- [ ] Documentation updated if needed
+- [ ] This PR is linked to an issue.
+- [ ] Acceptance/completion criteria were verified.
+- [ ] Documentation was updated if needed.
+- [ ] Lychee link check passes if Markdown files were changed.
