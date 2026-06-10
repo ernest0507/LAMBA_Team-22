@@ -7,8 +7,15 @@
 
 As a car owner, I want to store all the data about maintenance of my car in one place so that I can predict possible breakage and simplify future repairs 
 
+### Notes and constraints
+
+How much memory do we need to allocate for the user? Constrained: limitation of memory for saving information about car
+
+
+
 ## US-02: Interact with AI-agent
 **Requirement status:** Active
+
 **MoSCoW priority:** Must Have
 
 As a car owner, I want to interact with car-relevant information through an AI agent so that I can pull requested data fast 
