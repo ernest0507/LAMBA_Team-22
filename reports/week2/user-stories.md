@@ -124,4 +124,8 @@ As a car owner, I would like to send audio messages to an AI agent, so that it c
 
 Constrained: the accuracy of recognized speech may not be 100%
 
-
+## Initial proposed MVP v1 scope
+- US-01: Storing car's data
+- US-02: Interact with AI-agent
+- US-03: Main expenses timeline
+- US-04: Expenses statistis
