@@ -36,7 +36,7 @@ How will the scenario of interacting look like?
 Constraint: user won't be able to upload a large sized files. Will the application be able to convert image of document in JPEG format to PDF?
 
 
-## US-03: Main expenses timeline
+## US-03: Main expenses and events timeline
 **Requirement status:** Active
 
 **MoSCoW priority:** Must Have
@@ -127,5 +127,5 @@ Constrained: the accuracy of recognized speech may not be 100%
 ## Initial proposed MVP v1 scope
 - US-01: Storing car's data
 - US-02: Interact with AI-agent
-- US-03: Main expenses timeline
+- US-03: Main expenses and events timeline
 - US-04: Expenses statistis
