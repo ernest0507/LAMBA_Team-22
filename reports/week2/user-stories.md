@@ -1,5 +1,14 @@
 # User Stories
 
+## Personas
+
+### Car Owner
+The car owner is a person who has a digital copy of a real car and keeps all the documents, receipts, and other information related to the car in an app
+
+### Family Member
+The family member is a user who can share their digital twin with other family members or friends
+
+
 ## US-01: Storing car's data 
 **Requirement status:** Active
 
