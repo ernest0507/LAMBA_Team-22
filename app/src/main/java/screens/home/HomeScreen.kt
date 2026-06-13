@@ -43,7 +43,9 @@ private val TextDark = Color(0xFF2A2522)
 fun HomeScreen(
     onCarClick: () -> Unit = {},
     onAiClick: () -> Unit = {},
-    onQuestionSend: (String) -> Unit = {}
+    onQuestionSend: (String) -> Unit = {},
+    onTimelineClick: () -> Unit
+
 ) {
     Column(
         modifier = Modifier
@@ -71,7 +73,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        StatsGrid()
+        StatsGrid(onTimelineClick)
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -184,7 +186,7 @@ private fun AssistantCard(
 
                 Column {
                     Text(
-                        text = "Спросите AI-ассистента",
+                        text = "Спросите ИИ-ассистента",
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold
@@ -262,7 +264,9 @@ private fun AssistantCard(
 }
 
 @Composable
-private fun StatsGrid() {
+private fun StatsGrid(
+    onTimelineClick: () -> Unit
+) {
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -278,15 +282,24 @@ private fun StatsGrid() {
                 modifier = Modifier.weight(1f)
             )
 
-            StatCard(
-                title = "Все расходы",
-                value = "70 000 ₽",
-                subtitle = "за этот год",
-                iconType = "$",
-                backgroundColor = DarkBlue,
-                contentColor = Color.White,
-                modifier = Modifier.weight(1f)
-            )
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                    onTimelineClick()
+                }
+            ) {
+                StatCard(
+                    title = "Все расходы",
+                    value = "70 000 ₽",
+                    subtitle = "за этот год",
+                    iconType = "$",
+                    backgroundColor = DarkBlue,
+                    contentColor = Color.White,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -388,7 +401,7 @@ private fun BottomNavigationMock(
 
         BottomNavButton(
             icon = "▣",
-            label = "AI-ассистент",
+            label = "ИИ-ассистент",
             selected = false,
             onClick = onAiClick
         )

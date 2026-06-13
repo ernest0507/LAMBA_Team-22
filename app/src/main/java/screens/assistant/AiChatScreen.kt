@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.items
 @Composable
 fun AiChatScreen(
     userMessage: String,
+    onBackClick: () -> Unit
 ) {
     val message = remember {
         mutableStateListOf<ChatMessage>()
@@ -45,7 +46,7 @@ fun AiChatScreen(
 
         message.add(
             ChatMessage(
-                text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Commodo cupidatat adipiscing sint id laboris sunt sed eiusmod do non ea lorem nostrud duis dolore. ",
+                text = "Здравствуйте! Я помогу разобраться с обслуживанием, расходами и состоянием автомобиля.",
                 type = MessageType.ASSISTANT
             )
         )
@@ -57,7 +58,7 @@ fun AiChatScreen(
             .background(Color(0xFFF7F2EA))
             .padding(15.dp)
     ) {
-        ChatHeader()
+        ChatHeader(onBackClick)
 
         HorizontalDivider(color = Color(0xFFF7F2EA))
         Spacer(modifier = Modifier.height(24.dp))
@@ -79,7 +80,7 @@ fun AiChatScreen(
 
                 message.add(
                     ChatMessage(
-                        text = "This is a temporary AI assistant response for MVP",
+                        text = "Это временный ответ ИИ-ассистента для тестовой версии приложения.",
                         type = MessageType.ASSISTANT
                     )
                 )
@@ -89,7 +90,9 @@ fun AiChatScreen(
 }
 
 @Composable
-fun ChatHeader() {
+fun ChatHeader(
+    onBackClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,9 +105,13 @@ fun ChatHeader() {
                 .background(Color(0xFFEDE7DA), RoundedCornerShape(14.dp)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back"
-            )
+            IconButton(
+                onClick = onBackClick
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад"
+                )
+            }
         }
         Spacer(modifier = Modifier.width(16.dp))
 
@@ -121,11 +128,11 @@ fun ChatHeader() {
 
         Column {
             Text(
-                text = "AI Assistant",
+                text = "ИИ-ассистент",
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "● online",
+                text = "● в сети",
                 color = Color(0xFF2E8B3C)
             )
         }
@@ -204,7 +211,7 @@ fun InputArea(
             )
         ) {
             Icon(
-                imageVector = Icons.Default.Add, contentDescription = "Add"
+                imageVector = Icons.Default.Add, contentDescription = "Добавить"
             )
         }
 
@@ -223,7 +230,7 @@ fun InputArea(
             )
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = "Send"
+                imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = "Отправить"
             )
         }
     }
@@ -304,7 +311,7 @@ fun ChatBubble(
 
                     ) {
                         Text(
-                            text = "Something went wrong. Failed to connect to the server"
+                            text = "Что-то пошло не так. Не удалось подключиться к серверу"
                         )
                     }
                 }
@@ -320,7 +327,7 @@ fun ChatBubble(
                     shape = RoundedCornerShape(16.dp),
                     contentPadding = PaddingValues(0.dp),
                 ) {
-                    Text("⟲ Retry")
+                    Text("⟲ Повторить")
                 }
             }
 

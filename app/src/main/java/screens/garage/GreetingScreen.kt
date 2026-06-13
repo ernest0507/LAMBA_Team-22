@@ -49,7 +49,7 @@ fun GreetingScreen(
 
         Text(
             text = "Цифровых двойников пока нет\nСоздайте профиль автомобиля," +
-                    " чтобы отслеживать обслуживание, расходы и рекомендации AI.",
+                    " чтобы отслеживать обслуживание, расходы и рекомендации ИИ.",
             fontSize = 15.sp,
             color = TextDark.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
