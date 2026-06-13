@@ -27,12 +27,22 @@ fun CarImage(
             .width(190.dp)
             .height(78.dp)
     ) {
+
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .width(170.dp)
+                .height(38.dp)
+                .clip(RoundedCornerShape(topStart = 40.dp, topEnd = 80.dp))
+                .background(Brown)
+        )
+
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .width(74.dp)
                 .height(32.dp)
-                .clip(RoundedCornerShape(topStar = 40.dp, topEnd = 40.dp))
+                .clip(RoundedCornerShape(topStart = 40.dp, topEnd = 80.dp))
                 .background(Color(0xFFE7E2DA))
         )
 
