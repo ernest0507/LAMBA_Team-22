@@ -4,14 +4,20 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.lamba.app.navigation.AppNavigation
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
+import screens.garage.CreateTwinStep1
+import screens.garage.CreateTwinStep2
+import screens.garage.GreetingScreen
+import screens.garage.SuccessScreen
+import screens.garage.model.CarProfile
 import screens.home.TimelineExpensesAndEvents
+
 
 
 class MainActivity : ComponentActivity() {
@@ -20,33 +26,43 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LAMBA_MVPv0Theme {
-                setContent {
-//                    TimelineExpensesAndEvents()
-                    AppNavigation()
-                }
-//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    Greeting(
-//                        name = "Android",
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
+                CreationFlow()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+private fun CreationFlow() {
+    var currentStep by remember { mutableStateOf(0) }
+    var profile by remember { mutableStateOf(CarProfile()) }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LAMBA_MVPv0Theme {
-        Greeting("Android")
+    when (currentStep) {
+        0 -> GreetingScreen(
+            onCreateTwin = { currentStep = 1 }
+        )
+
+        1 -> CreateTwinStep1(
+            initialData = profile,
+            onBack = { currentStep = 0 },
+            onNext = { data ->
+                profile = data
+                currentStep = 2
+            }
+        )
+
+        2 -> CreateTwinStep2(
+            initialData = profile,
+            onBack = { currentStep = 1 },
+            onCreateTwin = {
+                currentStep = 3
+            }
+        )
+
+        3 -> SuccessScreen(
+            onGoMain = { currentStep = 4 }
+        )
+
+        4 -> HomeScreen()
     }
 }
