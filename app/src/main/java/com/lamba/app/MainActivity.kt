@@ -4,16 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.lamba.app.navigation.AppNavigation
+import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
-import com.lamba.app.screens.assistant.AiChatScreen
-import com.lamba.app.screens.assistant.AIChatScreenStarter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             LAMBA_MVPv0Theme {
                 setContent {
-                    AIChatScreenStarter()
+                    HomeScreen()
                 }
 //                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 //                    Greeting(
