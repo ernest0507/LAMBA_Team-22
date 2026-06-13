@@ -1,6 +1,7 @@
 package com.lamba.app.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,10 +15,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,7 +40,11 @@ private val Brown = Color(0xFFA78B78)
 private val TextDark = Color(0xFF2A2522)
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onCarClick: () -> Unit = {},
+    onAiClick: () -> Unit = {},
+    onQuestionSend: (String) -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -50,11 +60,14 @@ fun HomeScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        CarCard()
+        CarCard(onClick = onCarClick)
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        AssistantCard()
+        AssistantCard(
+            onAiClick = onAiClick,
+            onQuestionSend = onQuestionSend
+        )
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -62,16 +75,22 @@ fun HomeScreen() {
 
         Spacer(modifier = Modifier.weight(1f))
 
-        BottomNavigationMock()
+        BottomNavigationMock(
+            onHomeClick = {},
+            onAiClick = onAiClick
+        )
     }
 }
 
 @Composable
-private fun CarCard() {
+private fun CarCard(
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp),
+            .height(220.dp)
+            .clickable { onClick() },
         shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(containerColor = DarkBlue)
     ) {
@@ -126,11 +145,17 @@ private fun CarCard() {
 }
 
 @Composable
-private fun AssistantCard() {
+private fun AssistantCard(
+    onAiClick: () -> Unit,
+    onQuestionSend: (String) -> Unit
+) {
+    var question by remember { mutableStateOf("") }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp),
+            .height(150.dp)
+            .clickable { onAiClick() },
         shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(containerColor = DarkBlue)
     ) {
@@ -193,18 +218,35 @@ private fun AssistantCard() {
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Text(
-                    text = "Напишите вопрос...",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    modifier = Modifier.weight(1f)
+                BasicTextField(
+                    value = question,
+                    onValueChange = { question = it },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    decorationBox = { innerTextField ->
+                        if (question.isEmpty()) {
+                            Text(
+                                text = "Напишите вопрос...",
+                                color = Color.Gray,
+                                fontSize = 14.sp
+                            )
+                        }
+                        innerTextField()
+                    }
                 )
 
                 Box(
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .background(Brown),
+                        .background(Brown)
+                        .clickable {
+                            if (question.isNotBlank()) {
+                                onQuestionSend(question)
+                            } else {
+                                onAiClick()
+                            }
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -301,6 +343,14 @@ private fun StatCard(
                 fontWeight = FontWeight.Bold
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = title,
+                color = contentColor.copy(alpha = 0.75f),
+                fontSize = 13.sp
+            )
+
             Text(
                 text = value,
                 color = contentColor,
@@ -318,7 +368,10 @@ private fun StatCard(
 }
 
 @Composable
-private fun BottomNavigationMock() {
+private fun BottomNavigationMock(
+    onHomeClick: () -> Unit,
+    onAiClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -326,23 +379,25 @@ private fun BottomNavigationMock() {
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         BottomNavButton(
             icon = "⌂",
             label = "Главная",
-            selected = true
+            selected = true,
+            onClick = onHomeClick
         )
 
         BottomNavButton(
             icon = "▣",
             label = "AI-ассистент",
-            selected = false
+            selected = false,
+            onClick = onAiClick
         )
 
         BottomNavButton(
             icon = "☺",
             label = "Профиль",
-            selected = false
+            selected = false,
+            onClick = {}
         )
     }
 }
@@ -351,19 +406,18 @@ private fun BottomNavigationMock() {
 private fun BottomNavButton(
     icon: String,
     label: String,
-    selected: Boolean
+    selected: Boolean,
+    onClick: () -> Unit
 ) {
     Column(
+        modifier = Modifier.clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Box(
             modifier = Modifier
                 .size(58.dp)
                 .clip(RoundedCornerShape(18.dp))
-                .background(
-                    if (selected) DarkBlue else Beige
-                ),
+                .background(if (selected) DarkBlue else Beige),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -378,16 +432,9 @@ private fun BottomNavButton(
 
         Text(
             text = label,
-            color = if (selected) DarkBlue
-            else TextDark.copy(alpha = 0.7f),
+            color = if (selected) DarkBlue else TextDark.copy(alpha = 0.7f),
             fontSize = 12.sp,
-            fontWeight = if (selected)
-                FontWeight.Bold
-            else
-                FontWeight.Normal
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
         )
     }
 }
-
-
-

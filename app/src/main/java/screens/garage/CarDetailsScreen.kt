@@ -1,6 +1,7 @@
 package com.lamba.app.screens.garage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,14 +34,18 @@ private val Brown = Color(0xFFA78B78)
 private val TextDark = Color(0xFF2A2522)
 
 @Composable
-fun CarDetailsScreen() {
+fun CarDetailsScreen(
+    onBackClick: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
             .padding(start = 20.dp, end = 20.dp, top = 44.dp)
     ) {
-        Header()
+        Header(
+            onBackClick = onBackClick
+        )
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -49,7 +54,7 @@ fun CarDetailsScreen() {
         Spacer(modifier = Modifier.height(24.dp))
 
         CarInfoRow(
-            icon = "⌁",
+            icon = "↗",
             title = "Пробег",
             value = "24 560 км"
         )
@@ -81,13 +86,16 @@ fun CarDetailsScreen() {
 }
 
 @Composable
-private fun Header() {
+private fun Header(
+    onBackClick: () -> Unit
+) {
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
         CircleButton(
             text = "‹",
-            modifier = Modifier.align(Alignment.CenterStart)
+            modifier = Modifier.align(Alignment.CenterStart),
+            onClick = onBackClick
         )
 
         Column(
@@ -122,13 +130,15 @@ private fun CircleButton(
     text: String,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Beige,
-    textColor: Color = DarkBlue
+    textColor: Color = DarkBlue,
+    onClick: () -> Unit = {}
 ) {
     Box(
         modifier = modifier
             .size(46.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor),
+            .background(backgroundColor)
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -196,7 +206,7 @@ private fun CarInfoRow(
                     Text(
                         text = icon,
                         color = Color.White,
-                        fontSize = 20.sp,
+                        fontSize = 19.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
