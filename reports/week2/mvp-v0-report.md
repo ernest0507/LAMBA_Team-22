@@ -3,9 +3,9 @@
 
 ## Purpose and description of the MVP v0 foundation
 
-LAMBA MVP v0 is a runnable Android application built with Kotlin in Android Studio. It is only frontend version without backend, database, or external AI services.
+LAMBA MVP v0 is an Android application built with Kotlin in Android Studio. It is only frontend version without backend, database, or external AI services.
 
-The purpose of MVP v0 is to check the technical feasibility of the main mobile flows and demonstrate the highest-priority features (Must Have). The application includes digital car twin onboarding, a main dashboard, a mock AI assistant, and a timeline with expense information. These flows use placeholder data.
+The purpose of MVP v0 is to check the feasibility of the the highest-priority features (Must Have). The application includes digital car twin onboarding, a main dashboard, a mock AI assistant, and a timeline with expense information. These flows use placeholder data.
 
 ## Runnable artifact
 
