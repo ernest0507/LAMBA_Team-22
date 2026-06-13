@@ -1,4 +1,4 @@
-package com.lamba.app.screens.assistant
+package screens.assistant
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -7,24 +7,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.unit.sp
 
+
 @Composable
-fun AIChatScreenStarter() {
+fun AIChatScreenStarter(
+    onQuestionClick: (String) -> Unit,
+    onNewChatClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .background(Color(0xFFF7F2EA))
@@ -34,19 +35,25 @@ fun AIChatScreenStarter() {
         Header()
         HorizontalDivider(color = Color(0xFFE4DDD2))
         Spacer(modifier = Modifier.height(48.dp))
-        ListOfQueries()
+        ListOfQueries(
+            onQuestionClick = onQuestionClick
+        )
 
         Spacer(modifier = Modifier.height(18.dp))
-        NewChatButton()
+        NewChatButton(
+            onNewChatClick = onNewChatClick
+        )
     }
 
 
 }
 
 @Composable
-fun NewChatButton() {
+fun NewChatButton(
+    onNewChatClick: () -> Unit
+) {
     Button(
-        onClick = {},
+        onClick = onNewChatClick,
         modifier = Modifier.fillMaxWidth().height(48.dp),
         shape = RoundedCornerShape(16.dp),
         contentPadding = PaddingValues(0.dp),
@@ -55,7 +62,7 @@ fun NewChatButton() {
         )
     ){
         Text(
-            text = "Новый чат",
+            text = "New Chat",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -96,13 +103,13 @@ fun Header() {
 
         Column{
           Text(
-              text = "AI-ассистент",
+              text = "AI Assistant",
               fontSize = 24.sp,
               fontWeight = FontWeight.Bold
           )
 
             Text(
-                text = "Задайте вопрос об автомобиле",
+                text = "Ask a question about your car",
                 fontSize = 14.sp,
                 color = Color.Gray
             )
@@ -113,40 +120,56 @@ fun Header() {
 
 
 @Composable
-fun ListOfQueries() {
+fun ListOfQueries(
+    onQuestionClick: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     )
     {
         Text(
-            text = "ПОПУЛЯРНЫЕ ВОПРОСЫ",
+            text = "POPULAR QUESTIONS",
             fontSize = 14.sp,
             color = Color.Gray
         )
         Spacer(modifier = Modifier.height(12.dp))
 
-        QueryCard(text = "Когда следующее техобслуживание?")
+        QueryCard(
+            text = "When is the next maintenance?",
+            onQuestionClick = onQuestionClick
+        )
         Spacer(modifier = Modifier.height(14.dp))
 
-        QueryCard(text = "Сколько я потратил в этом году?")
+        QueryCard(
+            text = "How much have I spent this year?",
+            onQuestionClick = onQuestionClick)
         Spacer(modifier = Modifier.height(14.dp))
 
-        QueryCard(text = "Что проверить перед дальней поездкой?")
+        QueryCard(
+            text = "What to check before a long trip?",
+            onQuestionClick = onQuestionClick)
         Spacer(modifier = Modifier.height(14.dp))
 
-        QueryCard(text = "Почему вырос расход топлива?")
+        QueryCard(
+            text = "Why has fuel consumption increased?",
+            onQuestionClick = onQuestionClick)
         Spacer(modifier = Modifier.height(14.dp))
-
     }
 }
 
 
 @Composable
-fun QueryCard(text : String) {
+fun QueryCard(
+    text : String,
+    onQuestionClick: (String) -> Unit
+    ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                onQuestionClick(text)
+            }
             .background(
                 color = Color(0xFFEDE7DA),
                 shape = RoundedCornerShape(20.dp)
@@ -174,16 +197,3 @@ fun QueryCard(text : String) {
         )
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
