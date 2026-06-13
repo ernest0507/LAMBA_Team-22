@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,10 +51,9 @@ private val carColors = listOf(
 )
 
 private val bodyTypes = listOf(
-    "Sedan", "Hatchback", "Crossover", "Coupe", "Universal", "Pickup"
+    "Седан", "Хэтчбек", "Кроссовер", "Купе", "Универсал", "Пикап"
 )
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CreateTwinStep2(
     initialData: CarProfile,
@@ -70,10 +67,9 @@ fun CreateTwinStep2(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
-            .padding(start = 20.dp, end = 20.dp, top = 44.dp)
+            .padding(start = 20.dp, end = 20.dp, top = 36.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        /* Back button */
         Box(
             modifier = Modifier
                 .size(40.dp)
@@ -85,19 +81,17 @@ fun CreateTwinStep2(
             Text("←", fontSize = 20.sp, color = TextDark, fontWeight = FontWeight.Bold)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        /* Heading */
         Text(
-            text = "Configure appearance",
-            fontSize = 24.sp,
+            text = "Настройте автомобиль",
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = TextDark
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        /* Progress bar — 2 of 2 segments filled */
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -118,13 +112,12 @@ fun CreateTwinStep2(
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        /* Car preview placeholder */
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
+                .height(180.dp)
                 .clip(RoundedCornerShape(26.dp))
                 .background(Beige),
             contentAlignment = Alignment.Center
@@ -137,18 +130,17 @@ fun CreateTwinStep2(
             )
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        /* Color selection */
         Text(
-            text = "Color",
+            text = "Цвет автомобиля",
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             color = TextDark,
             modifier = Modifier.align(Alignment.Start)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -170,48 +162,54 @@ fun CreateTwinStep2(
             }
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        /* Body type selection */
         Text(
-            text = "Body type",
+            text = "Тип кузова",
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
             color = TextDark,
             modifier = Modifier.align(Alignment.Start)
         )
 
-        Spacer(modifier = Modifier.height(14.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        /* Body type grid: 3 columns x 2 rows, equal-sized buttons */
+        Column(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            bodyTypes.forEach { type ->
-                val isSelected = selectedBodyType == type
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(if (isSelected) DarkBlue else Beige)
-                        .clickable {
-                            selectedBodyType = if (isSelected) "" else type
-                        }
-                        .padding(horizontal = 20.dp, vertical = 12.dp)
+            bodyTypes.chunked(3).forEach { rowItems ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Text(
-                        text = type,
-                        fontSize = 14.sp,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) Color.White else TextDark
-                    )
+                    rowItems.forEach { type ->
+                        val isSelected = selectedBodyType == type
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(if (isSelected) DarkBlue else Beige)
+                                .clickable {
+                                    selectedBodyType = if (isSelected) "" else type
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = type,
+                                fontSize = 15.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                color = if (isSelected) Color.White else TextDark
+                            )
+                        }
+                    }
                 }
             }
         }
 
         Spacer(modifier = Modifier.weight(1f))
 
-        /* Create twin button */
         Button(
             onClick = {
                 onCreateTwin(
@@ -223,13 +221,13 @@ fun CreateTwinStep2(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(60.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
         ) {
-            Text("Create twin", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("Создать двойник", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }

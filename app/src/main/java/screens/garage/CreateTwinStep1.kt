@@ -55,10 +55,9 @@ fun CreateTwinStep1(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
-            .padding(start = 20.dp, end = 20.dp, top = 44.dp)
+            .padding(start = 20.dp, end = 20.dp, top = 36.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        /* Back button */
         Box(
             modifier = Modifier
                 .size(40.dp)
@@ -70,51 +69,48 @@ fun CreateTwinStep1(
             Text("←", fontSize = 20.sp, color = TextDark, fontWeight = FontWeight.Bold)
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        /* Heading */
         Text(
-            text = "Create digital twin",
-            fontSize = 24.sp,
+            text = "Создайте цифровой двойник",
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = TextDark
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        /* Progress bar — 1 of 2 segments filled */
         StepProgressBar(filledSegments = 1, totalSegments = 2)
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        /* Form fields */
-        FormField(value = model, onValueChange = { model = it }, label = "Car Model")
-        Spacer(modifier = Modifier.height(14.dp))
-        FormField(value = year, onValueChange = { year = it }, label = "Year of manufacture")
-        Spacer(modifier = Modifier.height(14.dp))
-        FormField(value = mileage, onValueChange = { mileage = it }, label = "Mileage")
-        Spacer(modifier = Modifier.height(14.dp))
-        FormField(value = expenses, onValueChange = { expenses = it }, label = "Expenses")
-        Spacer(modifier = Modifier.height(14.dp))
-        FormField(value = notes, onValueChange = { notes = it }, label = "Notes (optional)", singleLine = false)
+        FormField(value = model, onValueChange = { model = it }, label = "Модель автомобиля")
+        Spacer(modifier = Modifier.height(10.dp))
+        FormField(value = year, onValueChange = { year = it }, label = "Год выпуска")
+        Spacer(modifier = Modifier.height(10.dp))
+        FormField(value = mileage, onValueChange = { mileage = it }, label = "Пробег (км)")
+        Spacer(modifier = Modifier.height(10.dp))
+        FormField(value = expenses, onValueChange = { expenses = it }, label = "Общие расходы (₽)")
+        Spacer(modifier = Modifier.height(10.dp))
+        FormField(value = notes, onValueChange = { notes = it }, label = "Заметки (необязательно)",
+            singleLine = false)
 
         Spacer(modifier = Modifier.weight(1f))
 
-        /* Next step button */
         Button(
             onClick = {
                 onNext(CarProfile(model, year, mileage, expenses, notes))
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(60.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
         ) {
-            Text("Next step", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("Далее", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 

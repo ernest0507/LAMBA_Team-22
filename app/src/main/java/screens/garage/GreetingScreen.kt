@@ -38,33 +38,34 @@ fun GreetingScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Welcome to LAMBA",
-            fontSize = 26.sp,
+            text = "Добро пожаловать в LAMBA",
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = TextDark,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "No digital twins yet.\nCreate profile of a car to track it's activity",
+            text = "Цифровых двойников пока нет\nСоздайте профиль автомобиля," +
+                    " чтобы отслеживать обслуживание, расходы и рекомендации AI.",
             fontSize = 15.sp,
             color = TextDark.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         Button(
             onClick = onCreateTwin,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(60.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
         ) {
-            Text("Create digital twin", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("Создать цифровой двойник", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

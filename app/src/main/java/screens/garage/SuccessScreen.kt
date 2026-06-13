@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.sp
 
 private val Background = Color(0xFFF5EFE6)
 private val DarkBlue = Color(0xFF233B78)
-private val Beige = Color(0xFFEFE7D8)
 private val TextDark = Color(0xFF2A2522)
 
 @Composable
@@ -43,7 +42,6 @@ fun SuccessScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        /* Blue circle icon */
         Box(
             modifier = Modifier
                 .size(80.dp)
@@ -54,53 +52,49 @@ fun SuccessScreen(
             Text("✓", fontSize = 36.sp, color = Color.White, fontWeight = FontWeight.Bold)
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        /* Title */
         Text(
-            text = "Digital Twin is done!",
-            fontSize = 24.sp,
+            text = "Цифровой двойник готов!",
+            fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = TextDark,
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        /* Subtitle */
         Text(
-            text = "Car is successfully added to your garage",
+            text = "Автомобиль успешно добавлен в ваш гараж.",
             fontSize = 15.sp,
             color = TextDark.copy(alpha = 0.7f),
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(40.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        /* Go main button */
         Button(
             onClick = onGoMain,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(60.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(containerColor = DarkBlue)
         ) {
-            Text("Go main", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("Открыть главную", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        /* Details button (mock) */
         OutlinedButton(
-            onClick = { /* mock — no action */ },
+            onClick = { /* mock */ },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(60.dp),
+            shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = DarkBlue)
         ) {
-            Text("Details", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            Text("Подробнее", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
