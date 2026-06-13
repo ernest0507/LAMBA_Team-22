@@ -79,7 +79,7 @@ fun CarDetailsScreen(
 
         CarInfoRow(
             icon = "#",
-            title = "VIN",
+            title = "ВИН",
             value = "JTDBR32E720009876"
         )
     }

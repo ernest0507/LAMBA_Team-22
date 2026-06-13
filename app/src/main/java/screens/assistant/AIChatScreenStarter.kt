@@ -24,7 +24,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun AIChatScreenStarter(
     onQuestionClick: (String) -> Unit,
-    onNewChatClick: () -> Unit
+    onNewChatClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -32,7 +33,7 @@ fun AIChatScreenStarter(
             .fillMaxSize()
             .padding(20.dp)
     ) {
-        Header()
+        Header(onBackClick)
         HorizontalDivider(color = Color(0xFFE4DDD2))
         Spacer(modifier = Modifier.height(48.dp))
         ListOfQueries(
@@ -62,7 +63,7 @@ fun NewChatButton(
         )
     ){
         Text(
-            text = "New Chat",
+            text = "Новый чат",
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -71,7 +72,9 @@ fun NewChatButton(
 }
 
 @Composable
-fun Header() {
+fun Header(
+    onBackClick: () -> Unit
+) {
     Row(
        modifier = Modifier
            .fillMaxWidth()
@@ -81,11 +84,15 @@ fun Header() {
         Box(modifier = Modifier
             .size(52.dp)
             .background(Color(0xFFF0EADF),  RoundedCornerShape(14.dp)),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back"
-            )
+            IconButton(
+                onClick = onBackClick
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Назад"
+                )
+            }
         }
 
         Spacer(modifier = Modifier.width(16.dp))
@@ -103,13 +110,13 @@ fun Header() {
 
         Column{
           Text(
-              text = "AI Assistant",
+               text = "ИИ-ассистент",
               fontSize = 24.sp,
               fontWeight = FontWeight.Bold
           )
 
             Text(
-                text = "Ask a question about your car",
+                text = "Задайте вопрос об автомобиле",
                 fontSize = 14.sp,
                 color = Color.Gray
             )
@@ -129,30 +136,30 @@ fun ListOfQueries(
     )
     {
         Text(
-            text = "POPULAR QUESTIONS",
+            text = "ПОПУЛЯРНЫЕ ВОПРОСЫ",
             fontSize = 14.sp,
             color = Color.Gray
         )
         Spacer(modifier = Modifier.height(12.dp))
 
         QueryCard(
-            text = "When is the next maintenance?",
+            text = "Когда следующее техническое обслуживание?",
             onQuestionClick = onQuestionClick
         )
         Spacer(modifier = Modifier.height(14.dp))
 
         QueryCard(
-            text = "How much have I spent this year?",
+            text = "Сколько я потратил в этом году?",
             onQuestionClick = onQuestionClick)
         Spacer(modifier = Modifier.height(14.dp))
 
         QueryCard(
-            text = "What to check before a long trip?",
+            text = "Что проверить перед дальней поездкой?",
             onQuestionClick = onQuestionClick)
         Spacer(modifier = Modifier.height(14.dp))
 
         QueryCard(
-            text = "Why has fuel consumption increased?",
+            text = "Почему увеличился расход топлива?",
             onQuestionClick = onQuestionClick)
         Spacer(modifier = Modifier.height(14.dp))
     }

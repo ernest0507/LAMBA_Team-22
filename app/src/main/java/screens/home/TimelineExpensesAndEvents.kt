@@ -22,7 +22,7 @@ import androidx.compose.foundation.border
 
 @Composable
 fun TimelineExpensesAndEvents(
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit
 ) {
     val expenses = listOf(
         ExpenseItem("Замена масла", "12 мая 2026", "9 800 ₽", Color(0xFF243F7A)),
@@ -81,7 +81,7 @@ fun Header(
             )
         }
 
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(8.dp))
 
         Text(
             text = "История расходов",
@@ -113,14 +113,14 @@ fun PeriodDropdown() {
             onClick = { expanded = true },
             modifier = Modifier
                 .height(48.dp)
-                .width(120.dp),
+                .width(110.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFA98D7A)
             ),
             contentPadding = PaddingValues(
-                start = 14.dp,
-                end = 10.dp
+                start = 12.dp,
+                end = 8.dp
             )
         ) {
             Text(selectedPeriod)

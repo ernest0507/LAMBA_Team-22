@@ -43,11 +43,11 @@ private val TextDark = Color(0xFF2A2522)
 data class CarColorOption(val name: String, val color: Color)
 
 private val carColors = listOf(
-    CarColorOption("Blue", Color(0xFF2196F3)),
-    CarColorOption("Red", Color(0xFFF44336)),
-    CarColorOption("Green", Color(0xFF4CAF50)),
-    CarColorOption("Black", Color(0xFF212121)),
-    CarColorOption("Purple", Color(0xFF9C27B0))
+    CarColorOption("Синий", Color(0xFF2196F3)),
+    CarColorOption("Красный", Color(0xFFF44336)),
+    CarColorOption("Зелёный", Color(0xFF4CAF50)),
+    CarColorOption("Чёрный", Color(0xFF212121)),
+    CarColorOption("Фиолетовый", Color(0xFF9C27B0))
 )
 
 private val bodyTypes = listOf(
@@ -123,7 +123,7 @@ fun CreateTwinStep2(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "Car preview placeholder",
+                text = "Предварительный просмотр автомобиля",
                 fontSize = 14.sp,
                 color = TextDark.copy(alpha = 0.5f),
                 textAlign = TextAlign.Center
