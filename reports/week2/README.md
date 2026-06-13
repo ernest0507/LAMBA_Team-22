@@ -8,7 +8,7 @@
 - [LLM Report](llm-report.md)
 
 - ## Images
-- [Images](images/)
+- [Images]
 
 
 
