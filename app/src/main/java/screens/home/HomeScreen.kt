@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.lamba.app.components.CarImage
 
 private val Background = Color(0xFFF5EFE6)
 private val DarkBlue = Color(0xFF233B78)
@@ -117,67 +118,10 @@ private fun CarCard() {
                 )
             }
 
-            SimpleCarImage(
+            CarImage(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
-    }
-}
-
-@Composable
-private fun SimpleCarImage(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .width(190.dp)
-            .height(78.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .width(170.dp)
-                .height(38.dp)
-                .clip(RoundedCornerShape(topStart = 40.dp, topEnd = 80.dp))
-                .background(Brown)
-        )
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .width(74.dp)
-                .height(32.dp)
-                .clip(RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp))
-                .background(Color(0xFFE7E2DA))
-        )
-
-        Wheel(
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(start = 35.dp)
-        )
-
-        Wheel(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 26.dp)
-        )
-    }
-}
-
-@Composable
-private fun Wheel(modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .size(24.dp)
-            .clip(CircleShape)
-            .background(Color.White),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .size(12.dp)
-                .clip(CircleShape)
-                .background(DarkBlue)
-        )
     }
 }
 
