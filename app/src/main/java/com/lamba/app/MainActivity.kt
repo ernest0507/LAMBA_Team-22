@@ -11,6 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.lamba.app.navigation.AppNavigation
 import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
+import screens.home.TimelineExpensesAndEvents
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,7 +21,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             LAMBA_MVPv0Theme {
                 setContent {
-                    HomeScreen()
+//                    TimelineExpensesAndEvents()
+                    AppNavigation()
                 }
 //                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 //                    Greeting(
