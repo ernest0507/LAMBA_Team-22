@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.screens.assistant.AiChatScreen
+import com.lamba.app.screens.assistant.AIChatScreenStarter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +22,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             LAMBA_MVPv0Theme {
                 setContent {
-                    AiChatScreen()
+                    AIChatScreenStarter()
                 }
 //                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 //                    Greeting(

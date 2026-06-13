@@ -1,6 +1,5 @@
 package com.lamba.app.screens.assistant
 
-import androidx.compose.foundation.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
@@ -20,9 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.ui.graphics.vector.ImageVector
 
 
 @Composable
@@ -31,12 +28,12 @@ fun AiChatScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7F2EA))
+            .background(Color(0xFFD8D3BF))
             .padding(15.dp)
     ) {
-        Header()
+        ChatHeader()
 
-        HorizontalDivider(color = Color(0xFFE4DDD2))
+        HorizontalDivider(color = Color(0xFFD8D3BF))
         Spacer(modifier = Modifier.height(24.dp))
 
         MessageArea(
@@ -51,7 +48,7 @@ fun AiChatScreen() {
 }
 
 @Composable
-fun Header() {
+fun ChatHeader() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -61,7 +58,7 @@ fun Header() {
         Box(
             modifier = Modifier
                 .size(44.dp)
-                .background(Color(0xFFF0EADF), RoundedCornerShape(14.dp)),
+                .background(Color(0xFFBBB6A1), RoundedCornerShape(14.dp)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -147,7 +144,7 @@ fun InputArea() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFFF7F2EA))
+            .background(Color(0xFFD8D3BF))
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
