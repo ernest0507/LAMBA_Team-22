@@ -7,8 +7,6 @@ import androidx.navigation.compose.rememberNavController
 import screens.assistant.AIChatScreenStarter
 import screens.assistant.AiChatScreen
 import android.net.Uri
-import com.lamba.app.screens.home.HomeScreen
-import screens.home.TimelineExpensesAndEvents
 
 @Composable
 fun AppNavigation() {
@@ -16,7 +14,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = "timeline"
+        startDestination = "ai_starter"
     ) {
         composable("ai_starter") {
             AIChatScreenStarter(
@@ -32,18 +30,6 @@ fun AppNavigation() {
             backStackEntry ->
             val question = backStackEntry.arguments?.getString("question") ?: ""
             AiChatScreen(userMessage = question)
-        }
-
-        composable("home") {
-            HomeScreen()
-        }
-
-        composable("timeline") {
-            TimelineExpensesAndEvents(
-                onBackClick = {
-                    navController.navigate("home")
-                }
-            )
         }
     }
 }
