@@ -32,7 +32,7 @@ LAMBA uses a graphical mobile interface.
 
 ### Prototype Screenshot
 
-[Selected prototype screens](./images/prototype.JPG)
+![Selected prototype screens](./images/prototype.JPG)
 
 ## MVP v0
 
@@ -46,7 +46,7 @@ LAMBA MVP v0 is an Android frontend application created with Kotlin and Jetpack 
 
 ### MVP v0 Screenshot
 
-[LAMBA MVP v0](./images/mvp-v0.png.jpg)
+![LAMBA MVP v0](./images/mvp-v0.png.jpg)
 
 ## Pull Request Workflow
 
@@ -60,7 +60,7 @@ LAMBA MVP v0 is an Android frontend application created with Kotlin and Jetpack 
 
 ### Reviewed Pull Request Screenshot
 
-[Example reviewed pull request](./images/reviewed-pr.png)
+![Example reviewed pull request](./images/reviewed-pr.png)
 
 ## Protected Default Branch
 
@@ -68,14 +68,14 @@ The default branch is `main`.
 
 ### Branch Protection Screenshot
 
-[Protected main branch settings](./images/protected-main.png)
+![Protected main branch settings](./images/protected-main.png)
 
 ## Lychee Link Checking
 
 Lychee automatically checks Markdown links on pushes and pull requests targeting `main`.
 
 - [Lychee GitHub Actions Workflow](../../.github/workflows/lychee.yml)
-- [Latest Successful Lychee Run on `main`](https://github.com/ernest0507/LAMBA_Team-22/actions/runs/27502252768)
+- [Latest Successful Lychee Run on Protected `main`](https://github.com/ernest0507/LAMBA_Team-22/actions/runs/27506126113)
 
 ## Coverage
 
