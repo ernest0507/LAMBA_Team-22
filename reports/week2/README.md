@@ -32,7 +32,7 @@ LAMBA uses a graphical mobile interface.
 
 ### Prototype Screenshot
 
-![Selected prototype screens](./images/prototype.JPG)
+![Selected prototype screens](./images/prototype.png)
 
 ## MVP v0
 
@@ -46,7 +46,7 @@ LAMBA MVP v0 is an Android frontend application created with Kotlin and Jetpack 
 
 ### MVP v0 Screenshot
 
-![LAMBA MVP v0](./images/mvp-v0.png.jpg)
+![LAMBA MVP v0](./images/mvp-v0.png)
 
 ## Pull Request Workflow
 
