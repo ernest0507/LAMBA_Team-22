@@ -75,7 +75,7 @@ The default branch is `main`.
 Lychee automatically checks Markdown links on pushes and pull requests targeting `main`.
 
 - [Lychee GitHub Actions Workflow](../../.github/workflows/lychee.yml)
-- [Latest Successful Lychee Run on Protected `main`](https://github.com/ernest0507/LAMBA_Team-22/actions/runs/27506126113)
+- [Latest Successful Lychee Run on Protected `main`](https://github.com/ernest0507/LAMBA_Team-22/actions/runs/27506762720)
 
 ## Coverage
 
