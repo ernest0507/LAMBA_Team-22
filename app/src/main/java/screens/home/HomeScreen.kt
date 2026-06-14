@@ -12,8 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
@@ -49,7 +52,9 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Background)
-            .padding(start = 20.dp, end = 20.dp, top = 44.dp)
+            .verticalScroll(rememberScrollState())
+            .navigationBarsPadding()
+            .padding(start = 20.dp, end = 20.dp, top = 44.dp, bottom = 32.dp)
     ) {
         Text(
             text = "Привет, Никита!",
@@ -73,7 +78,7 @@ fun HomeScreen(
 
         StatsGrid()
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(40.dp))
 
         BottomNavigationMock(
             onHomeClick = {},
@@ -89,7 +94,7 @@ private fun CarCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(220.dp)
+            .height(190.dp)
             .clickable { onClick() },
         shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(containerColor = DarkBlue)
@@ -97,7 +102,7 @@ private fun CarCard(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp)
+                .padding(20.dp)
         ) {
             Column {
                 Text(
@@ -154,13 +159,13 @@ private fun AssistantCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(150.dp)
+            .height(140.dp)
             .clickable { onAiClick() },
         shape = RoundedCornerShape(26.dp),
         colors = CardDefaults.cardColors(containerColor = DarkBlue)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(12.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -191,19 +196,19 @@ private fun AssistantCard(
                     )
 
                     Text(
-                        text = "О расходах, обслуживании или состоянии авто",
+                        text = "О расходах, ТО и состоянии авто",
                         color = Color.White.copy(alpha = 0.7f),
                         fontSize = 12.sp
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .height(52.dp)
                     .clip(RoundedCornerShape(18.dp))
                     .background(Background)
                     .padding(horizontal = 14.dp),
@@ -329,21 +334,21 @@ private fun StatCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier.height(130.dp),
+        modifier = modifier.height(120.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
         Column(
-            modifier = Modifier.padding(18.dp)
+            modifier = Modifier.padding(14.dp)
         ) {
             Text(
                 text = iconType,
                 color = contentColor.copy(alpha = 0.8f),
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             Text(
                 text = title,
