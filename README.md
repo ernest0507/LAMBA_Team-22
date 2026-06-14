@@ -1,5 +1,11 @@
 # LAMBA_Team-22
 
+## Assignment 2 Reports
+
+- [Week 2 Submission Index](./reports/week2/README.md)
+- [MVP v0 Report and Smoke Check](./reports/week2/mvp-v0-report.md)
+
+
 ## Local setup instructions:
 
 ### Reqirements 
@@ -42,3 +48,4 @@ or in another way just download the ZIP archive and extract project into the loc
 
 ## 7. Run the project
 1. Click **Run app** or use hot key SHIFT+F10
+
