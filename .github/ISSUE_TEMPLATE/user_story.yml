@@ -1,0 +1,134 @@
+name: User Story
+description: Create an issue for an active user story
+title: "US-XX: Short title"
+labels: []
+body:
+
+* type: input
+  id: stable-user-story-id
+  attributes:
+  label: Stable user-story ID
+  validations:
+  required: true
+
+* type: textarea
+  id: user-story-statement
+  attributes:
+  label: User-story statement
+  validations:
+  required: true
+
+* type: input
+  id: user-role-persona
+  attributes:
+  label: User role / persona
+  validations:
+  required: true
+
+* type: textarea
+  id: desired-action
+  attributes:
+  label: Desired action
+  validations:
+  required: true
+
+* type: textarea
+  id: expected-value
+  attributes:
+  label: Expected value
+  validations:
+  required: true
+
+* type: textarea
+  id: story-description
+  attributes:
+  label: Description
+  validations:
+  required: false
+
+* type: dropdown
+  id: moscow-priority
+  attributes:
+  label: MoSCoW priority
+  options:
+  - Must Have
+  - Should Have
+  - Could Have
+  - "Won't Have"
+  validations:
+  required: true
+
+* type: dropdown
+  id: requirement-status
+  attributes:
+  label: Requirement status
+  options:
+  - Active
+  - Removed
+  validations:
+  required: true
+
+* type: dropdown
+  id: work-status
+  attributes:
+  label: Work Status
+  options:
+  - To Do
+  - Ready
+  - In Progress
+  - Review
+  - Done
+  validations:
+  required: true
+
+* type: input
+  id: mvp-version
+  attributes:
+  label: MVP version
+  validations:
+  required: true
+
+* type: input
+  id: story-points
+  attributes:
+  label: Story Points
+  validations:
+  required: true
+
+* type: input
+  id: implementer
+  attributes:
+  label: Implementer
+  validations:
+  required: false
+
+* type: input
+  id: reviewer
+  attributes:
+  label: Reviewer
+  validations:
+  required: false
+
+* type: input
+  id: sprint
+  attributes:
+  label: Sprint
+  validations:
+  required: false
+
+* type: textarea
+  id: notes-constraints-assumptions-open-questions
+  attributes:
+  label: Notes, constraints, assumptions, open questions
+  validations:
+  required: false
+
+* type: textarea
+  id: acceptance-criteria
+  attributes:
+  label: Acceptance criteria
+  value: |
+  - [ ] Given ..., when ..., then ...
+  - [ ] Given ..., when ..., then ...
+  - [ ] Given ..., when ..., then ...
+
