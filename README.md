@@ -1,5 +1,10 @@
 # LAMBA_Team-22
 
+## Assignment 3
+for part 1
+- [Current user-story index](./docs/user-stories.md)
+- [Historical Week 2 user stories](./reports/week2/user-stories.md)
+
 ## Assignment 2 Reports
 
 - [Week 2 Submission Index](./reports/week2/README.md)
