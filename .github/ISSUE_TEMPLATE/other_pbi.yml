@@ -2,7 +2,7 @@ name: Other PBI
 description: Create a Product Backlog item that is not a user story
 title: "PBI: Short title"
 labels: []
-
+body:
   - type: textarea
     id: description
     attributes:
