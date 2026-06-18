@@ -1,0 +1,92 @@
+name: Other PBI
+description: Product Backlog item that is not a user story
+title: "PBI title"
+labels: []
+body:
+
+* type: input
+  id: issue-type
+  attributes:
+  label: Issue type
+  validations:
+  required: true
+
+* type: textarea
+  id: description
+  attributes:
+  label: Description
+  validations:
+  required: true
+
+* type: dropdown
+  id: work-status
+  attributes:
+  label: Work Status
+  options:
+  - To Do
+  - Ready
+  - In Progress
+  - Review
+  - Done
+  validations:
+  required: true
+
+* type: input
+  id: moscow-priority
+  attributes:
+  label: MoSCoW priority
+  validations:
+  required: true
+
+* type: input
+  id: mvp-version
+  attributes:
+  label: MVP version
+  validations:
+  required: true
+
+* type: input
+  id: story-points
+  attributes:
+  label: Story Points
+  validations:
+  required: true
+
+* type: input
+  id: implementer
+  attributes:
+  label: Implementer
+  validations:
+  required: false
+
+* type: input
+  id: reviewer
+  attributes:
+  label: Reviewer
+  validations:
+  required: false
+
+* type: input
+  id: sprint
+  attributes:
+  label: Sprint
+  validations:
+  required: false
+
+* type: textarea
+  id: linked-user-story-or-parent-issue
+  attributes:
+  label: Linked user story or parent issue
+  validations:
+  required: false
+
+* type: textarea
+  id: acceptance-criteria
+  attributes:
+  label: Acceptance criteria
+  value: |
+  - [ ] Given ..., when ..., then ...
+  - [ ] Given ..., when ..., then ...
+  - [ ] Given ..., when ..., then ...
+  validations:
+  required: false
