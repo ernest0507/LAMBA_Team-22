@@ -1,5 +1,5 @@
 name: Other PBI
-description: Create a Product Backlog item that is not a user story
+description:  Product Backlog item that is not a user story
 body:
   - type: input
     id: issue-type
