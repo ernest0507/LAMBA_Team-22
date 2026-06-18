@@ -5,19 +5,25 @@ title: "[User Story] "
 labels: user-story
 ---
 
-## User Role/Persona
-User Role/Persona
+## Stable user-story ID
+US-001
 
-## Desired Action
-Desired Action
+## User-story statement
 
-## Expected Value
-Expected value
+## User role / persona
 
-## Description
-Description
+## Desired action
 
-## Acceptance Criteria 
-- []
-- []
-- []
+## Expected value
+
+## MoSCoW priority
+
+## Requirement status
+
+## Work Status
+
+## Story Points
+
+## Notes, constraints, assumptions, open questions
+
+## Acceptance criteria
