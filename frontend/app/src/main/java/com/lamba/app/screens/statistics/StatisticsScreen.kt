@@ -492,15 +492,15 @@ private fun InsightCard(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFF2F7F6)
-@Composable
-private fun StatisticsScreenPreview() {
-    LAMBA_MVPv0Theme(
-        darkTheme = false,
-        dynamicColor = false
-    ) {
-        Surface(color = StatisticsScreenBackground) {
-            StatisticsScreen()
-        }
-    }
-}
+//@Preview(showBackground = true, backgroundColor = 0xFFF2F7F6)
+//@Composable
+//private fun StatisticsScreenPreview() {
+//    LAMBA_MVPv0Theme(
+//        darkTheme = false,
+//        dynamicColor = false
+//    ) {
+//        Surface(color = StatisticsScreenBackground) {
+//            StatisticsScreen()
+//        }
+//    }
+//}

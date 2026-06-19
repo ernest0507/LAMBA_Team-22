@@ -2,7 +2,7 @@ package com.lamba.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val LambaCanvas = Color(0xFFEEF4F2)
+val LambaCanvas = Color(0xFFF7FAF9)
 val LambaSurface = Color(0xFFFBFCFB)
 val LambaSurfaceSoft = Color(0xFFF4FAF9)
 val LambaInk = Color(0xFF182124)
