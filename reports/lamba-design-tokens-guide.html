@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>LAMBA Design Tokens Guide</title>
+  <style>
+    @font-face {
+      font-family: "Geologica";
+      src: url("../frontend/app/src/main/res/font/geologica_regular.ttf") format("truetype");
+      font-weight: 400;
+    }
+
+    @font-face {
+      font-family: "Geologica";
+      src: url("../frontend/app/src/main/res/font/geologica_semi_bold.ttf") format("truetype");
+      font-weight: 600;
+    }
+
+    @page {
+      size: A4;
+      margin: 22mm;
+    }
+
+    body {
+      margin: 0;
+      color: #182124;
+      font-family: "Geologica", "Segoe UI", Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      font-size: 28px;
+      line-height: 1.25;
+      font-weight: 600;
+    }
+
+    h2 {
+      margin: 28px 0 14px;
+      font-size: 20px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    h3 {
+      margin: 18px 0 4px;
+      font-size: 14px;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    code {
+      font-family: "Segoe UI Mono", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .intro {
+      color: #6d7c80;
+      max-width: 680px;
+    }
+
+    .item {
+      margin: 0 0 14px;
+    }
+
+    .page-break {
+      break-before: page;
+    }
+  </style>
+</head>
+<body>
+  <h1>LAMBA: документация по единым стилям</h1>
+  <p class="intro">
+    Простая памятка по готовым переменным дизайна. Использовать для всех экранов приложения:
+    главный экран, AI-чат, гараж, история, статистика, документы, профиль, onboarding и создание цифрового двойника.
+  </p>
+
+  <h2>Цвета</h2>
+
+  <div class="item">
+    <h3>Фон приложения: <code>LambaCanvas</code></h3>
+    <p>Используется как основной фон всех светлых экранов: гараж, статистика, документы, история, профиль, onboarding, создание цифрового двойника.</p>
+  </div>
+
+  <div class="item">
+    <h3>Основная поверхность: <code>LambaSurface</code></h3>
+    <p>Используется для карточек, панелей, списков, крупных блоков, bottom sheets, drawer-меню и светлых контейнеров поверх фона.</p>
+  </div>
+
+  <div class="item">
+    <h3>Мягкая поверхность: <code>LambaSurfaceSoft</code></h3>
+    <p>Используется для полей ввода, вторичных блоков, фона внутри карточек, icon surfaces, composer-поля в чате и мягких подсказок.</p>
+  </div>
+
+  <div class="item">
+    <h3>Основной текст: <code>LambaInk</code></h3>
+    <p>Используется для заголовков, основного текста, значений, выбранных элементов, названий документов, пунктов меню и важных сумм.</p>
+  </div>
+
+  <div class="item">
+    <h3>Вторичный текст: <code>LambaInkMuted</code></h3>
+    <p>Используется для подписей, метаданных, описаний, placeholder-текста, дат, “Шаг 1 из 2”, пробега, размеров файлов и helper-текста.</p>
+  </div>
+
+  <div class="item">
+    <h3>Основной акцент: <code>LambaAccent</code></h3>
+    <p>Используется для активных состояний: выбранная вкладка, progress bar, выбранный swatch, активная иконка, выделенный border, интерактивный акцент.</p>
+  </div>
+
+  <div class="item">
+    <h3>Сильный акцент: <code>LambaAccentStrong</code></h3>
+    <p>Используется для главных кнопок, send-кнопки, важных активных элементов, круглых success-иконок и темных petrol-акцентов.</p>
+  </div>
+
+  <div class="item">
+    <h3>Мягкий акцент: <code>LambaAccentSoft</code></h3>
+    <p>Используется для вторичных кнопок, активных светлых chips, мягких иконок, подсветки выбранного состояния без сильного визуального веса.</p>
+  </div>
+
+  <div class="item">
+    <h3>Фон AI-чата: <code>LambaChat</code></h3>
+    <p>Используется для основной темной зоны AI-чата и специальных assistant-поверхностей, которые должны отличаться от светлой части приложения.</p>
+  </div>
+
+  <div class="item">
+    <h3>Средний тон AI-чата: <code>LambaChatMid</code></h3>
+    <p>Используется как промежуточный цвет в градиенте AI-чата, drawer-акцентах и темных assistant-блоках.</p>
+  </div>
+
+  <div class="item">
+    <h3>Глубокий тон AI-чата: <code>LambaChatDark</code></h3>
+    <p>Используется для нижней или самой темной части chat-gradient, затемнения и создания глубины в AI-зоне.</p>
+  </div>
+
+  <div class="item">
+    <h3>Текст на темном чате: <code>LambaChatInk</code></h3>
+    <p>Используется для текста, иконок и легких элементов поверх темного AI-чата, если обычный <code>LambaInk</code> недостаточно контрастный.</p>
+  </div>
+
+  <div class="item">
+    <h3>Сигнальный цвет: <code>LambaSignal</code></h3>
+    <p>Используется точечно для предупреждений, сервисных сигналов, маленьких маркеров внимания и важных автомобильных событий. Не использовать как основной цвет экрана.</p>
+  </div>
+
+  <div class="item">
+    <h3>Основная граница: <code>LambaOutline</code></h3>
+    <p>Используется для border у карточек, полей, chips, list items, кнопок второго уровня и отделения поверхностей друг от друга.</p>
+  </div>
+
+  <div class="item">
+    <h3>Мягкая граница: <code>LambaOutlineSoft</code></h3>
+    <p>Используется для тонких разделителей, неактивного progress bar, легких рамок, divider-линий в списках и низкоконтрастных элементов.</p>
+  </div>
+
+  <div class="item">
+    <h3>Ошибка: <code>LambaError</code></h3>
+    <p>Используется для ошибок валидации, критичных предупреждений, неуспешных действий и состояния поля с ошибкой.</p>
+  </div>
+
+  <h2 class="page-break">Цвета автомобиля</h2>
+
+  <div class="item">
+    <h3>Серебристый: <code>LambaVehicleSilver</code></h3>
+    <p>Используется как базовый нейтральный цвет автомобиля по умолчанию.</p>
+  </div>
+
+  <div class="item">
+    <h3>Графитовый: <code>LambaVehicleGraphite</code></h3>
+    <p>Используется для более строгого и технического образа автомобиля.</p>
+  </div>
+
+  <div class="item">
+    <h3>Синий: <code>LambaVehicleBlue</code></h3>
+    <p>Используется для холодного варианта автомобиля, который хорошо сочетается с petrol-палитрой.</p>
+  </div>
+
+  <div class="item">
+    <h3>Зеленый: <code>LambaVehicleGreen</code></h3>
+    <p>Используется для спокойного eco-tech варианта автомобиля.</p>
+  </div>
+
+  <div class="item">
+    <h3>Красный: <code>LambaVehicleRed</code></h3>
+    <p>Используется для теплого варианта автомобиля, но без слишком яркого спортивного эффекта.</p>
+  </div>
+
+  <h2>Отступы</h2>
+
+  <div class="item">
+    <h3>Базовый шаг: <code>LambaSpacing.Step</code></h3>
+    <p>Используется как ритм для мелких расстояний и кратных значений: 4dp, 8dp, 12dp, 16dp, 20dp, 24dp, 32dp.</p>
+  </div>
+
+  <div class="item">
+    <h3>Горизонтальные отступы экрана: <code>LambaSpacing.ScreenHorizontal</code></h3>
+    <p>Используется для основного контента на всех экранах приложения: формы, списки, карточки, чат, профиль, статистика, документы.</p>
+  </div>
+
+  <div class="item">
+    <h3>Верхний отступ экрана: <code>LambaSpacing.ScreenTop</code></h3>
+    <p>Используется для верхней зоны экрана: кнопка назад, заголовок, меню, статусный блок, начало основного контента.</p>
+  </div>
+
+  <div class="item">
+    <h3>Нижний безопасный отступ: <code>LambaSpacing.ScreenBottom</code></h3>
+    <p>Используется для обычных экранов без фиксированной нижней кнопки или нижней навигации.</p>
+  </div>
+
+  <div class="item">
+    <h3>Отступ внутри карточек и полей: <code>LambaSpacing.CardPadding</code></h3>
+    <p>Используется внутри карточек, input-полей, list items, подсказок, AI-bubbles, document rows, statistic cards и success-блоков.</p>
+  </div>
+
+  <div class="item">
+    <h3>Отступ под нижнюю навигацию/нижнюю кнопку: <code>LambaSpacing.BottomNavigationSpace</code></h3>
+    <p>Используется, если снизу закреплена основная кнопка, composer чата, bottom navigation или зона, которую нельзя перекрывать контентом.</p>
+  </div>
+
+  <h2 class="page-break">Радиусы</h2>
+
+  <div class="item">
+    <h3>Малый радиус: <code>LambaRadius.Small</code></h3>
+    <p>Используется для маленьких chips, бейджей, компактных controls, маленьких подсказок, внутренних icon surfaces и небольших статусных элементов.</p>
+  </div>
+
+  <div class="item">
+    <h3>Средний радиус: <code>LambaRadius.Medium</code></h3>
+    <p>Используется для input-полей, обычных карточек, list items, кнопок, chips выбора, document rows и элементов формы.</p>
+  </div>
+
+  <div class="item">
+    <h3>Большой радиус: <code>LambaRadius.Large</code></h3>
+    <p>Используется для крупных карточек, chat-контейнеров, больших preview-блоков, панелей, success-блоков и основных секций экрана.</p>
+  </div>
+
+  <div class="item">
+    <h3>Pill radius: <code>LambaRadius.Pill</code></h3>
+    <p>Используется для полностью скругленных элементов: кнопка назад, tabs, segmented controls, search/composer bar, круглые swatches, progress segments, icon buttons.</p>
+  </div>
+
+  <h2>Типографика</h2>
+
+  <div class="item">
+    <h3>Главный заголовок: <code>MaterialTheme.typography.headlineLarge</code></h3>
+    <p>Используется для крупных onboarding-заголовков, hero-заголовков и ключевых экранов, где нужно сильное первое сообщение.</p>
+  </div>
+
+  <div class="item">
+    <h3>Заголовок экрана: <code>MaterialTheme.typography.headlineMedium</code></h3>
+    <p>Используется для основных заголовков экранов: “История”, “Статистика”, “Документы”, “Профиль”, “Настройте автомобиль”.</p>
+  </div>
+
+  <div class="item">
+    <h3>Компактный заголовок экрана: <code>MaterialTheme.typography.titleLarge</code></h3>
+    <p>Используется, когда заголовок должен быть заметным, но экран плотный: формы, модальные окна, bottom sheets, side drawer.</p>
+  </div>
+
+  <div class="item">
+    <h3>Заголовок секции: <code>MaterialTheme.typography.titleMedium</code></h3>
+    <p>Используется для заголовков карточек и секций: “Расходы по месяцам”, “Цвет автомобиля”, “Тип кузова”, названия пунктов меню.</p>
+  </div>
+
+  <div class="item">
+    <h3>Крупный основной текст: <code>MaterialTheme.typography.bodyLarge</code></h3>
+    <p>Используется для текста основных кнопок, крупных значений, важных строк и элементов, которые должны читаться быстрее обычного текста.</p>
+  </div>
+
+  <div class="item">
+    <h3>Основной текст: <code>MaterialTheme.typography.bodyMedium</code></h3>
+    <p>Используется для обычного текста интерфейса: значения в полях, сообщения, описания, текст карточек, строки списков.</p>
+  </div>
+
+  <div class="item">
+    <h3>Вторичный текст: <code>MaterialTheme.typography.bodySmall</code></h3>
+    <p>Используется для описаний, helper-текста, метаданных, подписей под заголовками, дат, размера файлов и пояснений.</p>
+  </div>
+
+  <div class="item">
+    <h3>Микро-подпись: <code>MaterialTheme.typography.labelSmall</code></h3>
+    <p>Используется для labels над полями, “Шаг 1 из 2”, маленьких chips, технических подписей, коротких статусов и kicker-текста.</p>
+  </div>
+
+  <h2 class="page-break">Компоненты</h2>
+
+  <div class="item">
+    <h3>Основная кнопка</h3>
+    <p>Фон: <code>LambaAccentStrong</code>. Текст: белый. Радиус: <code>LambaRadius.Medium</code>. Типографика: <code>bodyLarge</code>. Используется для главного действия экрана.</p>
+  </div>
+
+  <div class="item">
+    <h3>Вторичная кнопка</h3>
+    <p>Фон: <code>LambaAccentSoft</code> или <code>LambaSurface</code>. Текст: <code>LambaAccentStrong</code> или <code>LambaInk</code>. Радиус: <code>LambaRadius.Medium</code>. Используется для дополнительного действия.</p>
+  </div>
+
+  <div class="item">
+    <h3>Кнопка назад</h3>
+    <p>Фон: <code>LambaSurface</code>. Радиус: <code>LambaRadius.Pill</code>. Иконка: <code>LambaAccentStrong</code>. Используется в верхней зоне вложенных экранов.</p>
+  </div>
+
+  <div class="item">
+    <h3>Поле ввода</h3>
+    <p>Фон: <code>LambaSurfaceSoft</code>. Border: <code>LambaOutline</code>. Радиус: <code>LambaRadius.Medium</code>. Внутренний отступ: <code>LambaSpacing.CardPadding</code>.</p>
+  </div>
+
+  <div class="item">
+    <h3>Карточка</h3>
+    <p>Фон: <code>LambaSurface</code>. Border: <code>LambaOutline</code> или <code>LambaOutlineSoft</code>. Радиус: <code>LambaRadius.Medium</code> для обычной карточки и <code>LambaRadius.Large</code> для крупной секции.</p>
+  </div>
+
+  <div class="item">
+    <h3>List item</h3>
+    <p>Фон: <code>LambaSurface</code>. Текст: <code>LambaInk</code>. Метаданные: <code>LambaInkMuted</code>. Радиус: <code>LambaRadius.Medium</code>. Используется для истории, документов, пунктов меню.</p>
+  </div>
+
+  <div class="item">
+    <h3>Chip</h3>
+    <p>Неактивный фон: <code>LambaSurface</code>. Активный фон: <code>LambaSurfaceSoft</code>. Активный border: <code>LambaAccent</code>. Радиус: <code>LambaRadius.Medium</code> или <code>LambaRadius.Pill</code>, если chip короткий и капсульный.</p>
+  </div>
+
+  <div class="item">
+    <h3>Progress bar</h3>
+    <p>Активная часть: <code>LambaAccent</code>. Неактивная часть: <code>LambaOutlineSoft</code>. Радиус: <code>LambaRadius.Pill</code>. Используется в onboarding, формах и пошаговых сценариях.</p>
+  </div>
+
+  <div class="item">
+    <h3>AI chat area</h3>
+    <p>Фон: <code>LambaChat</code>, <code>LambaChatMid</code>, <code>LambaChatDark</code>. Текст поверх темного фона: <code>LambaChatInk</code>. User message и send action: <code>LambaAccent</code> или <code>LambaAccentStrong</code>.</p>
+  </div>
+
+  <div class="item">
+    <h3>AI bubble</h3>
+    <p>Фон AI-сообщения: <code>LambaSurface</code>. Текст: <code>LambaInk</code>. Радиус: <code>LambaRadius.Medium</code>. Внутренний отступ: <code>LambaSpacing.CardPadding</code>.</p>
+  </div>
+
+  <div class="item">
+    <h3>Composer / поиск</h3>
+    <p>Фон: <code>LambaSurfaceSoft</code> или <code>LambaSurface</code>. Радиус: <code>LambaRadius.Pill</code>. Иконки: <code>LambaInkMuted</code>. Активная send-кнопка: <code>LambaAccentStrong</code>.</p>
+  </div>
+</body>
+</html>
