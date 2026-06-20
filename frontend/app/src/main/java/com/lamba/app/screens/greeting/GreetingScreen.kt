@@ -18,14 +18,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccentSoft
 import com.lamba.app.ui.theme.LambaAccentStrong
 import com.lamba.app.ui.theme.LambaCanvas
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
+import com.lamba.app.ui.theme.LambaSurface
+
 @Composable
 fun GreetingScreen() {
     Box(
@@ -86,12 +86,14 @@ fun GreetingScreen() {
                 shape = RoundedCornerShape(18.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = LambaAccentStrong,
-                    contentColor = Color.White
+                    contentColor = LambaSurface
                 )
             ) {
                 Text(
                     text = "Создать цифрового двойника",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier,
+
                 )
             }
 
