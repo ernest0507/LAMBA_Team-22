@@ -3,7 +3,7 @@
 | ID | Short title | MoSCoW priority | Issue | Requirement status | Work Status | Sprint |
 |---|---|---|---|---|---|---|
 | US-01 | Storing car's data | Must Have | [#31](https://github.com/ernest0507/LAMBA_Team-22/issues/31) | Active | In Progress | [Sprint 1 - MVP v1](https://github.com/ernest0507/LAMBA_Team-22/milestone/1) |
-| US-02 | Interact with AI-agent | Must Have | [#32](https://github.com/ernest0507/LAMBA_Team-22/issues/32) | Active | To Do | [Sprint 1 - MVP v1](https://github.com/ernest0507/LAMBA_Team-22/milestone/1) |
+| US-02 | Interact with AI-agent | Must Have | [#32](https://github.com/ernest0507/LAMBA_Team-22/issues/32) | Active | To Do | |
 | US-03 | Main expenses and events timeline | Must Have | [#33](https://github.com/ernest0507/LAMBA_Team-22/issues/33) | Active | To Do | — |
 | US-04 | Expenses statistics | Must Have | [#34](https://github.com/ernest0507/LAMBA_Team-22/issues/34) | Active | To Do | — |
 | US-11 | Create account and sign in | Must Have | [#61](https://github.com/ernest0507/LAMBA_Team-22/issues/61) | Active | In Progress | [Sprint 1 - MVP v1](https://github.com/ernest0507/LAMBA_Team-22/milestone/1) |
