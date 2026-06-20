@@ -42,7 +42,14 @@ fun CreationDigitalTwinStep1(
     var mileage by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
 
-        Box(
+    var showValidation by remember { mutableStateOf(false) }
+    val year = carYear.toIntOrNull()
+    val isCarModelValid = carModel.isNotBlank()
+    val isCarYearValid = carYear.length == 4 && year in 1950..2026
+    val isMileageValid = mileage.isNotBlank()
+    val isFormValid = isCarModelValid && isMileageValid && isCarYearValid
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(LambaCanvas)
@@ -101,7 +108,9 @@ fun CreationDigitalTwinStep1(
                 value = carModel,
                 onValueChange = { carModel = it },
                 placeholder = "Введите модель",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = showValidation && !isCarModelValid,
+                errorMessage = "Заполните обязательное поле"
 
             )
 
@@ -111,7 +120,6 @@ fun CreationDigitalTwinStep1(
                 label = "Год выпуска",
                 value = carYear,
                 onValueChange = { newValue ->
-                    val year = newValue.toIntOrNull()
                     if (
                         newValue.length <= 4 &&
                         newValue.all { it.isDigit() }
@@ -121,7 +129,9 @@ fun CreationDigitalTwinStep1(
 
                 },
                 placeholder = "Год выпуска",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = showValidation && !isCarYearValid,
+                errorMessage = "Введите год от 1950 до 2026"
             )
 
             Spacer(modifier = Modifier.height(LambaSpacing.CardPadding))
@@ -134,7 +144,9 @@ fun CreationDigitalTwinStep1(
                         mileage = newValue
                     } },
                 placeholder = "Пробег, км",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isError = showValidation && !isMileageValid,
+                errorMessage = "Заполните обязательное поле"
             )
 
             Spacer(modifier = Modifier.height(LambaSpacing.CardPadding))
@@ -151,13 +163,16 @@ fun CreationDigitalTwinStep1(
             Spacer(modifier = Modifier.height(10.dp))
 
             ContinueButton(
-                onClick = onContinue,
+                onClick = {
+                    showValidation = true
+                    if (isFormValid) {
+                        onContinue()
+                    }
+                },
                 text = "Продолжить"
             )
 
         }
-            val year = carYear.toIntOrNull()
-            val isYearValid = carYear.length == 4 && year in 1950..2026
     }
 
 }

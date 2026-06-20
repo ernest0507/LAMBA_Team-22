@@ -4,9 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-<<<<<<< Updated upstream
-//import com.lamba.app.navigation.AppNavigation
-=======
+import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep2
 import com.lamba.app.screens.greeting.GreetingScreen
@@ -20,6 +18,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LAMBA_MVPv0Theme {
+                CreationDigitalTwinStep2()
             }
         }
     }
