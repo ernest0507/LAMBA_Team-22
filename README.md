@@ -14,6 +14,12 @@ for part 1
 
 - [Backend local setup and authentication API](./backend/README.md)
 
+## Android and Backend Integration
+
+The Android emulator uses `http://10.0.2.2:8000/` to reach the backend running
+on the host machine. Start the backend before testing registration or login
+from the Android app.
+
 
 ## Local setup instructions:
 

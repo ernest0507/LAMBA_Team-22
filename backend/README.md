@@ -9,7 +9,7 @@ cd backend
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-docker compose up -d postgres
+docker compose up -d postgres pgadmin
 alembic upgrade head
 python -m uvicorn app.main:app --reload
 ```
@@ -24,6 +24,25 @@ API docs:
 
 ```text
 http://127.0.0.1:8000/docs
+```
+
+pgAdmin:
+
+```text
+http://127.0.0.1:5050
+```
+
+The pgAdmin login is configured through `PGADMIN_DEFAULT_EMAIL` and
+`PGADMIN_DEFAULT_PASSWORD` in `.env`.
+
+Use these connection settings inside pgAdmin for the local database:
+
+```text
+Host: postgres
+Port: 5432
+Database: lamba_db
+Username: lamba_user
+Password: change_me
 ```
 
 ## Authentication Endpoints

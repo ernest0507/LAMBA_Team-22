@@ -14,6 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -21,6 +25,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.lamba.app.data.auth.AuthViewModel
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
 import com.lamba.app.screens.expenses.AddExpensesScreen
@@ -41,6 +46,14 @@ import components.BackButton
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val authViewModel: AuthViewModel = viewModel()
+    val authState by authViewModel.uiState.collectAsState()
+
+    LaunchedEffect(authState.isAuthenticated) {
+        if (authState.isAuthenticated) {
+            navController.openDigitalTwinFlow()
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -48,15 +61,25 @@ fun AppNavigation() {
     ) {
         composable(LambaRoute.Login.path) {
             LoginScreen(
-                onLoginClick = { navController.openDigitalTwinFlow() },
-                onRegisterClick = { navController.navigate(LambaRoute.Registration.path) }
+                isLoading = authState.isLoading,
+                authErrorMessage = authState.errorMessage,
+                onLoginClick = authViewModel::login,
+                onRegisterClick = {
+                    authViewModel.clearError()
+                    navController.navigate(LambaRoute.Registration.path)
+                }
             )
         }
 
         composable(LambaRoute.Registration.path) {
             RegistrationScreen(
-                onCreateAccountClick = { navController.openLoginAfterRegistration() },
-                onLoginClick = { navController.popBackStack() }
+                isLoading = authState.isLoading,
+                authErrorMessage = authState.errorMessage,
+                onCreateAccountClick = authViewModel::register,
+                onLoginClick = {
+                    authViewModel.clearError()
+                    navController.popBackStack()
+                }
             )
         }
 

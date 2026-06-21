@@ -50,6 +50,7 @@ import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaAccent
 import com.lamba.app.ui.theme.LambaAccentSoft
 import com.lamba.app.ui.theme.LambaCanvas
+import com.lamba.app.ui.theme.LambaError
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaOutline
@@ -58,7 +59,9 @@ import com.lamba.app.ui.theme.LambaSpacing
 
 @Composable
 fun RegistrationScreen(
-    onCreateAccountClick: () -> Unit = {},
+    isLoading: Boolean = false,
+    authErrorMessage: String? = null,
+    onCreateAccountClick: (name: String, email: String, password: String) -> Unit = { _, _, _ -> },
     onLoginClick: () -> Unit = {}
 ) {
     var name by rememberSaveable { mutableStateOf("") }
@@ -70,6 +73,14 @@ fun RegistrationScreen(
     var emailError by rememberSaveable { mutableStateOf<String?>(null) }
     var passwordError by rememberSaveable { mutableStateOf<String?>(null) }
     var repeatPasswordError by rememberSaveable { mutableStateOf<String?>(null) }
+    val canSubmit = name.isNotBlank() &&
+        email.isNotBlank() &&
+        password.length >= RequiredPasswordLength &&
+        repeatPassword == password &&
+        emailError == null &&
+        passwordError == null &&
+        repeatPasswordError == null &&
+        !isLoading
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -201,8 +212,22 @@ fun RegistrationScreen(
 
                 Spacer(modifier = Modifier.height(22.dp))
 
+                if (!authErrorMessage.isNullOrBlank()) {
+                    Text(
+                        text = authErrorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LambaError
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
+
                 ContinueButton(
-                    onClick = onCreateAccountClick,
+                    onClick = {
+                        if (canSubmit) {
+                            onCreateAccountClick(name.trim(), email.trim(), password)
+                        }
+                    },
                     text = "Создать аккаунт"
                 )
 

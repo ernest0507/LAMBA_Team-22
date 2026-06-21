@@ -49,6 +49,7 @@ import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaAccent
 import com.lamba.app.ui.theme.LambaAccentSoft
 import com.lamba.app.ui.theme.LambaCanvas
+import com.lamba.app.ui.theme.LambaError
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaOutline
@@ -57,7 +58,9 @@ import com.lamba.app.ui.theme.LambaSpacing
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit = {},
+    isLoading: Boolean = false,
+    authErrorMessage: String? = null,
+    onLoginClick: (email: String, password: String) -> Unit = { _, _ -> },
     onRegisterClick: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {}
 ) {
@@ -66,6 +69,11 @@ fun LoginScreen(
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     var emailError by rememberSaveable { mutableStateOf<String?>(null) }
     var passwordError by rememberSaveable { mutableStateOf<String?>(null) }
+    val canSubmit = email.isNotBlank() &&
+        password.length >= RequiredPasswordLength &&
+        emailError == null &&
+        passwordError == null &&
+        !isLoading
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -135,7 +143,7 @@ fun LoginScreen(
                         value = password,
                         onValueChange = {
                             password = it
-                            passwordError = if (it.isNotEmpty() && it.length != RequiredPasswordLength) {
+                            passwordError = if (it.isNotEmpty() && it.length < RequiredPasswordLength) {
                                 InvalidDataMessage
                             } else {
                                 null
@@ -169,8 +177,22 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(LambaSpacing.CardPadding))
 
+                if (!authErrorMessage.isNullOrBlank()) {
+                    Text(
+                        text = authErrorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LambaError
+                    )
+
+                    Spacer(modifier = Modifier.height(AuthFieldGap))
+                }
+
                 ContinueButton(
-                    onClick = onLoginClick,
+                    onClick = {
+                        if (canSubmit) {
+                            onLoginClick(email.trim(), password)
+                        }
+                    },
                     text = "Войти"
                 )
 
