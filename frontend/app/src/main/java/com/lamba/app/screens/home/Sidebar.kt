@@ -42,7 +42,11 @@ import com.lamba.app.ui.theme.LambaSurface
 @Composable
 fun Sidebar(
     onClose: () -> Unit,
-    onAddExpensesClick: () -> Unit = {},
+    onAddExpensesClick: () -> Unit,
+    onHistoryClick: () -> Unit,
+    onStatisticsClick: () -> Unit,
+    onDocumentsClick: () -> Unit,
+    onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -117,25 +121,25 @@ fun Sidebar(
             GarageMenuItem(
                 title = "История",
                 subtitle = "События, обслуживание, расходы",
-                onClick = {}
+                onClick = onHistoryClick
             )
 
             GarageMenuItem(
                 title = "Статистика",
                 subtitle = "Расходы, пробег, категории",
-                onClick = {}
+                onClick = onStatisticsClick
             )
 
             GarageMenuItem(
                 title = "Документы",
                 subtitle = "СТС, страховка, чеки",
-                onClick = {}
+                onClick = onDocumentsClick
             )
 
             GarageMenuItem(
                 title = "Профиль",
                 subtitle = "Автомобиль, уведомления, настройки",
-                onClick = {}
+                onClick = onProfileClick
             )
         }
     }
