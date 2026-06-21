@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -371,10 +370,10 @@ private val EmailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
 private const val InvalidDataMessage = "Некорректные данные"
 private const val RequiredPasswordLength = 8
 
-@Preview(showBackground = true)
-@Composable
-private fun LoginScreenPreview() {
-    LAMBA_MVPv0Theme {
-        LoginScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun LoginScreenPreview() {
+//    LAMBA_MVPv0Theme {
+//        LoginScreen()
+//    }
+//}

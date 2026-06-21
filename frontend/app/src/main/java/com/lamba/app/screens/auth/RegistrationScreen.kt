@@ -157,7 +157,7 @@ fun RegistrationScreen(
                         onValueChange = {
                             password = it
                             passwordError = if (it.isNotEmpty() && !isPasswordValid(it)) {
-                                InvalidDataMessage
+                                InvalidLenghtMessage
                             } else {
                                 null
                             }
@@ -380,7 +380,7 @@ private fun isEmailValid(email: String): Boolean {
 }
 
 private fun isPasswordValid(password: String): Boolean {
-    return password.length == RequiredPasswordLength
+    return password.length >= RequiredPasswordLength
 }
 
 @Composable
@@ -409,5 +409,8 @@ private fun RegistrationScreenPreview() {
 
 private val EmailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
 private const val InvalidDataMessage = "Некорректные данные"
+
+private const val InvalidLenghtMessage = "Пароль должен быть не менее 8 символов"
+
 private const val PasswordMismatchMessage = "Пароли не совпадают"
 private const val RequiredPasswordLength = 8
