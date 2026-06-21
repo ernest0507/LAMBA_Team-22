@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.lamba.app.ui.theme.LambaError
 import com.lamba.app.ui.theme.LambaVehicleBlue
 import com.lamba.app.ui.theme.LambaVehicleGraphite
 import com.lamba.app.ui.theme.LambaVehicleGreen
@@ -48,18 +49,20 @@ import components.TypeCarButton
 @Composable
 fun CreationDigitalTwinStep2(
     onBack: () -> Unit = {},
-    onCreateTwin: () -> Unit = {}
+    isLoading: Boolean = false,
+    carErrorMessage: String? = null,
+    onCreateTwin: (color: String, bodyType: String) -> Unit = { _, _ -> }
 ) {
-    var selectedColor by remember { mutableStateOf(LambaVehicleBlue) }
     var selectedBodyType by remember { mutableStateOf("Седан") }
 
     val carColors = listOf(
-        LambaVehicleRed,
-        LambaVehicleBlue,
-        LambaVehicleGreen,
-        LambaVehicleSilver,
-        LambaVehicleGraphite
+        CarColorOption("red", LambaVehicleRed),
+        CarColorOption("blue", LambaVehicleBlue),
+        CarColorOption("green", LambaVehicleGreen),
+        CarColorOption("silver", LambaVehicleSilver),
+        CarColorOption("graphite", LambaVehicleGraphite)
     )
+    var selectedColor by remember { mutableStateOf(carColors[1]) }
 
     val bodyTypes = listOf(
         "Седан",
@@ -134,7 +137,7 @@ fun CreationDigitalTwinStep2(
                     .background(LambaSurface),
                 contentAlignment = Alignment.Center
             ) {
-                CarImage(bodyColor = selectedColor)
+                CarImage(bodyColor = selectedColor.color)
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -150,19 +153,19 @@ fun CreationDigitalTwinStep2(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                carColors.forEach { color ->
+                carColors.forEach { colorOption ->
                     Box(
                         modifier = Modifier
                             .size(44.dp)
                             .clip(RoundedCornerShape(LambaRadius.Pill))
-                            .background(color)
+                            .background(colorOption.color)
                             .border(
-                                width = if (selectedColor == color) 3.dp else 0.dp,
-                                color = if (selectedColor == color) LambaAccentStrong else Color.Transparent,
+                                width = if (selectedColor == colorOption) 3.dp else 0.dp,
+                                color = if (selectedColor == colorOption) LambaAccentStrong else Color.Transparent,
                                 shape = RoundedCornerShape(LambaRadius.Pill)
                             )
                             .clickable{
-                                selectedColor = color
+                                selectedColor = colorOption
                             }
                     )
                 }
@@ -200,12 +203,29 @@ fun CreationDigitalTwinStep2(
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
+            if (!carErrorMessage.isNullOrBlank()) {
+                Text(
+                    text = carErrorMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LambaError
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+
             ContinueButton(
                 text = "Создать двойника",
-                onClick = onCreateTwin
+                onClick = {
+                    onCreateTwin(selectedColor.value, selectedBodyType)
+                },
+                enabled = !isLoading
             )
         }
     }
 
 }
 
+private data class CarColorOption(
+    val value: String,
+    val color: Color
+)
