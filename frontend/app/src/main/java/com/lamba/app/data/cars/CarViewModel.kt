@@ -13,11 +13,12 @@ import retrofit2.HttpException
 data class CarUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val createdCar: CarResponse? = null,
-    val cars: List<CarResponse> = emptyList(),
-    val hasLoadedCars: Boolean = false
+    val cars: List<CarResponse>? = null,
+    val createdCar: CarResponse? = null
 ) {
-    val currentCar: CarResponse? = createdCar ?: cars.firstOrNull()
+    val hasCompletedCarsCheck: Boolean = cars != null
+    val hasExistingCar: Boolean = !cars.isNullOrEmpty() || createdCar != null
+    val currentCar: CarResponse? = createdCar ?: cars?.firstOrNull()
 }
 
 class CarViewModel(
@@ -28,30 +29,27 @@ class CarViewModel(
 
     fun loadCars(accessToken: String?) {
         if (accessToken.isNullOrBlank()) {
+            _uiState.update {
+                it.copy(errorMessage = "Sign in before loading cars.")
+            }
             return
         }
 
         viewModelScope.launch {
             _uiState.update {
-                it.copy(isLoading = true, errorMessage = null)
+                it.copy(isLoading = true, errorMessage = null, cars = null)
             }
 
             runCatching {
-                repository.listCars(accessToken)
+                repository.getCars(accessToken)
             }.onSuccess { cars ->
                 _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        cars = cars,
-                        hasLoadedCars = true,
-                        errorMessage = null
-                    )
+                    it.copy(isLoading = false, cars = cars)
                 }
             }.onFailure { error ->
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        hasLoadedCars = true,
                         errorMessage = error.toCarMessage()
                     )
                 }
@@ -83,9 +81,8 @@ class CarViewModel(
                 repository.createCar(accessToken, draft)
             }.onSuccess { car ->
                 _uiState.value = CarUiState(
-                    createdCar = car,
                     cars = listOf(car),
-                    hasLoadedCars = true
+                    createdCar = car
                 )
             }.onFailure { error ->
                 _uiState.update {
@@ -99,7 +96,9 @@ class CarViewModel(
     }
 
     fun clearStatus() {
-        _uiState.value = CarUiState()
+        _uiState.update {
+            it.copy(isLoading = false, errorMessage = null, createdCar = null)
+        }
     }
 
     private fun Throwable.toCarMessage(): String {

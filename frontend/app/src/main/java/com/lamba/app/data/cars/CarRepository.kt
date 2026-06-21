@@ -3,8 +3,8 @@ package com.lamba.app.data.cars
 class CarRepository(
     private val api: CarApi = CarNetwork.api
 ) {
-    suspend fun listCars(accessToken: String): List<CarResponse> {
-        return api.listCars(authorization = "Bearer $accessToken")
+    suspend fun getCars(accessToken: String): List<CarResponse> {
+        return api.getCars(authorization = "Bearer $accessToken")
     }
 
     suspend fun createCar(accessToken: String, draft: CarDraft): CarResponse {

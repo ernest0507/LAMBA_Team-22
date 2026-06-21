@@ -7,7 +7,7 @@ import retrofit2.http.POST
 
 interface CarApi {
     @GET("api/v1/cars")
-    suspend fun listCars(
+    suspend fun getCars(
         @Header("Authorization") authorization: String
     ): List<CarResponse>
 

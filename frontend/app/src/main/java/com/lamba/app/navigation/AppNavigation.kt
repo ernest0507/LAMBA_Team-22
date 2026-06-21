@@ -61,6 +61,8 @@ fun AppNavigation() {
     val recordsState by recordsViewModel.uiState.collectAsState()
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
     val currentCarId = carState.currentCar?.id
+    val isCheckingCars = authState.isAuthenticated && carState.isLoading
+    val routeErrorMessage = authState.errorMessage ?: carState.errorMessage
 
     LaunchedEffect(authState.accessToken) {
         if (authState.isAuthenticated) {
@@ -68,19 +70,28 @@ fun AppNavigation() {
         }
     }
 
-    LaunchedEffect(authState.isAuthenticated, carState.hasLoadedCars, currentCarId) {
-        if (authState.isAuthenticated && carState.hasLoadedCars) {
-            if (currentCarId == null) {
-                navController.openDigitalTwinFlow()
+    LaunchedEffect(
+        authState.isAuthenticated,
+        carState.hasCompletedCarsCheck,
+        carState.hasExistingCar,
+        carState.createdCar?.id
+    ) {
+        if (
+            authState.isAuthenticated &&
+            carState.hasCompletedCarsCheck &&
+            carState.createdCar == null
+        ) {
+            if (carState.hasExistingCar) {
+                navController.openHomeAfterAuthentication()
             } else {
-                navController.openHomeAfterLogin()
+                navController.openDigitalTwinFlow()
             }
         }
     }
 
     LaunchedEffect(carState.createdCar?.id) {
         if (carState.createdCar != null) {
-            navController.openHome()
+            navController.openHomeAfterCarCreation()
         }
     }
 
@@ -99,8 +110,8 @@ fun AppNavigation() {
     ) {
         composable(LambaRoute.Login.path) {
             LoginScreen(
-                isLoading = authState.isLoading,
-                authErrorMessage = authState.errorMessage,
+                isLoading = authState.isLoading || isCheckingCars,
+                authErrorMessage = routeErrorMessage,
                 onLoginClick = authViewModel::login,
                 onRegisterClick = {
                     authViewModel.clearError()
@@ -111,8 +122,8 @@ fun AppNavigation() {
 
         composable(LambaRoute.Registration.path) {
             RegistrationScreen(
-                isLoading = authState.isLoading,
-                authErrorMessage = authState.errorMessage,
+                isLoading = authState.isLoading || isCheckingCars,
+                authErrorMessage = routeErrorMessage,
                 onCreateAccountClick = authViewModel::register,
                 onLoginClick = {
                     authViewModel.clearError()
@@ -151,6 +162,7 @@ fun AppNavigation() {
 
         composable(LambaRoute.Home.path) {
             HomeScreen(
+                car = carState.currentCar,
                 onOpenAiChat = {},
                 onAddExpensesClick = { navController.navigate(LambaRoute.AddExpenses.path) },
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },
@@ -223,27 +235,18 @@ private fun NavHostController.openDigitalTwinFlow() {
     }
 }
 
-private fun NavHostController.openLoginAfterRegistration() {
-    navigate(LambaRoute.Login.path) {
-        popUpTo(LambaRoute.Registration.path) {
-            inclusive = true
-        }
-        launchSingleTop = true
-    }
-}
-
-private fun NavHostController.openHome() {
-    navigate(LambaRoute.Home.path) {
-        popUpTo(LambaRoute.CreateTwinStep1.path) {
-            inclusive = true
-        }
-        launchSingleTop = true
-    }
-}
-
-private fun NavHostController.openHomeAfterLogin() {
+private fun NavHostController.openHomeAfterAuthentication() {
     navigate(LambaRoute.Home.path) {
         popUpTo(LambaRoute.Login.path) {
+            inclusive = true
+        }
+        launchSingleTop = true
+    }
+}
+
+private fun NavHostController.openHomeAfterCarCreation() {
+    navigate(LambaRoute.Home.path) {
+        popUpTo(LambaRoute.CreateTwinStep1.path) {
             inclusive = true
         }
         launchSingleTop = true
