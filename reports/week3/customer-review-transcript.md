@@ -1,274 +1,297 @@
 # Customer Meeting Transcript
 
-**Language:** English
+**Language:** English  
 
-**Privacy note:** This transcript was sanitized for repository publication. Real names and other personally identifying details were replaced with roles or `[redacted]`. No email addresses or phone numbers were present in the source transcript.
+## Opening, Week Context, and MVP v0 Status
 
-**Timestamp note:** The source transcript did not include timestamps. No timestamps were inferred; each transcript block is marked with `[timestamp unavailable]` on a separate line.
+0:03-1:24
 
-**Publication decision:** The customer confirmed that the team had permission to create a public GitHub repository and store project materials there. The sanitized transcript is therefore prepared for repository use without an additional review round.
+**Team Lead:** One second, I will open it. I will connect to Wi-Fi first. This week we discussed UML diagrams in the lecture: how to create them and how to visualize a project. We also discussed the backlog, how to build it, and what goes into a sprint. Now we have prepared what needs to be done for the sprint. I will deal with the Wi-Fi.
 
----
+**Customer:** What can you show by Sunday? I remember you sent something to the conference chat.
 
-[timestamp unavailable]
-**Team Lead:** We were asked to write User Stories — these are basically sentences, in general, that would help us understand what the user actually wants and what features we need.
+**Team Lead:** We did a little, but we decided to redo it.
 
-[timestamp unavailable]
-**Customer:** User Stories are usage scenarios.
+**Customer:** Okay.
 
-[timestamp unavailable]
-**Team Lead:** Ah, well, something like that, yes.
+**Team Lead:** Yes, overall, the first version did not really work well for us.
 
-[timestamp unavailable]
-**Customer:** So, like, how they got into the situation, all that stuff. Well, okay, no, let's — sorry — go ahead and tell me, in general, what you did.
+**Customer:** You had to make your MVP v0, right?
 
-[timestamp unavailable]
-**Team Lead:** Yes, I'll open it now to show you.
+**Team Lead:** Yes, exactly. We made v0.
 
-[timestamp unavailable]
-**Customer:** No, by the way, you also had to do market analysis, right? That's what you just said. You are Team [redacted], right?
+**Backend Developer A:** Yes, it is basically the frontend. We improved it during this week. By Sunday, we will also connect the backend and some functions.
 
-[timestamp unavailable]
+## Sprint Backlog, User Stories, and Acceptance Criteria
+
+1:25-6:42
+
+**Team Lead:** Great, it works now. So, our sprint for this week includes the tasks that we need to implement from Monday to Sunday. We choose the tasks ourselves, and we also set the priorities ourselves.
+
+The first task is related to storing information. This comes from the User Story where the user can store information about the car in one place, and based on this information we can later predict possible failures.
+
+For each task, we wrote acceptance criteria. We need at least three criteria to consider the task accepted. Should we read them out, or just explain them generally?
+
+**Customer:** Just go through them briefly. There is probably no need to go into all the details.
+
+**Team Lead:** The user opens the history screen, adds information, and the information appears there. If the user enters something incorrectly, validation fails. We explain that the data cannot be saved because it was entered incorrectly. Also, the user can edit the saved history.
+
+That is about storing the car history.
+
+Next, as a car user, I want to be able to receive information through the agent and ask it questions about the car. The acceptance criteria are similar: I ask a question, and if there is no connection to the AI agent, we show an error. Another criterion is that the AI agent correctly responds to the request. Overall, the other criteria are written in the same style.
+
+This is about the User Stories. We also had an additional task to add five tasks on top of the User Stories, breaking larger stories into subtasks.
+
+One of these tasks is integrating the chat with the AI assistant into our application. This is a backend task. The question is whether we will get access to the neural network this week.
+
+**Customer:** To the neural network.
+
 **Team Lead:** Yes.
 
-[timestamp unavailable]
-**Customer:** Okay, got it. So, remind me who is doing what right now?
+**Customer:** Yes, I will send access to it.
 
-[timestamp unavailable]
-**Backend Developer B:** At the moment, we don't really have fixed core roles, but overall: Backend Developer A is doing backend, Documentation Lead is doing documentation, I am doing backend, Team Lead is our team lead, Frontend Developer A is doing frontend, and Frontend Developer B is also doing frontend.
+**Team Lead:** Great. For this task, the checks are mostly the same: whether it responds, whether it connects, and similar points.
 
-[timestamp unavailable]
-**Backend Developer A:** Well, specifically for this assignment, we all did everything that needed to be done.
+Then we have the creation of the digital twin. When the user registers in the application, they fill in all the data: name, brand, model, year, mileage, and so on. The criteria are that the data is entered correctly, saved, and displayed correctly. This is a frontend task.
 
-[timestamp unavailable]
-**Customer:** Tell me, how is your MVP — is it ready? I am asking not even for myself, more because I am still a bit shocked that you were told to make MVP version 0 by Sunday. As I understand it, that was unexpected for you as well?
+Then we are also doing screen navigation. For example, the user taps a button and moves to the correct screen, then taps back and returns to the previous screen. The criteria are written in the same way.
 
-[timestamp unavailable]
-**Team Lead:** We did not expect it at all.
+We are also adding message bubbles by changing the shape of the messages in the chat. They will not be rectangles anymore; they will be a little rounded.
 
-[timestamp unavailable]
-**Backend Developer B:** Because they posted it on Wednesday, I think.
+**Customer:** Is this a task?
 
-[timestamp unavailable]
-**Customer:** That is just awful. I know this is being recorded, but that is my opinion. Okay.
+**Team Lead:** Yes.
 
-[timestamp unavailable]
-**Team Lead:** In general, we also needed to ask for permission. We got it, so that we could create a repository and store everything on GitHub in public access.
+**Customer:** For the frontend?
 
-[timestamp unavailable]
-**Customer:** As I understand it, my message is enough for you.
+**Team Lead:** Yes, for the frontend. So, for now we have six tasks. To be fair, with the sixth task, I agree that it is small.
 
-[timestamp unavailable]
-**Team Lead:** Yes, overall, yes. They are all in English. We came up with 10 User Stories. Just briefly translating them now: as a car owner, I would like to store all car data in one place, which could help predict possible breakdowns and make them easier to debug in the future. We put this into must-have, meaning it is something that definitely has to be there. The next one is the same — must-have.
+**Customer:** I have a question about the first User Story. Can you open it again?
 
-As a car owner, I want, basically, to receive up-to-date information through an AI agent, which would allow all of this to be processed faster somehow.
+**Team Lead:** Yes.
 
-Also, as a car owner, I want to see a timeline of all expenses and important events, simply to keep the car's history. This is must-have. The fourth one: what goes into must-have is that, as a car owner, I want to see all the statistics on how much I have spent, in order to plan my budget for the future.
+**Customer:** I am not sure. I also want to see registration. What about registration?
 
-The fifth one, already in should-have, is something that could be there. As a car owner, I want to upload receipts, some documents in PDF format, so that later they can be confirmed, so that this would somehow be stored somewhere. Then: as a car owner, I want the AI agent to analyze all information and warn me about future breakdowns.
+**Team Lead:** Car users?
 
-Seventh. As a car owner, I want to customize my digital twin: change the color there, choose the body type, for example, add more personalization and customization. This is in could-have, but less important.
+**Customer:** Both users and cars. This can already be interpreted as a separate User Story: the user enters the application, enters their personal data, enters car data, and so on. It feels like this should be considered first. You immediately dive into the rest of the functionality, which is probably also correct, but registration is missing.
 
-The eighth one is could-have. As a car owner, I want to create families where several users own one digital twin and have access to it.
+**Team Lead:** Yes, understood. Then we will add registration to this. First registration, and then the rest.
 
-Could-have. The ninth one is that, as a car owner, I want the app to automatically recognize text from document images, for example, from receipts, so that all the information is simply digitized rather than stored as pictures.
+**Customer:** Yes, exactly.
 
-And also in could-have, the tenth: as a car owner, I want to send a voice message to the agent in order to communicate with it not only through text, but just to communicate. For MVP version 0, we chose, as a result, to store data, communicate with the agent, basically store the timeline of main purchases and some events, and statistics on expenses.
+**Team Lead:** So, that is what we have for the current sprint tasks.
 
-[timestamp unavailable]
-**Customer:** You want to do all of this by Sunday?
+**Customer:** Overall, good. This is a solid direction.
 
-[timestamp unavailable]
-**Backend Developer A:** For us, all of this is still at the frontend level by Sunday. Next week there will be version 1. What functions will be there?
+## Architecture, AI Agent, and External Integrations
 
-[timestamp unavailable]
-**Customer:** With the backend already, yes.
+6:42-9:07
 
-[timestamp unavailable]
-**Team Lead:** The thing is that for MVP version 0, we are doing everything I listed, those four points, but without the backend. The goal is kind of to test it and understand whether the hypothesis works or not, and then this goes into MVP version 1, where maybe we pull in the backend and try to put everything together. So. And what we have played around with in the prototype: for these four User Stories, we made a scenario — how the screen would look and what the user would do now. We'll open it now. How did it turn out? We simply drew sketches, threw them into an AI tool, and asked it to make them more or less acceptable to the eye. These are sketches, basically what we managed to draw. What could be there. And we took all of that stuff and put it in so that Figma could play around with it.
+**Team Lead:** We had a question about access to the AI. We also researched it. You also asked us to prepare an HLD diagram or something similar.
 
-[timestamp unavailable]
-**Backend Developer A:** We decided that it was important for the chat with the agent to be on the main screen, so that the user immediately notices it, so that it is kind of the priority use case for the application. Also, here is the car model; we may still change the colors so that the car can be customized and so that it does not get lost on this dark-blue background. The name is written there as well. Also, here we have reminders, and most importantly, let's say, events — for example, changing the oil — and I think the user will be able to add this themselves. Some kind of statistics.
+**Customer:** Yes, architecture, roughly speaking.
 
-[timestamp unavailable]
-**Team Lead:** To look, tap on the main page with the timeline of what is happening, go back, communicate with the AI agent. We were also asked about, for example, some emergency situation, a scenario if some error happens. Overall, for now the whole functionality is communication with the agent, we store information, then what we had as mandatory — we communicate with it, the timeline of all expenses and what happens. For now, it looks like this. So now, today, Friday, Saturday, and part of Sunday, we are working on the frontend, trying to turn this into something like a skeleton that simulates the work. We upload all of this, and then after that we will connect the backend. Those are the plans for now, and that is where we are.
+**Team Lead:** I decided to sketch it.
 
-[timestamp unavailable]
-**Customer:** It looks very good. It really looks good. Plus, I made a note for every team that they really need to emphasize AI, that it should be more of a priority. So what you said is good. Here. The only question is: in what form? Let's say I write a question there and click "send" — then, basically, what happens next?
+**Customer:** May I look?
 
-[timestamp unavailable]
-**Team Lead:** Next, we are planning a transition to a chat with a window, meaning the dialogue window will not be right here. By the way, we were thinking about this: when the user creates a digital twin for the first time, how should that happen? We had two options: letting the user do everything through an AI chat, or the second option — simply filling in some field themselves, filling in the fields, and then moving on.
+**Team Lead:** Yes.
 
-[timestamp unavailable]
-**Customer:** And what did you settle on? Both. In general, let's say if we need to customize something, if I want to choose — it is not hard, for example, to write "red" now... In general, where we choose the car color, I would want to click buttons and see how it would look. If I write "red" or "blue" in the chat, then overall it is probably quite difficult for the user to figure out which color would suit better if they want to think about it. So we thought: both options are possible. Well, the priority was on the AI agent, so...
+**Customer:** Are these all diagrams?
 
-[timestamp unavailable]
-**Customer:** It seems to me that at the registration stage, you can really fill out a form. That is, yes, for now just skip it and fill out the form, and then already focus on communication with the assistant. Moreover, I would probably even risk suggesting that it would be good to make it a chat overall. That is, the person opens the app and immediately sees a chat. A chat right away. Basically, like ChatGPT, except in the sidebar you do not have chat history, for example, but all these menus, roughly speaking, and you move to that same page. What I mean is that I would like there to be less depth to the AI, to the chat, than to this kind of statistics, and for the user to make fewer taps to get to the chat.
+**Team Lead:** No, this is only one part.
 
-[timestamp unavailable]
-**Team Lead:** For example, we can divide this: everything that is lower can be the chat, allocate space for it, and everything above can be some kind of just...
+**Customer:** I got scared for a second.
 
-[timestamp unavailable]
-**Customer:** I think that would be excellent.
+**Team Lead:** So, here is how it works. We have the user, then the mobile application built with Kotlin and Jetpack Compose. Then we have the backend API. The backend team is writing it in Python. Authentication is also included here. Then this is connected to the databases.
 
-[timestamp unavailable]
-**Team Lead:** And, if needed, you could swipe up and fully go into the chat, basically.
+As for the AI agent, I looked at DeepSeek. For example, the user asks through the chat to enter refueling data, such as spending a certain amount of money on fuel. The request goes to DeepSeek. DeepSeek recognizes the pattern and determines the message type. Then it creates something like tool calls or function calling. It sends a command to the backend, and the arguments contain the necessary data in JSON format. This is how we can implement it.
 
-[timestamp unavailable]
-**Customer:** Yes, super, super, that sounds excellent overall.
+This part is still under question because it is not directly part of the MVP.
 
-[timestamp unavailable]
-**Team Lead:** And we also thought that swiping right and left could switch between car profiles if there are several of them. And...
+I also checked that Yandex really provides an API. It can report the current speed and speed limits. The question is how it connects. It seems that it does not connect directly to the backend; instead, it has its own library that is integrated directly into the application.
 
-[timestamp unavailable]
-**Customer:** Well, for the MVP, let's have one car. That is extra work; you do not need it, so let's have one for now, and that's it.
+**Customer:** That is what I understood too. Then the application can send something to the backend if needed.
 
-[timestamp unavailable]
-**Team Lead:** And that is how it is for the prototype so far.
+**Team Lead:** And with the OBD system, if the car has OBD, we can receive the required information. Communication happens through OBD codes: we send codes, and the system recognizes them and returns the data.
 
-[timestamp unavailable]
-**Customer:** This is about the cringe feature. Overall, did you come up with anything?
+**Customer:** Yes, exactly.
 
-[timestamp unavailable]
-**Team Lead:** Yes, several ideas.
+**Team Lead:** For now, this is how we see it.
 
-[timestamp unavailable]
-**Backend Developer B:** First, we wanted to add achievements, 100%. Maybe it is not exactly cringe, but it is a good idea. In general, if you drove a million kilometers — veteran, or something like that. Also, comparison with some other users: if you are a BMW owner and you have violated traffic rules 50 times more than others, then you are cool, and you get messages saying you did great, something like that. Then a complaints journal, so that the car could complain: it sits there whining that its tires are not being changed, the oil.
+**Customer:** It looks good. Really good.
 
-[timestamp unavailable]
-**Customer:** You mean the car whines?
+## MVP v0 and Prototype Demonstration
 
-[timestamp unavailable]
-**Backend Developer B:** Yes, yes, yes, that it is in a lot of pain and something like that. There was also an idea of theft...
+9:07-15:56
 
-[timestamp unavailable]
-**Documentation Lead:** There was the theft idea, but we thought it could interfere with using the application itself, and it would be hard to implement.
+**Customer:** Now show me something.
 
-[timestamp unavailable]
-**Backend Developer B:** If, basically, the car whines often, then for some tokens or internal currency, your friend or just a user can buy out your twin, and, like, your car has been stolen, and you get a message saying that you do not take care of your car, and it was stolen from you, and so on. Well, yes, that could interfere somehow.
+**Team Lead:** This is what we sent earlier. This is our first version that we showed before. Backend Developer B, do you still have the APK file? This version does not include registration yet; it only includes digital twin creation.
 
-[timestamp unavailable]
-**Documentation Lead:** We also thought about the idea that if some breakdown happens and, for example, the user books a service appointment, their friends get notifications and can make fun of them, like: "Ha-ha, the person broke down again."
+This is the old approved design. For the second version, we agreed to split the screen so that about 30% goes to the car card, and the rest goes to the chat. This is just an example of how the interaction works.
 
-[timestamp unavailable]
-**Team Lead:** About fines: if you exceeded the speed limit somewhere, it still needs to be recorded, because, well, fines are also expenses for the car. So that friends can tease you: you exceeded the speed limit somewhere or violated something.
+There are template questions so that it is easier for the user to ask something quickly without typing everything manually.
 
-[timestamp unavailable]
-**Backend Developer B:** Did not buckle up again.
+Overall, this is what we have. But after we built it, we realized that we did not like it. The mistake was that we split the screens between different people, and when we started implementing them, the spacing, sizes, and fonts were inconsistent. We did not communicate enough with each other while building them. As a result, one screen had slightly larger spacing than another screen, and there was no single visual style.
 
-[timestamp unavailable]
-**Team Lead:** Yes, yes, yes.
+So now we have started rebuilding everything. In Kotlin, in Android Studio, there are special folders for themes and styles. We started defining a common style there: colors, spacing, and other shared design values, so that everything is general and consistent. This way we do not have to guess the font size every time. The previous version became messy.
 
-[timestamp unavailable]
-**Customer:** Of all the ideas, which one did you like the most? Look, in general, what I wanted to say. Basically, the prototype at least looks very sound, genuinely good, I really like it. About the cringe feature: if you do not want to do it, okay, I will understand. I just think that you proposed a lot of different cool ideas; choose one that you like. I am simply afraid that I overdid it a little with the cringe feature last time. So what I mean is that you are building it very well. If implementing the cringe feature interferes with good development of the application, then let's not do it. But of course, I am in favor of adding some kind of twist to the application. On the contrary, you threw out ideas. I realized that you got the vibe a little bit. So that is cool too. Here. Well, basically, what do you think? Let's do it this way.
+Can you show it? Backend Developer B has the APK file.
 
-[timestamp unavailable]
-**Team Lead:** Overall, we are not against adding it.
+**Backend Developer B:** The old one?
 
-[timestamp unavailable]
-**Backend Developer A:** Yes, I think we can integrate it into the application in a reasonable way, if it is not too massive or large-scale. We can choose something, for example, achievements: they will not interfere at all.
+**Team Lead:** Yes, the old one.
 
-[timestamp unavailable]
-**Customer:** I think so too: doing something with friends is cool, but it will be hard to implement. That is, the friends would also have to download the app. We definitely will not manage to do that within the MVP right now. So achievements sound good. Let's probably do achievements, yes. That is, basically, we need to think about it. You can play around with it; for example, either you or the car receives the achievement — split it somehow like that. What I mean is yes, it is a good idea, I like it. Then let's try to develop it somehow.
+**Backend Developer A:** Do you have images of the current version?
 
-[timestamp unavailable]
-**Backend Developer B:** There was also an idea with the car's birthday: the user enters the purchase date, and they get a notification, like an anniversary.
+**Team Lead:** Of the new one? Yes, I also have those.
 
-[timestamp unavailable]
-**Customer:** That is good too.
+**Customer:** This is only a skeleton for now, right?
 
-[timestamp unavailable]
-**Backend Developer A:** Yes, possibly some short summary with information: what you have done by the 10th year of the car's life, and so on.
+**Team Lead:** Yes.
 
-[timestamp unavailable]
-**Customer:** The repairs you have gone through together, all that stuff, yes, good.
+**Customer:** I was worried I might send some requests and everything would break.
 
-[timestamp unavailable]
-**Team Lead:** Also, not about the prototype, but I was talking about external APIs: we can try integrating with Yandex. Yandex Maps or Navigator.
+**Team Lead:** Everything there is ready to crash.
 
-[timestamp unavailable]
-**Customer:** Yes, tell me about that. I just do not fully understand how this integration looks, in the sense that it is effectively a mobile application. How does it transmit this phone data, even more, this information, and how does it work? Like, does Yandex have the user's trip history, roughly speaking, and speed at a given moment in time?
+**Customer:** No, it is fine. It works as a concept.
 
-[timestamp unavailable]
-**Team Lead:** Essentially, yes, it is possible to get speed at a given moment in time, and they have something specifically for this. I'll find it now.
+**Team Lead:** After we started redrawing everything, we made several sketches. Frontend Developer A made some sketches, and I also drew some. We put everything into an AI tool and tried to get something more useful from it.
 
-[timestamp unavailable]
-**Customer:** Go ahead, go ahead. Because honestly, I am a little shocked; I did not even know such a thing existed. I thought the only thing there was route building, that kind of thing.
+For the MVP, we currently imagine the design like this. These are examples of how it may look. We divide the screen roughly so that 30% is the car card and the rest is interaction with the AI. From here, the user can swipe up and move fully into the chat.
 
-[timestamp unavailable]
-**Team Lead:** Here, you can choose several things, I think this is all here. And as I understood it, it can be integrated into a mobile application for usage. For example, they have some kind of MapKit. And I saw there directly that you can get information about speed in real time, even about violations if we are driving; there are some cameras there. I tried to get a free token, but I indicated that we are using this purely for hobby purposes.
+There are also statistics, a full chat screen, documents that can be added, history, and a sidebar on the side. The sidebar is for cases when the user does not want to ask through the chat and instead wants to manually open history, statistics, or other sections.
 
-[timestamp unavailable]
-**Customer:** Well, in general, right now that is partly true. But here the question is for the mobile developers: in terms of whether you can implement it. It sounds difficult. Again, regarding speed — no, this is actually a good point, even so that you do not have to mess around with the accelerometer or, let's say, these coordinates. You can simply get an actual scalar value in the form of speed. But maybe... I do not know, this needs to be researched in general. So you can research with your small frontend team whether it is difficult to fit this in or not. Although wait, why do we need it, by the way? Let's think about that.
+**Customer:** Yes, it looks good.
 
-[timestamp unavailable]
-**Team Lead:** To automate the process a little. Because if you enter everything manually, it is not very good, but this way all the information kind of collects and analyzes itself. It is a bit more pleasant, because every time you have to bring something together. Well, and, for example, to learn your driving style.
+**Team Lead:** Are the colors okay overall?
 
-[timestamp unavailable]
-**Customer:** That is also not bad, by the way. It is just that, of course, it is hard to determine driving style from speed alone.
+**Customer:** That is up to you.
 
-[timestamp unavailable]
-**Team Lead:** Also, about... If OBD is involved, that is an absolutely great thing: you can make everything from there, learn some car errors if something is wrong, and gather information about the oil, engine RPM, and so on.
+**Team Lead:** Do they fit the theme of an automotive application?
 
-[timestamp unavailable]
-**Customer:** No, I absolutely agree, but that is extra, that is already... I just want us to definitely manage to make at least the minimum.
+**Customer:** In that sense, yes. Honestly, I cannot say for sure whether it perfectly fits an automotive application. Personally, I like it. If we wanted to evaluate it seriously, we would need some analysis, but that may already be too much detail. In my opinion, it looks good.
 
-[timestamp unavailable]
-**Documentation Lead:** I think that by the end of this month we can finish the MVP, and then, if...
+**Team Lead:** We are planning to finish this by the end of the week. We are rebuilding it ourselves. The rest of the main tasks are already in the sprint that we showed.
 
-[timestamp unavailable]
-**Customer:** If we finish the MVP — yes, then, damn, I do not know, we can really try a little. Maybe if the project really takes off, and we try to do something with hardware, I would personally love to work on this with you; it would be a huge pleasure overall. Let's finish this first. So first we finish this. The only other thing: okay, let's do this — for now we will not look at speed, we will wait a month and then look at it. Right now, I think we need to research fines. Let's look, because usually government services are very bad with APIs. Even if they have an API, tokens are issued with such difficulty there; you have to fill out a billion documents, so this needs to be checked now. I mean, please check it. I think research it for an hour or two at most, roughly speaking, and that's it. If it is total trash there and you need to describe all kinds of application security and so on, then we drop it entirely and will not even look at it. Then, for now, we will just have fines as another feature. So. And overall, yes. Good. Good, guys. Achievements, prototype. For now, I like everything. This... Also make the architecture. Specifically, take a look at a diagram in draw.io. It is generally called an HLD diagram. That is, it is a diagram that is basically like a flow diagram, roughly speaking. You need to understand what you have under the hood. You do not just have code written in Python; you will have some services interacting. There is, roughly speaking, prediction, the AI, the database, let's say, and so on. Here. I want to understand how you came up with all of this. And the mobile app too, of course, absolutely.
+**Customer:** So by the end of the week, by Sunday, there will be a new application and the backend will already be connected?
 
-[timestamp unavailable]
-**Backend Developer B:** I think we will actually have this kind of assignment in the next task.
+**Team Lead:** Yes, that is the plan.
 
-[timestamp unavailable]
-**Customer:** Excellent, even better then.
+**Customer:** Sounds good. What is ready on the backend side?
 
-[timestamp unavailable]
-**Backend Developer A:** They are asking us for a UML diagram.
+**Backend Developer B:** Everything except the AI part, roughly speaking.
 
-[timestamp unavailable]
-**Customer:** UML is also, by the way, excellent. Data — you see, on the other side of the board we tried to sketch something out. So yes, that too. Basically, send the reports to the chat, okay. I am also interested to look at them.
+**Customer:** I will provide that. I will probably generate it today and send the tokens.
 
-[timestamp unavailable]
-**Team Lead:** If needed, we can share the GitHub repository.
+**Backend Developer B:** We have not started doing anything with it yet.
 
-[timestamp unavailable]
-**Customer:** You are not on GitLab?
+**Customer:** Yes, okay. That is normal. It looks good. Great.
 
-[timestamp unavailable]
-**Team Lead:** There was a choice.
+**Team Lead:** We are a little stressed because we rolled back.
 
-[timestamp unavailable]
-**Customer:** Okay, okay. No, not yet; if needed, I will ask. So, then let's decide on the plan for the coming week. What will you be doing now?
+**Customer:** That is okay. On the contrary, it is good. I do not mean that the previous version was bad. It is good that you are not afraid to roll back when needed. I think that is the right approach. Keep going.
 
-[timestamp unavailable]
-**Team Lead:** Well, basically, we need to... We made the prototype, discussed the User Stories. What is left is to finish MVP 0. And the analysis of our meeting, we will need to write the transcript. And overall, write the analysis of the week: what we learned and what we did. Overall, the main thing right now, the biggest headache, is MVP 0.
+## AI Prediction Capabilities and Data Sources
 
-[timestamp unavailable]
-**Customer:** Well, I understand, yes, of course, these deadlines are awful. But by the way, this is very similar to reality, just so you know. What I mean is, when you start working, be ready that this will happen often. This... Okay. Then from you, I need the architecture. You said that, one way or another, you also need to write it in the report, so that is great — you will kill two birds with one stone. Finish MVP 0. When you make it, you can also send at least a demo just so I can look at it. Well, what else? The AI, resources. Regarding resources — I do not know, have you found out anything?
+15:56-17:14
 
-[timestamp unavailable]
-**Team Lead:** What resources specifically?
+**Team Lead:** I also looked into whether DeepSeek can actually predict anything. I still do not fully understand it, but it analyzes context well and can suggest something based on that context. So for prediction, we are not sure yet, but it can make context-based suggestions. For example, if the user enters car-related data, it should be able to analyze it. It may also be able to forecast or plan the budget.
 
-[timestamp unavailable]
-**Customer:** Servers, GPUs, like, I do not know, and so on.
+**Customer:** The simplest thing DeepSeek could do is create a list of the most commonly failing parts, roughly estimate at what mileage they tend to fail, and then we can hardcode this information and send notifications when needed.
 
-[timestamp unavailable]
-**Backend Developer B:** They provide a VM.
+**Team Lead:** How would DeepSeek understand at what mileage something will fail?
 
-[timestamp unavailable]
-**Customer:** Yes, I know that they provide a VM. In general, there is also an option with GPUs, but it seems we will not have any models, so I just... Well, we already discussed this last time; basically, we will not bother. I will provide access to an LLM API endpoint and a suitable low-cost model. [redacted] So, that is probably everything. Do you have any questions?
+**Customer:** There is mileage statistics and general failure statistics. These are available data.
 
-[timestamp unavailable]
-**Documentation Lead:** Probably not. Not for now.
+**Backend Developer B:** There are websites and forums. For example, for a specific Volkswagen Tiguan engine, people may write that at around 120,000 kilometers something commonly breaks.
 
-[timestamp unavailable]
-**Customer:** Then keep going in the same spirit. Everything looks good.
+**Customer:** Exactly. There are community sources, such as forums, and official documentation also says how often something should be replaced. So I think this can be done.
 
-[timestamp unavailable]
-**Backend Developer A:** Thank you.
+**Team Lead:** Yes, understood. Overall, that makes sense.
 
-[timestamp unavailable]
-**Documentation Lead:** Thank you very much.
+## Meeting Format and Weekly Planning
+
+17:18-21:15
+
+**Customer:** Overall, good. I understand that the meeting is probably scheduled at an inconvenient time. You submit on Sunday, and the task arrives on Tuesday or something like that. I can suggest meeting on Mondays to define the plan.
+
+**Team Lead:** We receive the assignment on Tuesday, not right on Monday.
+
+**Customer:** Here is what I suggest. We can meet in person on Monday and develop the plan for the week until Sunday. As I understand it, your task each week is not always to complete some very specific steps, but to make a certain amount of progress in developing the application.
+
+**Team Lead:** Yes, for example, we need to make MVP v0, MVP v1, and so on.
+
+**Customer:** Exactly. So if we develop the plan on Monday, then by Sunday you will probably only need to execute it. If the assignment includes a very specific requirement, we can also have a short online call on Thursday, and I will create a meeting link. Or you can decide yourselves what works best. If you understand that you cannot finish something or plans change, you just notify me.
+
+**Team Lead:** Yes. The thing is that in previous assignments we were asked to approve the sprint and its tasks with you. On Monday, we will not have the assignment yet, so we will not know the specific topic of our communication. In general, Monday meetings would be great, but I am not sure.
+
+**Customer:** I still support Monday. We can also have a 15-minute recorded online call. The call tool can even generate a transcript. As I remember, you mainly need the transcript. So we can do that.
+
+**Team Lead:** On Monday? Not Thursday?
+
+**Customer:** On Monday we meet in person and really discuss what to do during the upcoming week. We will also discuss what you managed to finish by Sunday. On Thursday, we can simply have a 15-minute recorded call so that you have the transcript needed for the assignment.
+
+**Team Lead:** Then next Monday?
+
+**Customer:** Yes.
+
+**Team Lead:** I mean, what time?
+
+**Customer:** When is it convenient for you? I assume you have classes.
+
+**Team Lead:** We have a final.
+
+**Customer:** Right, you have an exam.
+
+**Team Lead:** At 10:00, and I think it lasts about an hour and a half.
+
+**Customer:** If you do not want to meet on the day of the exam, I understand. Then we can meet on Tuesday. My Monday is currently completely free.
+
+**Backend Developer A:** In general, on Mondays we are free after around half past two or after three. We do not have electives. Specifically this Monday, I think we are free from around 3 to 5.
+
+**Team Lead:** Will we have a lab this Monday?
+
+**Backend Developer A:** Even if we do, from 3 to 5 we should be guaranteed to be free.
+
+**Team Lead:** So we can do 3 p.m.?
+
+**Customer:** Yes, let us do that.
+
+**Backend Developer A:** Yes.
+
+**Customer:** Then we will meet in person at 3 p.m. on Monday and discuss everything.
+
+## Additional Requests, UML Database Diagram, Achievements, and Action Items
+
+21:15-24:15
+
+**Customer:** Overall, that is probably everything. Actually, I have one more request: more visualization. I am saying this generally because both I and customers often need to see things visually. It is one thing when you just explain something; I believe you, of course. But in real work, people often ask for things to be short and to the point.
+
+For example, at [redacted company], I can summarize my whole task pool in five minutes without going into all the details. I am not asking you to tell me everything in five minutes. What I mean is that I want to see the results. It could even be one slide showing what has been done: AI integration, database connection, and so on. Something like a summary slide in an Apple presentation, where they briefly summarize all the features. The same idea could be used for development sections: backend, frontend, ML, and so on.
+
+This is just a personal request. If it is not too difficult, please do it.
+
+Also, since you said you studied UML diagrams, please make a UML diagram for the database. I want to make sure we are on the same page and that you understand the database architecture. I think it will not be too large because the project is not very complex. It will probably include the user, car, chat, parts, and similar entities. I just want to understand what fields there are.
+
+And start developing a list of achievements. Today you suggested a good idea about the “towed car” achievement. I liked it a lot. It is good that your thinking is moving in the right direction. So start developing this part too.
+
+**Team Lead:** Okay.
+
+**Customer:** Will you manage to do this by Monday?
+
+**Team Lead:** The UML diagram, achievements, and MVP v1, right?
+
+**Customer:** Yes.
+
+**Team Lead:** That sounds manageable.
+
+**Customer:** Deal. From my side, I will send the DeepSeek token and URL. I will send them this evening.
+
+**Team Lead:** Great.
+
+**Customer:** In the worst case, tomorrow morning. That is all.
+
+**Team Lead:** Great.
