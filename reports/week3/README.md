@@ -79,8 +79,8 @@ Some feedback remains in progress and will continue into the next Sprint, especi
 **Current Sprint milestone:** [Sprint 1 - MVP v1](https://github.com/ernest0507/LAMBA_Team-22/milestone/1)  
 **MVP v1 scope view / version field / filtered view:** **PLACEHOLDER — add the finalized MVP v1 filtered view or equivalent grouped view link here.**
 
-**Total Product Backlog size:** **PLACEHOLDER — add final Story Points here.**  
-**Total current Sprint size:** **PLACEHOLDER — add final Story Points here.**
+**Total Product Backlog size:** 208 story points.**  
+**Total current Sprint size:** 34 story points.**
 
 The current Sprint milestone is used as the authoritative source for the Sprint Goal, Sprint dates, and current Sprint scope.
 
