@@ -31,6 +31,8 @@ import androidx.navigation.compose.rememberNavController
 import com.lamba.app.data.auth.AuthViewModel
 import com.lamba.app.data.cars.CarDraft
 import com.lamba.app.data.cars.CarViewModel
+import com.lamba.app.data.records.ExpenseDraft
+import com.lamba.app.data.records.RecordsViewModel
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
 import com.lamba.app.screens.expenses.AddExpensesScreen
@@ -55,7 +57,10 @@ fun AppNavigation() {
     val authState by authViewModel.uiState.collectAsState()
     val carViewModel: CarViewModel = viewModel()
     val carState by carViewModel.uiState.collectAsState()
+    val recordsViewModel: RecordsViewModel = viewModel()
+    val recordsState by recordsViewModel.uiState.collectAsState()
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
+    val currentCarId = carState.currentCar?.id
     val isCheckingCars = authState.isAuthenticated && carState.isLoading
     val routeErrorMessage = authState.errorMessage ?: carState.errorMessage
 
@@ -87,6 +92,15 @@ fun AppNavigation() {
     LaunchedEffect(carState.createdCar?.id) {
         if (carState.createdCar != null) {
             navController.openHomeAfterCarCreation()
+        }
+    }
+
+    LaunchedEffect(recordsState.createdRecord?.id) {
+        val createdRecord = recordsState.createdRecord
+        if (createdRecord != null) {
+            recordsViewModel.loadTimeline(authState.accessToken, createdRecord.carId)
+            recordsViewModel.consumeCreatedRecord()
+            navController.popBackStack()
         }
     }
 
@@ -160,13 +174,34 @@ fun AppNavigation() {
 
         composable(LambaRoute.AddExpenses.path) {
             AddExpensesScreen(
-                onBack = { navController.popBackStack() },
-                onSave = { navController.popBackStack() }
+                onBack = {
+                    recordsViewModel.clearError()
+                    navController.popBackStack()
+                },
+                isLoading = recordsState.isSaving,
+                backendErrorMessage = recordsState.errorMessage,
+                onSave = { expense ->
+                    recordsViewModel.createExpense(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        draft = ExpenseDraft(
+                            amount = expense.amount,
+                            description = expense.description
+                        )
+                    )
+                }
             )
         }
 
         composable(LambaRoute.History.path) {
+            LaunchedEffect(authState.accessToken, currentCarId) {
+                recordsViewModel.loadTimeline(authState.accessToken, currentCarId)
+            }
+
             HistoryScreen(
+                isLoading = recordsState.isLoading,
+                errorMessage = recordsState.errorMessage,
+                records = recordsState.timeline,
                 onBackClick = { navController.popBackStack() }
             )
         }
