@@ -18,7 +18,12 @@ import com.lamba.app.ui.theme.LambaCanvas
 
 @Composable
 fun HomeScreen(
-    onOpenAiChat: () -> Unit = {}
+    onOpenAiChat: () -> Unit = {},
+    onAddExpensesClick: () -> Unit = {},
+    onOpenHistory: () -> Unit = {},
+    onOpenStatistics: () -> Unit = {},
+    onOpenDocuments: () -> Unit = {},
+    onOpenProfile: () -> Unit = {}
 ) {
     var isMenuOpen by remember { mutableStateOf(false) }
     Box(
@@ -53,6 +58,26 @@ fun HomeScreen(
             Sidebar(
                 onClose = {
                     isMenuOpen = false
+                },
+                onAddExpensesClick = {
+                    isMenuOpen = false
+                    onAddExpensesClick()
+                },
+                onHistoryClick = {
+                    isMenuOpen = false
+                    onOpenHistory()
+                },
+                onStatisticsClick = {
+                    isMenuOpen = false
+                    onOpenStatistics()
+                },
+                onDocumentsClick = {
+                    isMenuOpen = false
+                    onOpenDocuments()
+                },
+                onProfileClick = {
+                    isMenuOpen = false
+                    onOpenProfile()
                 }
             )
         }
