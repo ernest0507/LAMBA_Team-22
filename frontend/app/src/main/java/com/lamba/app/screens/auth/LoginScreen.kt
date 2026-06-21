@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,14 +17,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,10 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,7 +44,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import components.ContinueButton
+import components.LambaTextField as SharedLambaTextField
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaAccent
 import com.lamba.app.ui.theme.LambaAccentSoft
@@ -54,7 +55,6 @@ import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaOutline
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 
 @Composable
 fun LoginScreen(
@@ -65,6 +65,8 @@ fun LoginScreen(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var emailError by rememberSaveable { mutableStateOf<String?>(null) }
+    var passwordError by rememberSaveable { mutableStateOf<String?>(null) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -86,7 +88,7 @@ fun LoginScreen(
 
                 Text(
                     text = "Вход в LAMBA",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineLarge,
                     color = LambaInk
                 )
 
@@ -103,28 +105,51 @@ fun LoginScreen(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(AuthFieldGap)
                 ) {
-                    AuthTextField(
+                    SharedLambaTextField(
                         label = "Email",
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = {
+                            email = it
+                            emailError = if (it.isNotEmpty() && !EmailPattern.matches(it)) {
+                                InvalidDataMessage
+                            } else {
+                                null
+                            }
+                        },
                         placeholder = "name@example.com",
+                        isError = emailError != null,
+                        errorMessage = emailError,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        leadingContent = {
+                            AuthFieldIcon(
+                                imageVector = Icons.Outlined.Email,
+                                contentDescription = "Email"
+                            )
+                        }
                     )
 
                     AuthPasswordField(
                         label = "Пароль",
                         value = password,
-                        onValueChange = { password = it },
+                        onValueChange = {
+                            password = it
+                            passwordError = if (it.isNotEmpty() && it.length != RequiredPasswordLength) {
+                                InvalidDataMessage
+                            } else {
+                                null
+                            }
+                        },
                         placeholder = "••••••••",
                         passwordVisible = passwordVisible,
-                        onVisibilityToggle = { passwordVisible = !passwordVisible }
+                        onVisibilityToggle = { passwordVisible = !passwordVisible },
+                        errorMessage = passwordError
                     )
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(AuthInlineGap))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -143,24 +168,12 @@ fun LoginScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
+                Spacer(modifier = Modifier.height(LambaSpacing.CardPadding))
 
-                Button(
+                ContinueButton(
                     onClick = onLoginClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(AuthButtonHeight),
-                    shape = RoundedCornerShape(LambaRadius.Large),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = LambaAccent
-                    )
-                ) {
-                    Text(
-                        text = "Войти",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
+                    text = "Войти"
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -182,9 +195,7 @@ private fun AuthBrandHeader() {
     ) {
         Text(
             text = "LAMBA",
-            style = MaterialTheme.typography.titleMedium.copy(
-                letterSpacing = 1.6.sp
-            ),
+            style = MaterialTheme.typography.titleMedium,
             color = LambaInk,
             fontWeight = FontWeight.Bold
         )
@@ -193,9 +204,9 @@ private fun AuthBrandHeader() {
 
         Box(
             modifier = Modifier
-                .size(30.dp)
+                .size(32.dp)
                 .background(
-                    color = LambaAccentSoft,
+                    color = LambaAccentSoft.copy(alpha = 0.85f),
                     shape = RoundedCornerShape(LambaRadius.Medium)
                 ),
             contentAlignment = Alignment.Center
@@ -207,97 +218,48 @@ private fun AuthBrandHeader() {
 
 @Composable
 private fun AccentSpark() {
-    Canvas(modifier = Modifier.size(16.dp)) {
-        val strokeWidth = 1.8.dp.toPx()
+    Canvas(modifier = Modifier.size(15.dp)) {
         val center = Offset(size.width / 2f, size.height / 2f)
         val longRadius = size.minDimension * 0.38f
-        val shortRadius = size.minDimension * 0.22f
+        val shortRadius = size.minDimension * 0.20f
 
         drawLine(
-            brush = SolidColor(LambaAccent),
+            color = LambaAccent,
             start = Offset(center.x, center.y - longRadius),
             end = Offset(center.x, center.y + longRadius),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
+            strokeWidth = 1.6.dp.toPx()
         )
         drawLine(
-            brush = SolidColor(LambaAccent),
+            color = LambaAccent,
             start = Offset(center.x - longRadius, center.y),
             end = Offset(center.x + longRadius, center.y),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
+            strokeWidth = 1.6.dp.toPx()
         )
         drawLine(
-            brush = SolidColor(LambaAccent),
+            color = LambaAccent,
             start = Offset(center.x - shortRadius, center.y - shortRadius),
             end = Offset(center.x + shortRadius, center.y + shortRadius),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
+            strokeWidth = 1.2.dp.toPx()
         )
         drawLine(
-            brush = SolidColor(LambaAccent),
+            color = LambaAccent,
             start = Offset(center.x - shortRadius, center.y + shortRadius),
             end = Offset(center.x + shortRadius, center.y - shortRadius),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
+            strokeWidth = 1.2.dp.toPx()
         )
     }
 }
 
 @Composable
-private fun AuthTextField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    keyboardOptions: KeyboardOptions,
-    trailingContent: @Composable (() -> Unit)? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+private fun AuthFieldIcon(
+    imageVector: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = LambaInkMuted
-        )
-
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = LambaInk),
-            placeholder = {
-                Text(
-                    text = placeholder,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = LambaInkMuted
-                )
-            },
-            shape = RoundedCornerShape(LambaRadius.Medium),
-            keyboardOptions = keyboardOptions,
-            visualTransformation = visualTransformation,
-            trailingIcon = trailingContent,
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = LambaInk,
-                unfocusedTextColor = LambaInk,
-                disabledTextColor = LambaInk,
-                errorTextColor = LambaInk,
-                focusedContainerColor = LambaSurface,
-                unfocusedContainerColor = LambaSurface,
-                disabledContainerColor = LambaSurface,
-                errorContainerColor = LambaSurface,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent,
-                cursorColor = LambaAccent
-            )
-        )
-    }
+    Icon(
+        imageVector = imageVector,
+        contentDescription = contentDescription,
+        tint = LambaInkMuted
+    )
 }
 
 @Composable
@@ -307,30 +269,47 @@ private fun AuthPasswordField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     passwordVisible: Boolean,
-    onVisibilityToggle: () -> Unit
+    onVisibilityToggle: () -> Unit,
+    errorMessage: String? = null
 ) {
-    AuthTextField(
+    SharedLambaTextField(
         label = label,
         value = value,
         onValueChange = onValueChange,
         placeholder = placeholder,
+        isError = errorMessage != null,
+        errorMessage = errorMessage,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password,
             imeAction = ImeAction.Done
         ),
-        trailingContent = {
-            Text(
-                text = if (passwordVisible) "Скрыть" else "Показать",
-                style = MaterialTheme.typography.bodySmall,
-                color = LambaAccent,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable(onClick = onVisibilityToggle)
-            )
-        },
         visualTransformation = if (passwordVisible) {
             VisualTransformation.None
         } else {
             PasswordVisualTransformation()
+        },
+        leadingContent = {
+            AuthFieldIcon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = "Пароль"
+            )
+        },
+        trailingContent = {
+            IconButton(onClick = onVisibilityToggle) {
+                Icon(
+                    imageVector = if (passwordVisible) {
+                        Icons.Outlined.VisibilityOff
+                    } else {
+                        Icons.Outlined.Visibility
+                    },
+                    contentDescription = if (passwordVisible) {
+                        "Скрыть пароль"
+                    } else {
+                        "Показать пароль"
+                    },
+                    tint = LambaInkMuted
+                )
+            }
         }
     )
 }
@@ -344,7 +323,7 @@ private fun AuthFooterAction(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 6.dp),
+            .padding(bottom = AuthInlineGap),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -367,60 +346,15 @@ private fun AuthFooterAction(
 @Composable
 private fun AuthBackgroundDecoration() {
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val wideStroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-        val softStroke = Stroke(width = 1.2.dp.toPx(), cap = StrokeCap.Round)
-
-        val roofLine = Path().apply {
-            moveTo(size.width * 0.08f, size.height * 0.78f)
-            cubicTo(
-                size.width * 0.24f,
-                size.height * 0.71f,
-                size.width * 0.42f,
-                size.height * 0.68f,
-                size.width * 0.60f,
-                size.height * 0.73f
-            )
-            cubicTo(
-                size.width * 0.72f,
-                size.height * 0.76f,
-                size.width * 0.82f,
-                size.height * 0.73f,
-                size.width * 0.92f,
-                size.height * 0.64f
-            )
-        }
-
-        val roadLine = Path().apply {
-            moveTo(size.width * 0.16f, size.height * 0.88f)
-            cubicTo(
-                size.width * 0.40f,
-                size.height * 0.84f,
-                size.width * 0.70f,
-                size.height * 0.92f,
-                size.width * 0.94f,
-                size.height * 0.86f
-            )
-        }
-
-        drawPath(
-            path = roofLine,
-            color = LambaAccent.copy(alpha = 0.10f),
-            style = wideStroke
-        )
-        drawPath(
-            path = roadLine,
-            color = LambaInk.copy(alpha = 0.08f),
-            style = softStroke
+        drawCircle(
+            color = LambaAccentSoft.copy(alpha = 0.42f),
+            radius = size.minDimension * 0.23f,
+            center = Offset(size.width * 0.94f, size.height * 0.08f)
         )
         drawCircle(
-            color = LambaAccent.copy(alpha = 0.05f),
-            radius = size.minDimension * 0.30f,
-            center = Offset(size.width * 0.92f, size.height * 0.16f)
-        )
-        drawCircle(
-            color = LambaOutline.copy(alpha = 0.45f),
-            radius = size.minDimension * 0.20f,
-            center = Offset(size.width * 0.06f, size.height * 0.96f)
+            color = LambaOutline.copy(alpha = 0.18f),
+            radius = size.minDimension * 0.15f,
+            center = Offset(size.width * 0.10f, size.height * 0.97f)
         )
     }
 }
@@ -428,13 +362,16 @@ private fun AuthBackgroundDecoration() {
 private val AuthHeaderGap = 40.dp
 private val AuthSectionGap = 32.dp
 private val AuthFieldGap = 16.dp
-private val AuthButtonHeight = 58.dp
-private val AuthTextButtonPadding = androidx.compose.foundation.layout.PaddingValues(
+private val AuthInlineGap = 6.dp
+private val AuthTextButtonPadding = PaddingValues(
     horizontal = 4.dp,
     vertical = 0.dp
 )
+private val EmailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
+private const val InvalidDataMessage = "Некорректные данные"
+private const val RequiredPasswordLength = 8
 
-@Preview(showBackground = true, backgroundColor = 0xFFEEF4F2)
+@Preview(showBackground = true)
 @Composable
 private fun LoginScreenPreview() {
     LAMBA_MVPv0Theme {
