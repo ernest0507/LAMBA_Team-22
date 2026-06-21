@@ -13,3 +13,18 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Backend local files
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/.venv/
+backend/venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+db.sqlite3
+db.sqlite3-journal
