@@ -1,125 +1,139 @@
 # Customer Meeting Summary
 
 **Language:** English  
-**Related transcript:** `reports/week2/customer-meeting-transcript.md`
+**Related transcript:** `customer-meeting-transcript.md`
 
-**Date:** 12.06.2026   
+## Meeting Information
 
-**Publication decision:** The customer approved publishing the sanitized transcript in the repository.
+**Date:** 19.06.2026  
+**Format:** Recorded customer meeting  
+**Participants:**
+
+- **Customer** — project customer / mentor
+- **Team Lead** — presented sprint tasks, architecture ideas, MVP v0 progress, and prototype changes
+- **Backend Developer A** — discussed MVP v0 and schedule availability
+- **Backend Developer B** — discussed backend readiness and possible data sources
+- **Frontend Developers** — mentioned as responsible for frontend design and MVP v0 implementation, but not personally identified in the sanitized transcript
+
+## Privacy and Publication Decision
+
+The transcript was sanitized before sharing. Real names and personally identifying details were replaced with roles. Individual phrase timestamps were removed and replaced with topic-level timestamp ranges.
 
 ## Artifacts Demonstrated
 
 During the meeting, the team discussed and/or demonstrated the following artifacts:
 
-- User Stories with prioritization into must-have, should-have, and could-have categories
-- MVP v0 scope
-- Prototype sketches and Figma-based screen designs
-- Main application screen concept with AI-agent interaction
-- Timeline concept for car-related events and expenses
-- Expense statistics concept
-- Ideas for a unique playful feature
-- Possible future integration with external APIs, including maps/navigation services and vehicle diagnostics
+- Sprint backlog and selected sprint tasks
+- User Stories and acceptance criteria
+- MVP v0 frontend skeleton / APK
+- Redesigned prototype screens
+- HLD-style architecture sketch
+- Planned backend API structure
+- AI-agent integration concept using DeepSeek
+- Possible external integrations, including map/navigation APIs and OBD data
+- Planned database UML diagram
+- Planned achievements list
 
 ## Discussion Points
 
-### User Stories and MVP Scope
+### Sprint backlog and acceptance criteria
 
-The team presented ten User Stories for the digital car twin application. The main must-have stories focused on storing car information, communicating with an AI agent, keeping a timeline of expenses and events, and showing spending statistics.
+The team presented the sprint tasks selected for the week. These tasks were based on previously defined User Stories and included storing car history, integrating the AI assistant chat, creating the digital twin during registration, implementing screen navigation, and improving frontend chat message bubbles.
 
-The customer clarified that User Stories should describe usage scenarios and asked the team to explain the current roles, the state of MVP v0, and what functionality would realistically be ready by the deadline.
+The customer recommended adding registration as a separate User Story or task because the product flow should begin with the user entering their own data and the car data before using the rest of the system.
 
-The team explained that MVP v0 would focus mainly on a frontend prototype without backend integration. The backend and more complete functionality are expected to be introduced in MVP v1.
+### Architecture and AI integration
 
-### Prototype Demonstration
+The team presented an architecture sketch with the user, mobile application, backend API, database, and AI agent. The mobile application is planned to use Kotlin and Jetpack Compose, while the backend is planned in Python.
 
-The team demonstrated early prototype screens based on sketches and Figma work. The prototype included a main screen with the car model, reminders, events, statistics, and access to the AI agent.
+The team discussed a possible DeepSeek-based AI-agent workflow. The AI agent may classify user chat messages, determine intent, and send structured commands to the backend using tool calls or function calling with JSON arguments.
 
-The customer gave positive feedback on the visual direction and emphasized that the AI interaction should be highly visible and easy to access. The customer suggested reducing the number of taps needed to reach the AI chat and making the chat a more central part of the application.
+The customer agreed that this direction looked reasonable and promised to provide the DeepSeek token and URL.
 
-The team discussed possible UI changes, including dedicating more screen space to the chat and allowing the user to swipe up into a full chat view.
+### MVP v0 and prototype review
 
-### Unique Feature Selection
+The team demonstrated the current MVP v0 skeleton and explained that it did not include registration yet. The team also explained that the previous implementation had inconsistent styles because different screens were developed separately.
 
-The team proposed several playful feature ideas, including achievements, social comparison, a complaint journal where the car “complains” about poor maintenance, simulated theft of a neglected digital car, and notifications to friends when the car breaks down.
+The team decided to rebuild the frontend using shared themes and styles in Android Studio so that colors, spacing, and font sizes are consistent across the application.
 
-The customer noted that the prototype already looked strong and warned that the unique feature should not interfere with building the core application. The customer recommended choosing a lightweight feature that would not require complex social functionality.
+The customer supported the decision to roll back and rebuild the design, noting that it is good that the team is not afraid to redo work when the current implementation does not meet the expected quality.
 
-The team and customer agreed that achievements would be the most reasonable unique feature for the current MVP scope. The idea of a car birthday or anniversary summary was also discussed as a possible extension.
+### Backend status
 
-### External API and Extended Functionality
+The backend was reported as mostly ready except for the AI integration. The team had not yet started working with the AI service because the token and access URL had not been provided yet.
 
-The team discussed possible future integrations with external APIs, including maps/navigation APIs, speed data, driving behavior analysis, and vehicle diagnostic data through OBD.
+### AI prediction and data sources
 
-The customer considered these ideas promising but noted that they may be too complex for the current MVP. The customer recommended postponing speed and driving-style integrations until after the core MVP is completed.
+The team discussed whether DeepSeek can predict car failures. The customer suggested a simpler approach: using known statistics about commonly failing parts and typical mileage intervals, then using that information to generate notifications or recommendations.
 
-The customer also suggested researching whether traffic fine data can be accessed through public services or government APIs. The team was advised to spend only a limited amount of time researching this, because such APIs may be difficult to access or require complex authorization and security documentation.
+Possible data sources include online forums, community knowledge, and official maintenance documentation.
 
-### Priority Tasks and Next Steps
+### Meeting process and future planning
 
-The customer asked the team to define the plan for the upcoming week. The team identified the main tasks as completing MVP v0, preparing the transcript and weekly analysis, and continuing documentation work.
+The customer proposed holding in-person planning meetings on Mondays and short recorded online check-ins on Thursdays. The purpose of the Monday meeting is to plan the week, while the Thursday meeting can provide recorded evidence and transcript material for assignment submission.
 
-The customer asked the team to prepare an architecture diagram, such as an HLD-style diagram or UML diagram, showing how the mobile application, backend, AI agent, database, and other services will interact.
+The team and customer agreed to meet in person on Monday at 3 p.m.
 
-The team also discussed available infrastructure resources. The customer suggested using an external LLM API instead of hosting a model, because the project does not require training or running a custom model at this stage.
+### Additional requests
+
+The customer requested more visual reporting of progress, such as a short summary slide showing completed work across backend, frontend, AI/ML, and other development areas.
+
+The customer also asked the team to prepare a UML database diagram and to begin developing a list of possible achievements for the application.
 
 ## Decisions
 
-- MVP v0 will focus on the frontend prototype and simulation of core functionality.
-- MVP v1 will introduce backend integration.
-- The AI agent should be a central part of the user experience.
-- The chat should be easier to access from the main screen.
-- The application will initially support one car profile to reduce MVP complexity.
-- Achievements were selected as the most realistic unique feature for the current scope.
-- Complex social mechanics should be avoided for MVP v0.
-- External API integrations should be researched but not prioritized before the core MVP is finished.
-- Architecture documentation should be prepared for the next report.
-- The customer approved publishing the sanitized transcript in the repository.
+- Add registration as a separate product flow or User Story.
+- Continue rebuilding the frontend using shared themes and styles.
+- Keep the AI chat central in the product interface.
+- Use a backend API with a database and AI-agent integration.
+- Treat DeepSeek integration as a planned backend task once access is provided.
+- Use a simpler data-driven approach for failure predictions instead of relying only on LLM prediction.
+- Prepare a database UML diagram.
+- Prepare a list of potential achievements.
+- Move weekly planning toward Monday in-person meetings, with possible short recorded Thursday check-ins.
 
 ## Action Points
 
 | Action Point | Responsible Role | Priority |
 |---|---|---|
-| Finish MVP v0 frontend prototype | Frontend Developers / Team Lead | High |
-| Keep the AI chat visible and easy to access | Frontend Developers | High |
-| Update the prototype according to customer feedback | Frontend Developers / Team Lead | High |
-| Add or design the achievements feature | Team | Medium |
-| Prepare the sanitized meeting transcript | Documentation Lead | High |
-| Prepare the meeting summary | Documentation Lead | High |
-| Prepare weekly analysis/report | Documentation Lead / Team | High |
-| Prepare HLD or UML architecture diagram | Team | High |
-| Research access to traffic fine APIs | Team | Medium |
-| Postpone complex external integrations until after core MVP | Team | Medium |
+| Add registration as a separate User Story or sprint task | Team Lead / Team | High |
+| Finish the redesigned MVP v0 frontend | Frontend Developers / Team Lead | High |
+| Connect backend functionality by the end of the week | Backend Developers | High |
+| Integrate DeepSeek after access is provided | Backend Developers | High |
+| Send DeepSeek token and URL | Customer | High |
+| Prepare a database UML diagram | Backend Developers / Team | High |
+| Prepare a visual progress summary | Team | Medium |
+| Develop a list of potential achievements | Team | Medium |
+| Continue improving design consistency through shared styles | Frontend Developers | High |
+| Hold the next in-person planning meeting on Monday at 3 p.m. | Team / Customer | Medium |
 
 ## Risks
 
-- The deadline for MVP v0 is very tight.
-- Backend integration is not part of MVP v0 and may become a risk for MVP v1.
-- Social features may be too complex for the current scope.
-- External APIs may be difficult to access because of authorization, documentation, or security requirements.
-- Focusing too much on experimental features may delay the core product functionality.
+- Backend and AI integration may be delayed until API access is provided.
+- The frontend rebuild may take additional time because the team decided to roll back the previous implementation.
+- The AI agent may not be able to reliably predict failures without structured external data.
+- External data sources such as forums, maintenance statistics, map APIs, or OBD data require additional research and validation.
+- Without shared design styles, the application may become visually inconsistent.
+- The team needs to make progress visible through clearer artifacts and visual summaries.
 
 ## Customer Feedback
 
-The customer reacted positively to the prototype and said that it looked strong. The customer especially supported the idea of emphasizing the AI agent and making it more central to the application flow.
+The customer gave positive feedback on the architecture direction and the redesigned prototype. The customer also supported the decision to rebuild the frontend instead of continuing with inconsistent screens.
 
-The customer advised the team to keep the MVP focused, avoid unnecessary multi-car or social functionality at this stage, and prioritize completing the core product experience.
+The customer emphasized the importance of visual communication, database architecture understanding, and a clear list of achievements as part of the product direction.
 
 ## Customer Approvals
 
-The customer approved the general MVP direction, including the frontend-first MVP v0 approach, the prioritization of AI interaction, and the lightweight achievements idea as the unique feature.
-
-The customer approved publishing the sanitized meeting transcript in the repository.
-
-The customer also approved continuing with the current prototype direction while making the AI chat more accessible.
+The customer approved the sprint direction, the architecture approach, the frontend rebuild, and the plan to continue toward MVP v1 with backend and AI integration.
 
 ## Resulting Changes
 
 As a result of the meeting, the team should:
 
-- Update the prototype so the AI chat is more prominent.
-- Keep MVP v0 focused on one car profile.
-- Treat achievements as the selected unique feature.
-- Avoid complex social functionality in the first MVP.
-- Prepare architecture documentation for the next report.
-- Research external APIs only as a secondary task.
-- Use the sanitized transcript and this summary as Week 2 meeting evidence.
+- Add registration to the product flow.
+- Continue rebuilding the frontend with shared themes and styles.
+- Prepare the database UML diagram.
+- Prepare a visual summary of completed development work.
+- Start designing the achievements list.
+- Integrate DeepSeek once the customer provides access.
+- Use Monday meetings for planning and Thursday recorded calls for short check-ins if needed.
