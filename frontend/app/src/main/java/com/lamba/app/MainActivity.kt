@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.lamba.app.navigation.AppNavigation
+import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LAMBA_MVPv0Theme {
-                AppNavigation()
+                 AppNavigation()
             }
         }
     }
