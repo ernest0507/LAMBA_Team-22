@@ -30,12 +30,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.lamba.app.data.cars.CarDraft
 import components.ContinueButton
 
 @Composable
 fun CreationDigitalTwinStep1(
     onBack: () -> Unit = {},
-    onContinue: () -> Unit = {}
+    onContinue: (CarDraft) -> Unit = { _ -> }
 ) {
     var carModel by remember { mutableStateOf("") }
     var carYear by remember { mutableStateOf("") }
@@ -165,8 +166,16 @@ fun CreationDigitalTwinStep1(
             ContinueButton(
                 onClick = {
                     showValidation = true
-                    if (isFormValid) {
-                        onContinue()
+                    val mileageValue = mileage.toIntOrNull()
+                    if (isFormValid && year != null && mileageValue != null) {
+                        onContinue(
+                            CarDraft(
+                                model = carModel.trim(),
+                                year = year,
+                                currentMileageKm = mileageValue,
+                                notes = notes.trim().takeIf { it.isNotEmpty() }
+                            )
+                        )
                     }
                 },
                 text = "Продолжить"

@@ -17,6 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +29,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.lamba.app.data.auth.AuthViewModel
+import com.lamba.app.data.cars.CarDraft
+import com.lamba.app.data.cars.CarViewModel
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
 import com.lamba.app.screens.expenses.AddExpensesScreen
@@ -48,10 +53,19 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel()
     val authState by authViewModel.uiState.collectAsState()
+    val carViewModel: CarViewModel = viewModel()
+    val carState by carViewModel.uiState.collectAsState()
+    var carDraft by remember { mutableStateOf<CarDraft?>(null) }
 
     LaunchedEffect(authState.isAuthenticated) {
         if (authState.isAuthenticated) {
             navController.openDigitalTwinFlow()
+        }
+    }
+
+    LaunchedEffect(carState.createdCar?.id) {
+        if (carState.createdCar != null) {
+            navController.openHome()
         }
     }
 
@@ -86,14 +100,28 @@ fun AppNavigation() {
         composable(LambaRoute.CreateTwinStep1.path) {
             CreationDigitalTwinStep1(
                 onBack = { navController.popBackStack() },
-                onContinue = { navController.navigate(LambaRoute.CreateTwinStep2.path) }
+                onContinue = { draft ->
+                    carDraft = draft
+                    carViewModel.clearStatus()
+                    navController.navigate(LambaRoute.CreateTwinStep2.path)
+                }
             )
         }
 
         composable(LambaRoute.CreateTwinStep2.path) {
             CreationDigitalTwinStep2(
                 onBack = { navController.popBackStack() },
-                onCreateTwin = { navController.openHome() }
+                isLoading = carState.isLoading,
+                carErrorMessage = carState.errorMessage,
+                onCreateTwin = { color, bodyType ->
+                    carViewModel.createCar(
+                        accessToken = authState.accessToken,
+                        draft = carDraft?.copy(
+                            color = color,
+                            bodyType = bodyType
+                        )
+                    )
+                }
             )
         }
 
