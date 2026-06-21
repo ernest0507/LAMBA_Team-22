@@ -1,6 +1,6 @@
 # Lamba Backend API
 
-FastAPI backend for MVP v1 user authentication.
+FastAPI backend for MVP v1 user authentication and vehicle digital twin storage.
 
 ## Local Setup
 
@@ -50,3 +50,11 @@ Password: change_me
 - `POST /api/v1/auth/register`
 - `POST /api/v1/auth/login`
 - `GET /api/v1/auth/me`
+
+## Car Digital Twin Endpoints
+
+- `GET /api/v1/cars`
+- `POST /api/v1/cars`
+- `GET /api/v1/cars/{car_id}`
+- `PATCH /api/v1/cars/{car_id}`
+- `DELETE /api/v1/cars/{car_id}`
