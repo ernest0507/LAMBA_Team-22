@@ -13,19 +13,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.lamba.app.data.cars.CarResponse
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaSurface
-import com.lamba.app.ui.theme.LambaVehicleSilver
 import com.lamba.app.ui.theme.LambaRadius
+import com.lamba.app.ui.theme.LambaVehicleBlue
+import com.lamba.app.ui.theme.LambaVehicleGraphite
+import com.lamba.app.ui.theme.LambaVehicleGreen
+import com.lamba.app.ui.theme.LambaVehicleRed
+import com.lamba.app.ui.theme.LambaVehicleSilver
 import components.CarImage
 
 
 @Composable
 fun CarSummaryCard(
+    car: CarResponse? = null,
     modifier: Modifier = Modifier
 ) {
+    val vehicleColor = car?.color.toVehicleColor()
 
     Column(
         modifier = modifier
@@ -52,7 +60,7 @@ fun CarSummaryCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         CarImage(
-            bodyColor = LambaVehicleSilver,
+            bodyColor = vehicleColor,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
@@ -74,6 +82,17 @@ fun CarSummaryCard(
                 color = LambaInkMuted
             )
         }
+    }
+}
+
+private fun String?.toVehicleColor(): Color {
+    return when (this?.lowercase()) {
+        "red" -> LambaVehicleRed
+        "blue" -> LambaVehicleBlue
+        "green" -> LambaVehicleGreen
+        "graphite" -> LambaVehicleGraphite
+        "silver" -> LambaVehicleSilver
+        else -> LambaVehicleSilver
     }
 }
 

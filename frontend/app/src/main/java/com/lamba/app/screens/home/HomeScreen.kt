@@ -13,11 +13,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.lamba.app.data.cars.CarResponse
 import com.lamba.app.ui.theme.LambaCanvas
 
 
 @Composable
 fun HomeScreen(
+    car: CarResponse? = null,
     onOpenAiChat: () -> Unit = {},
     onAddExpensesClick: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
@@ -37,6 +39,7 @@ fun HomeScreen(
                 .background(LambaCanvas)
         ) {
             CarSummaryCard(
+                car = car,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(333.dp)

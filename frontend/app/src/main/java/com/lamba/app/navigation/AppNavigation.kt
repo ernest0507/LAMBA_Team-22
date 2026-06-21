@@ -148,6 +148,7 @@ fun AppNavigation() {
 
         composable(LambaRoute.Home.path) {
             HomeScreen(
+                car = carState.currentCar,
                 onOpenAiChat = {},
                 onAddExpensesClick = { navController.navigate(LambaRoute.AddExpenses.path) },
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },

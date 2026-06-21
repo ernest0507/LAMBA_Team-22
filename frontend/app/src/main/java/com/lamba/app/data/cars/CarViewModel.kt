@@ -18,6 +18,7 @@ data class CarUiState(
 ) {
     val hasCompletedCarsCheck: Boolean = cars != null
     val hasExistingCar: Boolean = !cars.isNullOrEmpty() || createdCar != null
+    val currentCar: CarResponse? = createdCar ?: cars?.firstOrNull()
 }
 
 class CarViewModel(
