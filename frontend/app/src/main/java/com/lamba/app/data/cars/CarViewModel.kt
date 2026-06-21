@@ -13,14 +13,37 @@ import retrofit2.HttpException
 data class CarUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val createdCar: CarResponse? = null
-)
+    val createdCar: CarResponse? = null,
+    val cars: List<CarResponse> = emptyList()
+) {
+    val currentCar: CarResponse? = createdCar ?: cars.firstOrNull()
+}
 
 class CarViewModel(
     private val repository: CarRepository = CarRepository()
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(CarUiState())
     val uiState: StateFlow<CarUiState> = _uiState.asStateFlow()
+
+    fun loadCars(accessToken: String?) {
+        if (accessToken.isNullOrBlank()) {
+            return
+        }
+
+        viewModelScope.launch {
+            runCatching {
+                repository.listCars(accessToken)
+            }.onSuccess { cars ->
+                _uiState.update {
+                    it.copy(cars = cars, errorMessage = null)
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(errorMessage = error.toCarMessage())
+                }
+            }
+        }
+    }
 
     fun createCar(accessToken: String?, draft: CarDraft?) {
         if (accessToken.isNullOrBlank()) {
@@ -45,7 +68,10 @@ class CarViewModel(
             runCatching {
                 repository.createCar(accessToken, draft)
             }.onSuccess { car ->
-                _uiState.value = CarUiState(createdCar = car)
+                _uiState.value = CarUiState(
+                    createdCar = car,
+                    cars = listOf(car)
+                )
             }.onFailure { error ->
                 _uiState.update {
                     it.copy(
