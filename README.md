@@ -10,6 +10,10 @@ for part 1
 - [Week 2 Submission Index](./reports/week2/README.md)
 - [MVP v0 Report and Smoke Check](./reports/week2/mvp-v0-report.md)
 
+## Backend
+
+- [Backend local setup and authentication API](./backend/README.md)
+
 
 ## Local setup instructions:
 
