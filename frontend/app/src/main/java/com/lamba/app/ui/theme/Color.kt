@@ -27,3 +27,4 @@ val LambaVehicleGraphite = Color(0xFF657074)
 val LambaVehicleBlue = Color(0xFF5D8192)
 val LambaVehicleGreen = Color(0xFF6F8E73)
 val LambaVehicleRed = Color(0xFFA95D53)
+
