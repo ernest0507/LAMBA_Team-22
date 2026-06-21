@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.lamba.app.ui.theme.LambaCanvas
+import com.lamba.app.ui.theme.LambaError
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
@@ -42,6 +43,8 @@ data class ExpenseEntry(
 @Composable
 fun AddExpensesScreen(
     onBack: () -> Unit,
+    isLoading: Boolean = false,
+    backendErrorMessage: String? = null,
     onSave: (ExpenseEntry) -> Unit
 ) {
     var amountText by remember { mutableStateOf("") }
@@ -143,9 +146,19 @@ fun AddExpensesScreen(
 
             Spacer(modifier = Modifier.height(LambaSpacing.BottomNavigationSpace))
 
+            if (!backendErrorMessage.isNullOrBlank()) {
+                Text(
+                    text = backendErrorMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LambaError
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
             ContinueButton(
                 text = "Сохранить",
-                enabled = isFormValid,
+                enabled = isFormValid && !isLoading,
                 onClick = {
                     if (validate()) {
                         onSave(ExpenseEntry(

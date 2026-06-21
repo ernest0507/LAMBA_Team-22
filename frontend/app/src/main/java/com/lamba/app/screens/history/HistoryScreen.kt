@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lamba.app.data.records.TimelineItemResponse
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 
 private val HistoryScreenBackground = Color(0xFFEEF4F2)
@@ -46,9 +47,12 @@ private val HistoryAccent = Color(0xFF17A1B8)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    records: List<TimelineItemResponse> = emptyList(),
     onBackClick: () -> Unit = {}
 ) {
-    val sections = rememberHistorySections()
+    val sections = rememberHistorySections(records)
 
     Scaffold(
         containerColor = HistoryScreenBackground,
@@ -87,6 +91,24 @@ fun HistoryScreen(
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            if (isLoading) {
+                item {
+                    HistoryStatusCard(text = "Loading history...")
+                }
+            }
+
+            if (!errorMessage.isNullOrBlank()) {
+                item {
+                    HistoryStatusCard(text = errorMessage, color = Color(0xFFB3261E))
+                }
+            }
+
+            if (!isLoading && errorMessage.isNullOrBlank() && sections.isEmpty()) {
+                item {
+                    HistoryStatusCard(text = "No expense records yet.")
+                }
+            }
+
             sections.forEach { section ->
                 item {
                     Text(
@@ -162,6 +184,28 @@ private fun HistoryEventCard(
 }
 
 @Composable
+private fun HistoryStatusCard(
+    text: String,
+    color: Color = HistorySecondaryText
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = HistoryCardBackground
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = color,
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp)
+        )
+    }
+}
+
+@Composable
 private fun HistoryBadge(
     title: String
 ) {
@@ -230,6 +274,34 @@ private data class HistoryItem(
     val subtitle: String,
     val amount: String
 )
+
+private fun rememberHistorySections(records: List<TimelineItemResponse>): List<HistorySection> {
+    return records
+        .groupBy { it.occurredAt ?: "No date" }
+        .map { (date, items) ->
+            HistorySection(
+                title = date,
+                items = items.map { record ->
+                    HistoryItem(
+                        title = record.title ?: "Expense",
+                        subtitle = record.subtitleText(),
+                        amount = record.costAmount.formatAmount()
+                    )
+                }
+            )
+        }
+}
+
+private fun TimelineItemResponse.subtitleText(): String {
+    return listOfNotNull(
+        category,
+        mileageKm?.let { "$it km" }
+    ).joinToString(" | ").ifBlank { "expense" }
+}
+
+private fun String.formatAmount(): String {
+    return "${substringBefore('.')} RUB"
+}
 
 private fun rememberHistorySections(): List<HistorySection> {
     return listOf(
