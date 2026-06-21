@@ -17,13 +17,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,10 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -44,7 +44,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import components.ContinueButton
+import components.LambaTextField as SharedLambaTextField
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaAccent
 import com.lamba.app.ui.theme.LambaAccentSoft
@@ -54,7 +55,6 @@ import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaOutline
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 
 @Composable
 fun RegistrationScreen(
@@ -67,6 +67,9 @@ fun RegistrationScreen(
     var repeatPassword by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     var repeatPasswordVisible by rememberSaveable { mutableStateOf(false) }
+    var emailError by rememberSaveable { mutableStateOf<String?>(null) }
+    var passwordError by rememberSaveable { mutableStateOf<String?>(null) }
+    var repeatPasswordError by rememberSaveable { mutableStateOf<String?>(null) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -88,7 +91,7 @@ fun RegistrationScreen(
 
                 Text(
                     text = "Создать аккаунт",
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.headlineLarge,
                     color = LambaInk
                 )
 
@@ -105,7 +108,7 @@ fun RegistrationScreen(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    RegistrationTextField(
+                    SharedLambaTextField(
                         label = "Имя",
                         value = name,
                         onValueChange = { name = it },
@@ -113,60 +116,95 @@ fun RegistrationScreen(
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        leadingContent = {
+                            RegistrationFieldIcon(
+                                imageVector = Icons.Outlined.Person,
+                                contentDescription = "Имя"
+                            )
+                        }
                     )
 
-                    RegistrationTextField(
+                    SharedLambaTextField(
                         label = "Email",
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = {
+                            email = it
+                            emailError = if (it.isNotEmpty() && !isEmailValid(it)) {
+                                InvalidDataMessage
+                            } else {
+                                null
+                            }
+                        },
                         placeholder = "name@example.com",
+                        isError = emailError != null,
+                        errorMessage = emailError,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Email,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        leadingContent = {
+                            RegistrationFieldIcon(
+                                imageVector = Icons.Outlined.Email,
+                                contentDescription = "Email"
+                            )
+                        }
                     )
 
                     RegistrationPasswordField(
                         label = "Пароль",
                         value = password,
-                        onValueChange = { password = it },
+                        onValueChange = {
+                            password = it
+                            passwordError = if (it.isNotEmpty() && !isPasswordValid(it)) {
+                                InvalidDataMessage
+                            } else {
+                                null
+                            }
+                            repeatPasswordError = if (
+                                repeatPassword.isNotEmpty() &&
+                                repeatPassword != it
+                            ) {
+                                PasswordMismatchMessage
+                            } else {
+                                null
+                            }
+                        },
                         placeholder = "••••••••",
                         passwordVisible = passwordVisible,
                         onVisibilityToggle = { passwordVisible = !passwordVisible },
-                        imeAction = ImeAction.Next
+                        imeAction = ImeAction.Next,
+                        errorMessage = passwordError
                     )
 
                     RegistrationPasswordField(
                         label = "Повторите пароль",
                         value = repeatPassword,
-                        onValueChange = { repeatPassword = it },
+                        onValueChange = {
+                            repeatPassword = it
+                            repeatPasswordError = if (
+                                it.isNotEmpty() &&
+                                it != password
+                            ) {
+                                PasswordMismatchMessage
+                            } else {
+                                null
+                            }
+                        },
                         placeholder = "••••••••",
                         passwordVisible = repeatPasswordVisible,
                         onVisibilityToggle = { repeatPasswordVisible = !repeatPasswordVisible },
-                        imeAction = ImeAction.Done
+                        imeAction = ImeAction.Done,
+                        errorMessage = repeatPasswordError
                     )
                 }
 
                 Spacer(modifier = Modifier.height(22.dp))
 
-                Button(
+                ContinueButton(
                     onClick = onCreateAccountClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(58.dp),
-                    shape = RoundedCornerShape(LambaRadius.Large),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = LambaAccent,
-                        contentColor = Color.White
-                    )
-                ) {
-                    Text(
-                        text = "Создать аккаунт",
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
+                    text = "Создать аккаунт"
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -188,9 +226,7 @@ private fun RegistrationBrandHeader() {
     ) {
         Text(
             text = "LAMBA",
-            style = MaterialTheme.typography.titleMedium.copy(
-                letterSpacing = 1.6.sp
-            ),
+            style = MaterialTheme.typography.titleMedium,
             color = LambaInk,
             fontWeight = FontWeight.Bold
         )
@@ -199,9 +235,9 @@ private fun RegistrationBrandHeader() {
 
         Box(
             modifier = Modifier
-                .size(30.dp)
+                .size(32.dp)
                 .background(
-                    color = LambaAccentSoft,
+                    color = LambaAccentSoft.copy(alpha = 0.85f),
                     shape = RoundedCornerShape(LambaRadius.Medium)
                 ),
             contentAlignment = Alignment.Center
@@ -213,97 +249,48 @@ private fun RegistrationBrandHeader() {
 
 @Composable
 private fun RegistrationAccentSpark() {
-    Canvas(modifier = Modifier.size(16.dp)) {
-        val strokeWidth = 1.8.dp.toPx()
+    Canvas(modifier = Modifier.size(15.dp)) {
         val center = Offset(size.width / 2f, size.height / 2f)
         val longRadius = size.minDimension * 0.38f
-        val shortRadius = size.minDimension * 0.22f
+        val shortRadius = size.minDimension * 0.20f
 
         drawLine(
-            brush = SolidColor(LambaAccent),
+            color = LambaAccent,
             start = Offset(center.x, center.y - longRadius),
             end = Offset(center.x, center.y + longRadius),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
+            strokeWidth = 1.6.dp.toPx()
         )
         drawLine(
-            brush = SolidColor(LambaAccent),
+            color = LambaAccent,
             start = Offset(center.x - longRadius, center.y),
             end = Offset(center.x + longRadius, center.y),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
+            strokeWidth = 1.6.dp.toPx()
         )
         drawLine(
-            brush = SolidColor(LambaAccent),
+            color = LambaAccent,
             start = Offset(center.x - shortRadius, center.y - shortRadius),
             end = Offset(center.x + shortRadius, center.y + shortRadius),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
+            strokeWidth = 1.2.dp.toPx()
         )
         drawLine(
-            brush = SolidColor(LambaAccent),
+            color = LambaAccent,
             start = Offset(center.x - shortRadius, center.y + shortRadius),
             end = Offset(center.x + shortRadius, center.y - shortRadius),
-            strokeWidth = strokeWidth,
-            cap = StrokeCap.Round
+            strokeWidth = 1.2.dp.toPx()
         )
     }
 }
 
 @Composable
-private fun RegistrationTextField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    keyboardOptions: KeyboardOptions,
-    trailingContent: @Composable (() -> Unit)? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+private fun RegistrationFieldIcon(
+    imageVector: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = LambaInkMuted
-        )
-
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = LambaInk),
-            placeholder = {
-                Text(
-                    text = placeholder,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = LambaInkMuted
-                )
-            },
-            visualTransformation = visualTransformation,
-            keyboardOptions = keyboardOptions,
-            trailingIcon = trailingContent,
-            shape = RoundedCornerShape(LambaRadius.Medium),
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = LambaInk,
-                unfocusedTextColor = LambaInk,
-                disabledTextColor = LambaInk,
-                errorTextColor = LambaInk,
-                focusedContainerColor = LambaSurface,
-                unfocusedContainerColor = LambaSurface,
-                disabledContainerColor = LambaSurface,
-                errorContainerColor = LambaSurface,
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent,
-                errorIndicatorColor = Color.Transparent,
-                cursorColor = LambaAccent
-            )
-        )
-    }
+    Icon(
+        imageVector = imageVector,
+        contentDescription = contentDescription,
+        tint = LambaInkMuted
+    )
 }
 
 @Composable
@@ -314,30 +301,47 @@ private fun RegistrationPasswordField(
     placeholder: String,
     passwordVisible: Boolean,
     onVisibilityToggle: () -> Unit,
-    imeAction: ImeAction
+    imeAction: ImeAction,
+    errorMessage: String? = null
 ) {
-    RegistrationTextField(
+    SharedLambaTextField(
         label = label,
         value = value,
         onValueChange = onValueChange,
         placeholder = placeholder,
+        isError = errorMessage != null,
+        errorMessage = errorMessage,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password,
             imeAction = imeAction
         ),
-        trailingContent = {
-            Text(
-                text = if (passwordVisible) "Скрыть" else "Показать",
-                style = MaterialTheme.typography.bodySmall,
-                color = LambaAccent,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.clickable(onClick = onVisibilityToggle)
-            )
-        },
         visualTransformation = if (passwordVisible) {
             VisualTransformation.None
         } else {
             PasswordVisualTransformation()
+        },
+        leadingContent = {
+            RegistrationFieldIcon(
+                imageVector = Icons.Outlined.Lock,
+                contentDescription = label
+            )
+        },
+        trailingContent = {
+            IconButton(onClick = onVisibilityToggle) {
+                Icon(
+                    imageVector = if (passwordVisible) {
+                        Icons.Outlined.VisibilityOff
+                    } else {
+                        Icons.Outlined.Visibility
+                    },
+                    contentDescription = if (passwordVisible) {
+                        "Скрыть пароль"
+                    } else {
+                        "Показать пароль"
+                    },
+                    tint = LambaInkMuted
+                )
+            }
         }
     )
 }
@@ -371,71 +375,39 @@ private fun RegistrationFooterAction(
     }
 }
 
+private fun isEmailValid(email: String): Boolean {
+    return EmailPattern.matches(email)
+}
+
+private fun isPasswordValid(password: String): Boolean {
+    return password.length == RequiredPasswordLength
+}
+
 @Composable
 private fun RegistrationBackgroundDecoration() {
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val mainStroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round)
-        val thinStroke = Stroke(width = 1.2.dp.toPx(), cap = StrokeCap.Round)
-
-        val upperLine = Path().apply {
-            moveTo(size.width * 0.58f, size.height * 0.18f)
-            cubicTo(
-                size.width * 0.72f,
-                size.height * 0.10f,
-                size.width * 0.88f,
-                size.height * 0.14f,
-                size.width * 1.02f,
-                size.height * 0.06f
-            )
-        }
-
-        val carLine = Path().apply {
-            moveTo(size.width * 0.04f, size.height * 0.80f)
-            cubicTo(
-                size.width * 0.20f,
-                size.height * 0.73f,
-                size.width * 0.42f,
-                size.height * 0.71f,
-                size.width * 0.58f,
-                size.height * 0.76f
-            )
-            cubicTo(
-                size.width * 0.70f,
-                size.height * 0.79f,
-                size.width * 0.84f,
-                size.height * 0.75f,
-                size.width * 0.98f,
-                size.height * 0.66f
-            )
-        }
-
-        drawPath(
-            path = upperLine,
-            color = LambaAccent.copy(alpha = 0.08f),
-            style = thinStroke
-        )
-        drawPath(
-            path = carLine,
-            color = LambaAccent.copy(alpha = 0.11f),
-            style = mainStroke
+        drawCircle(
+            color = LambaAccentSoft.copy(alpha = 0.42f),
+            radius = size.minDimension * 0.23f,
+            center = Offset(size.width * 0.94f, size.height * 0.08f)
         )
         drawCircle(
-            color = LambaAccent.copy(alpha = 0.05f),
-            radius = size.minDimension * 0.26f,
-            center = Offset(size.width * 0.92f, size.height * 0.14f)
-        )
-        drawCircle(
-            color = LambaOutline.copy(alpha = 0.42f),
-            radius = size.minDimension * 0.16f,
-            center = Offset(size.width * 0.10f, size.height * 0.94f)
+            color = LambaOutline.copy(alpha = 0.18f),
+            radius = size.minDimension * 0.15f,
+            center = Offset(size.width * 0.10f, size.height * 0.97f)
         )
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFFEEF4F2)
+@Preview(showBackground = true)
 @Composable
 private fun RegistrationScreenPreview() {
     LAMBA_MVPv0Theme {
         RegistrationScreen()
     }
 }
+
+private val EmailPattern = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
+private const val InvalidDataMessage = "Некорректные данные"
+private const val PasswordMismatchMessage = "Пароли не совпадают"
+private const val RequiredPasswordLength = 8
