@@ -58,3 +58,12 @@ Password: change_me
 - `GET /api/v1/cars/{car_id}`
 - `PATCH /api/v1/cars/{car_id}`
 - `DELETE /api/v1/cars/{car_id}`
+
+## Maintenance Record Endpoints
+
+- `GET /api/v1/cars/{car_id}/records`
+- `POST /api/v1/cars/{car_id}/records`
+- `GET /api/v1/cars/{car_id}/records/{record_id}`
+- `PATCH /api/v1/cars/{car_id}/records/{record_id}`
+- `DELETE /api/v1/cars/{car_id}/records/{record_id}`
+- `GET /api/v1/cars/{car_id}/timeline`
