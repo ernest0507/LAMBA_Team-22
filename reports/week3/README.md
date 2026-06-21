@@ -293,12 +293,6 @@ The customer review evidence is maintained in:
 * [Customer review transcript](./customer-review-transcript.md)
 * [Customer review summary](./customer-review-summary.md)
 
-If public transcript publication is refused but private sharing is permitted, the transcript should be shared only through Moodle or an equivalent private instructor-sharing channel and this section should be updated accordingly.
-
-If recording or private sharing is refused, the team should provide:
-
-* [Customer review notes](./customer-review-notes.md)
-
 ## Week 3 Reflection, Retrospective, and LLM Report
 
 * [Week 3 reflection](./reflection.md)
