@@ -62,15 +62,19 @@ fun AppNavigation() {
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
     val currentCarId = carState.currentCar?.id
 
-    LaunchedEffect(authState.isAuthenticated) {
-        if (authState.isAuthenticated) {
-            navController.openDigitalTwinFlow()
-        }
-    }
-
     LaunchedEffect(authState.accessToken) {
         if (authState.isAuthenticated) {
             carViewModel.loadCars(authState.accessToken)
+        }
+    }
+
+    LaunchedEffect(authState.isAuthenticated, carState.hasLoadedCars, currentCarId) {
+        if (authState.isAuthenticated && carState.hasLoadedCars) {
+            if (currentCarId == null) {
+                navController.openDigitalTwinFlow()
+            } else {
+                navController.openHomeAfterLogin()
+            }
         }
     }
 
@@ -231,6 +235,15 @@ private fun NavHostController.openLoginAfterRegistration() {
 private fun NavHostController.openHome() {
     navigate(LambaRoute.Home.path) {
         popUpTo(LambaRoute.CreateTwinStep1.path) {
+            inclusive = true
+        }
+        launchSingleTop = true
+    }
+}
+
+private fun NavHostController.openHomeAfterLogin() {
+    navigate(LambaRoute.Home.path) {
+        popUpTo(LambaRoute.Login.path) {
             inclusive = true
         }
         launchSingleTop = true

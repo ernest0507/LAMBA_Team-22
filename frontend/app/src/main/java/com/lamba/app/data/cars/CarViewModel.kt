@@ -14,7 +14,8 @@ data class CarUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val createdCar: CarResponse? = null,
-    val cars: List<CarResponse> = emptyList()
+    val cars: List<CarResponse> = emptyList(),
+    val hasLoadedCars: Boolean = false
 ) {
     val currentCar: CarResponse? = createdCar ?: cars.firstOrNull()
 }
@@ -31,15 +32,28 @@ class CarViewModel(
         }
 
         viewModelScope.launch {
+            _uiState.update {
+                it.copy(isLoading = true, errorMessage = null)
+            }
+
             runCatching {
                 repository.listCars(accessToken)
             }.onSuccess { cars ->
                 _uiState.update {
-                    it.copy(cars = cars, errorMessage = null)
+                    it.copy(
+                        isLoading = false,
+                        cars = cars,
+                        hasLoadedCars = true,
+                        errorMessage = null
+                    )
                 }
             }.onFailure { error ->
                 _uiState.update {
-                    it.copy(errorMessage = error.toCarMessage())
+                    it.copy(
+                        isLoading = false,
+                        hasLoadedCars = true,
+                        errorMessage = error.toCarMessage()
+                    )
                 }
             }
         }
@@ -70,7 +84,8 @@ class CarViewModel(
             }.onSuccess { car ->
                 _uiState.value = CarUiState(
                     createdCar = car,
-                    cars = listOf(car)
+                    cars = listOf(car),
+                    hasLoadedCars = true
                 )
             }.onFailure { error ->
                 _uiState.update {
