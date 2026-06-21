@@ -4,14 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.lamba.app.screens.auth.LoginScreen
-import com.lamba.app.screens.auth.RegistrationScreen
-import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
-import com.lamba.app.screens.greeting.CreationDigitalTwinStep2
-import com.lamba.app.screens.greeting.GreetingScreen
-import com.lamba.app.screens.history.HistoryScreen
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import com.lamba.app.screens.expenses.AddExpensesScreen
 import com.lamba.app.screens.home.HomeScreen
-import com.lamba.app.screens.profile.ProfileScreen
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 
 class MainActivity : ComponentActivity() {
@@ -20,8 +19,26 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LAMBA_MVPv0Theme {
-                RegistrationScreen()
+                AppContent()
             }
         }
+    }
+}
+
+@Composable
+private fun AppContent() {
+    var currentScreen by remember { mutableStateOf("home") }
+
+    when (currentScreen) {
+        "home" -> HomeScreen(
+            onAddExpensesClick = { currentScreen = "add_expenses" }
+        )
+
+        "add_expenses" -> AddExpensesScreen(
+            onBack = { currentScreen = "home" },
+            onSave = { expense ->
+                currentScreen = "home"
+            }
+        )
     }
 }
