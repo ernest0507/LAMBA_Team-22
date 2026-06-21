@@ -42,6 +42,7 @@ import com.lamba.app.ui.theme.LambaSurface
 @Composable
 fun Sidebar(
     onClose: () -> Unit,
+    onAddExpensesClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -103,6 +104,15 @@ fun Sidebar(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            GarageMenuItem(
+                title = "Добавить расход",
+                subtitle = "Запишите новую трату на автомобиль",
+                onClick = {
+                    onClose()
+                    onAddExpensesClick()
+                }
+            )
 
             GarageMenuItem(
                 title = "История",
