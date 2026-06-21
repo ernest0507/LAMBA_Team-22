@@ -34,6 +34,9 @@ import components.LambaTextField
 data class ExpenseEntry(
     val amount: Int,
     val description: String
+
+    /* TODO: Add user_id, car_id, category, created_at for API contract */
+
 )
 
 @Composable

@@ -112,7 +112,10 @@ fun Sidebar(
             GarageMenuItem(
                 title = "Добавить расход",
                 subtitle = "Запишите новую трату на автомобиль",
-                onClick = onAddExpensesClick
+                onClick = {
+                    onClose()
+                    onAddExpensesClick()
+                }
             )
 
             GarageMenuItem(
