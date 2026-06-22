@@ -167,16 +167,16 @@ The team will:
 
 ## Contribution Traceability
 
-This table summarizes the current Week 3 responsibility traceability. Final issue, PR, and review links will be updated after all development PRs are reviewed and merged.
+This table summarizes Week 3 issue, PR/MR, and review activity collected from repository evidence.
 
-| Team member | Issues / PBIs | PRs / MRs | Review activity |
+| Team member | Issues / tasks | PRs / MRs | Review activity |
 |---|---|---|---|
-| Ernest Kashapov | Product coordination, sprint planning, customer feedback processing, backlog organization | **PLACEHOLDER — add final PR links before submission.** | Product/scope review and PR review support |
-| Maya Gavrilova | Backend-related MVP v1 work, backend integration support, AI/backend preparation | **PLACEHOLDER — add final PR links before submission.** | **PLACEHOLDER — add backend-related review links before submission.** |
-| Gleb Demchin | Backend-related MVP v1 work, car data storage and integration support | **PLACEHOLDER — add final PR links before submission.** | **PLACEHOLDER — add backend-related review links before submission.** |
-| Varvara Chizhikova | Frontend design updates, UI consistency, MVP v1 frontend implementation support | **PLACEHOLDER — add final PR links before submission.** | **PLACEHOLDER — add frontend-related review links before submission.** |
-| Ildar Faskhutdinov | MVP v1 frontend implementation support, navigation/screen work where applicable | **PLACEHOLDER — add final PR links before submission.** | **PLACEHOLDER — add frontend-related review links before submission.** |
-| Vladimir Germanov | [Process Requirements](https://github.com/ernest0507/LAMBA_Team-22/blob/main/Process_Requirements.md), [Roadmap](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/roadmap.md), Week 3 report documentation, customer review materials, reflection, retrospective, LLM report
+| @ernest0507 | #43, #46, #50, #62, #66, #69, #51 | #44, #47, #57, #63, #64, #68, #70, #90 | Reviewed and approved #41, #45, #58 |
+| @varvarachizh | #26, #42, #48, #60, #69 | #41, #45, #58, #65, #70 | Reviewed and approved #44, #47, #63, #68 |
+| @vovger | #77, #81, Week 3 documentation/reporting tasks | #75, #78, #86 | Participated through Week 3 documentation PRs and merged/report workflow evidence |
+| @ItsShonn | #80, expenses / backend-related MVP work | #84, #87 | Reviewed and approved #57 |
+| @GxyzD | #49, #80, backend AI/auth integration work | #84 | Reviewed and approved #64 |
+| @kysadakka | #49, #80, Sprint implementation support / backend-related work | Linked as implementer on Sprint PBIs #49 and #80 | Reviewed and approved #65 |
 
 ## Release and Documentation Links
 
@@ -194,7 +194,7 @@ This table summarizes the current Week 3 responsibility traceability. Final issu
 
 ## Screenshots
 
-Screenshots are placed in `reports/week3/images/`.
+Screenshots should be placed in `reports/week3/images/`.
 
 The following screenshots have already been added or reserved. Existing screenshots are embedded below. Missing screenshots are marked with visible placeholders so they can be added quickly before final submission.
 
