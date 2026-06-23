@@ -25,7 +25,8 @@ fun HomeScreen(
     onOpenHistory: () -> Unit = {},
     onOpenStatistics: () -> Unit = {},
     onOpenDocuments: () -> Unit = {},
-    onOpenProfile: () -> Unit = {}
+    onOpenProfile: () -> Unit = {},
+    onSendMessage: (String) -> Unit = {}
 ) {
     var isMenuOpen by remember { mutableStateOf(false) }
     Box(
@@ -51,6 +52,7 @@ fun HomeScreen(
                 onMenuClick = {
                     isMenuOpen = true
                 },
+                onSendClick = onSendMessage,
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f)

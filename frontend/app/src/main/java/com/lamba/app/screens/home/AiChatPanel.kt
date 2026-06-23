@@ -21,6 +21,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,8 +49,11 @@ private val AiPanelDark = Color(0xFF0D2630)
 fun AiChatPanel(
     onSwipeUp: () -> Unit,
     onMenuClick: () -> Unit,
+    onSendClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var messageText by remember { mutableStateOf("") }
+
     Box(
         modifier = modifier
             .background(
@@ -157,6 +164,15 @@ fun AiChatPanel(
             Spacer(modifier = Modifier.weight(1f))
 
             ChatInput(
+                value = messageText,
+                onValueChange = { messageText = it },
+                onSendClick = {
+                    val textToSend = messageText.trim()
+                    if (textToSend.isNotEmpty()) {
+                        onSendClick(textToSend)
+                        messageText = ""
+                    }
+                },
                 modifier = Modifier.padding(bottom = 22.dp)
             )
         }
