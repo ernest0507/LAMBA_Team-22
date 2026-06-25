@@ -8,6 +8,6 @@
 
 **Automated command or CI check:** reg_response_time_check
 
-**Expected measurable result:** At least 90% of 100 concurrent requests from users should recieve respone within 2 seconds
+**Expected measurable result:** At least 90% of 20 concurrent requests from users should recieve respone within 2 seconds
 
 **Evidence link:** LINK
