@@ -1,6 +1,7 @@
 package com.lamba.app.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,7 +62,7 @@ fun ChatInput(
             decorationBox = { innerTextField ->
                 if (value.isEmpty())             {
                     Text(
-                        text = "Спросите об автомобиле5",
+                        text = "Спросите об автомобиле",
                         style = MaterialTheme.typography.bodySmall,
                         color = LambaInkMuted
                     )
@@ -74,6 +75,7 @@ fun ChatInput(
             modifier = Modifier
                 .clip(RoundedCornerShape(LambaRadius.Pill))
                 .background(LambaAccentStrong)
+                .clickable(onClick = onSendClick)
                 .padding(12.dp),
             contentAlignment = Alignment.Center
         ) {

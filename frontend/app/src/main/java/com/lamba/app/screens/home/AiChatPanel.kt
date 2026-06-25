@@ -6,12 +6,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +42,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.lerp
 import com.lamba.app.ui.theme.LambaAccentStrong
 import com.lamba.app.ui.theme.LambaChatInk
 import com.lamba.app.ui.theme.LambaRadius
@@ -50,9 +60,33 @@ fun AiChatPanel(
     onSwipeUp: () -> Unit,
     onMenuClick: () -> Unit,
     onSendClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onDrag: (Float) -> Unit,
+    onDragEnd: () -> Unit,
+    expandProgress: Float = 0f
 ) {
     var messageText by remember { mutableStateOf("") }
+    var messages by remember { mutableStateOf<List<ChatMessage>>(emptyList()) }
+    val listState = rememberLazyListState()
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)
+    }
+
+    val statusBarPadding = WindowInsets.statusBars
+        .asPaddingValues()
+        .calculateTopPadding()
+
+    val topSafePadding = lerp(
+        start = 0.dp,
+        stop = statusBarPadding,
+        fraction = expandProgress
+    )
+
+    val handleOffsetY = lerp(
+        start = 0.dp,
+        stop = 35.dp,
+        fraction = expandProgress
+    )
 
     Box(
         modifier = modifier
@@ -103,6 +137,7 @@ fun AiChatPanel(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(top = topSafePadding)
                 .padding(horizontal = LambaSpacing.ScreenHorizontal)
         ) {
             Row(
@@ -136,17 +171,21 @@ fun AiChatPanel(
 
                 Box(
                     modifier = Modifier
-                        .padding(bottom = 40.dp)
+//                        .padding(bottom = 40.dp)
+//                        .offset(y = handleOffsetY)
                         .width(54.dp)
                         .height(5.dp)
                         .clip(RoundedCornerShape(LambaRadius.Pill))
                         .background(Color.Gray.copy(alpha = 0.45f))
                         .pointerInput(Unit) {
-                            detectVerticalDragGestures { _, dragAmount ->
-                                if (dragAmount < -16f) {
-                                    onSwipeUp()
+                            detectVerticalDragGestures(
+                                onVerticalDrag = { _, dragAmount ->
+                                    onDrag(dragAmount)
+                                },
+                                onDragEnd = {
+                                    onDragEnd()
                                 }
-                            }
+                            )
                         }
                 )
 
@@ -161,7 +200,20 @@ fun AiChatPanel(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+            ) {
+                items(messages) { message ->
+                    if (message.isUser) {
+                        UserBubble(message.text)
+                    } else AiBubble(message.text)
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                }
+            }
 
             ChatInput(
                 value = messageText,
@@ -169,11 +221,15 @@ fun AiChatPanel(
                 onSendClick = {
                     val textToSend = messageText.trim()
                     if (textToSend.isNotEmpty()) {
+                        messages = messages + ChatMessage(
+                            text = textToSend,
+                            isUser = true
+                        )
                         onSendClick(textToSend)
                         messageText = ""
                     }
                 },
-                modifier = Modifier.padding(bottom = 22.dp)
+                modifier = Modifier.padding(bottom = 22.dp),
             )
         }
     }

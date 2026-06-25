@@ -39,6 +39,7 @@ import com.lamba.app.screens.expenses.AddExpensesScreen
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep2
 import com.lamba.app.screens.history.HistoryScreen
+import com.lamba.app.screens.home.AiChatPanel
 import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.screens.profile.ProfileScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
@@ -163,12 +164,25 @@ fun AppNavigation() {
         composable(LambaRoute.Home.path) {
             HomeScreen(
                 car = carState.currentCar,
-                onOpenAiChat = {},
+                onOpenAiChat = { navController.navigate(LambaRoute.AiChat.path) },
                 onAddExpensesClick = { navController.navigate(LambaRoute.AddExpenses.path) },
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },
                 onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
                 onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
                 onOpenProfile = { navController.navigate(LambaRoute.Profile.path) }
+            )
+        }
+
+        composable(LambaRoute.AiChat.path) {
+            AiChatPanel(
+                onSwipeUp = {},
+                onMenuClick = {
+                    navController.popBackStack()
+                },
+                onSendClick = {},
+                modifier = Modifier.fillMaxSize(),
+                onDrag = {},
+                onDragEnd = {}
             )
         }
 
@@ -322,5 +336,6 @@ private enum class LambaRoute(
     History("history"),
     Statistics("statistics"),
     Documents("documents"),
-    Profile("profile")
+    Profile("profile"),
+    AiChat("ai_chat")
 }
