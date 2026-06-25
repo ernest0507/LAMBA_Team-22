@@ -2,7 +2,7 @@
 
 **Linked quality requirement:** QR-001
 
-**Verification method:** Automated CI check
+**Verification method:** Automated backend API integration performance test
 
 **Test data, setup, or environment:** Standard CI build test with a backend running
 
