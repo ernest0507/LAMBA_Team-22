@@ -110,7 +110,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = LambaRoute.Login.path
+        startDestination = LambaRoute.ChooseNoteType.path
     ) {
         composable(LambaRoute.Login.path) {
             LoginScreen(
