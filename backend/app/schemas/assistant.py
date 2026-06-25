@@ -10,7 +10,6 @@ from app.models.maintenance_record import RecordCategory
 
 class AssistantAction(StrEnum):
     MESSAGE = "message"
-    RECORD_EXTRACTED = "record_extracted"
     RECORD_CREATED = "record_created"
     NEEDS_CLARIFICATION = "needs_clarification"
 
@@ -54,11 +53,6 @@ class AssistantMessageResponse(BaseModel):
 
     @model_validator(mode="after")
     def validate_action_payload(self) -> Self:
-        if self.action == AssistantAction.RECORD_EXTRACTED:
-            if self.extracted_record is None:
-                raise ValueError("extracted_record is required when action is record_extracted")
-            if self.record_id is not None:
-                raise ValueError("record_id must be empty when action is record_extracted")
         if self.action == AssistantAction.RECORD_CREATED and self.record_id is None:
             raise ValueError("record_id is required when action is record_created")
         if self.action == AssistantAction.NEEDS_CLARIFICATION and self.record_id is not None:
