@@ -1,4 +1,4 @@
-## QR-001: Search response time in registration flow
+## QR-001: Response time in registration flow
 
 **ISO/IEC 25010 sub-characteristic:** Performance Efficiency - Time behaviour
 
