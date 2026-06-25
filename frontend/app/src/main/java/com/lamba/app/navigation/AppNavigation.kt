@@ -33,13 +33,12 @@ import androidx.navigation.compose.rememberNavController
 import com.lamba.app.data.auth.AuthViewModel
 import com.lamba.app.data.cars.CarDraft
 import com.lamba.app.data.cars.CarViewModel
-import com.lamba.app.data.records.ExpenseDraft
 import com.lamba.app.data.records.RecordsViewModel
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
-import com.lamba.app.screens.expenses.AddExpensesScreen
-import com.lamba.app.screens.expenses.ChooseNoteTypeScreen
-import com.lamba.app.screens.expenses.NoteType
+import com.lamba.app.screens.history.ChooseRecordTypeScreen
+import com.lamba.app.screens.history.ExpensesRecordScreen
+import com.lamba.app.screens.history.RecordType
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep2
 import com.lamba.app.screens.history.HistoryScreen
@@ -112,7 +111,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = LambaRoute.ChooseNoteType.path
+        startDestination = LambaRoute.ChooseRecordType.path
     ) {
         composable(LambaRoute.Login.path) {
             LoginScreen(
@@ -170,7 +169,7 @@ fun AppNavigation() {
             HomeScreen(
                 car = carState.currentCar,
                 onOpenAiChat = {},
-                onAddExpensesClick = { navController.navigate(LambaRoute.ChooseNoteType.path) },
+                onAddExpensesClick = { navController.navigate(LambaRoute.ChooseRecordType.path) },
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },
                 onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
                 onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
@@ -179,42 +178,28 @@ fun AppNavigation() {
         }
 
         composable(
-            LambaRoute.ChooseNoteType.path,
+            LambaRoute.ChooseRecordType.path,
             enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
             exitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
             popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
             popExitTransition = { slideOutHorizontally(targetOffsetX = { -it }) }
         ) {
-            ChooseNoteTypeScreen(
+            ChooseRecordTypeScreen(
                 onBackClick = { navController.popBackStack() },
                 onTypeSelected = { type ->
                     when (type) {
-                        NoteType.EXPENSE -> navController.navigate(LambaRoute.AddExpenses.path)
-                        NoteType.MAINTENANCE -> navController.navigate(LambaRoute.AddMaintenance.path)
-                        NoteType.BREAKDOWN -> navController.navigate(LambaRoute.AddBreakdown.path)
+                        RecordType.EXPENSE -> navController.navigate(LambaRoute.ExpensesRecord.path)
+                        RecordType.MAINTENANCE -> navController.navigate(LambaRoute.AddMaintenance.path)
+                        RecordType.BREAKDOWN -> navController.navigate(LambaRoute.AddBreakdown.path)
                     }
                 }
             )
         }
 
-        composable(LambaRoute.AddExpenses.path) {
-            AddExpensesScreen(
-                onBack = {
-                    recordsViewModel.clearError()
-                    navController.popBackStack()
-                },
-                isLoading = recordsState.isSaving,
-                backendErrorMessage = recordsState.errorMessage,
-                onSave = { expense ->
-                    recordsViewModel.createExpense(
-                        accessToken = authState.accessToken,
-                        carId = currentCarId,
-                        draft = ExpenseDraft(
-                            amount = expense.amount,
-                            description = expense.description
-                        )
-                    )
-                }
+        composable(LambaRoute.ExpensesRecord.path) {
+            ExpensesRecordScreen(
+                onBack = { navController.popBackStack() },
+                onSave = { /* data integration TBD */ }
             )
         }
 
@@ -357,8 +342,8 @@ private enum class LambaRoute(
     CreateTwinStep1("create_twin_step_1"),
     CreateTwinStep2("create_twin_step_2"),
     Home("home"),
-    ChooseNoteType("choose_note_type"),
-    AddExpenses("add_expenses"),
+    ChooseRecordType("choose_record_type"),
+    ExpensesRecord("expenses_record"),
     AddMaintenance("add_maintenance"),
     AddBreakdown("add_breakdown"),
     History("history"),

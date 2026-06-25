@@ -1,4 +1,4 @@
-package com.lamba.app.screens.expenses
+package com.lamba.app.screens.history
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +20,6 @@ import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -47,7 +46,7 @@ import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaSignal
 import com.lamba.app.ui.theme.LambaSurface
 
-enum class NoteType {
+enum class RecordType {
     EXPENSE,
     MAINTENANCE,
     BREAKDOWN
@@ -55,9 +54,9 @@ enum class NoteType {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChooseNoteTypeScreen(
+fun ChooseRecordTypeScreen(
     onBackClick: () -> Unit,
-    onTypeSelected: (NoteType) -> Unit
+    onTypeSelected: (RecordType) -> Unit
 ) {
     Scaffold(
         containerColor = LambaCanvas,
@@ -101,35 +100,35 @@ fun ChooseNoteTypeScreen(
                 fontWeight = FontWeight.Medium
             )
 
-            NoteTypeCard(
+            RecordTypeCard(
                 icon = Icons.Default.AccountBalanceWallet,
                 iconTint = LambaAccent,
                 title = "Траты",
                 description = "Заправка, детали, мойка и другие расходы",
-                onClick = { onTypeSelected(NoteType.EXPENSE) }
+                onClick = { onTypeSelected(RecordType.EXPENSE) }
             )
 
-            NoteTypeCard(
+            RecordTypeCard(
                 icon = Icons.Default.Build,
                 iconTint = LambaAccent,
                 title = "Обслуживание",
                 description = "ТО, замена жидкостей, плановые работы",
-                onClick = { onTypeSelected(NoteType.MAINTENANCE) }
+                onClick = { onTypeSelected(RecordType.MAINTENANCE) }
             )
 
-            NoteTypeCard(
+            RecordTypeCard(
                 icon = Icons.Default.Warning,
                 iconTint = LambaSignal,
                 title = "Поломки",
                 description = "Неисправности, ремонт и устранение проблем",
-                onClick = { onTypeSelected(NoteType.BREAKDOWN) }
+                onClick = { onTypeSelected(RecordType.BREAKDOWN) }
             )
         }
     }
 }
 
 @Composable
-private fun NoteTypeCard(
+private fun RecordTypeCard(
     icon: ImageVector,
     iconTint: Color,
     title: String,
