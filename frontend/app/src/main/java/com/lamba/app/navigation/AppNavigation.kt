@@ -43,6 +43,8 @@ import com.lamba.app.screens.expenses.NoteType
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep2
 import com.lamba.app.screens.history.HistoryScreen
+import com.lamba.app.screens.history.MaintenanceRecordScreen
+import com.lamba.app.screens.history.RepairRecordScreen
 import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.screens.profile.ProfileScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
@@ -188,8 +190,8 @@ fun AppNavigation() {
                 onTypeSelected = { type ->
                     when (type) {
                         NoteType.EXPENSE -> navController.navigate(LambaRoute.AddExpenses.path)
-                        NoteType.MAINTENANCE -> navController.navigate(LambaRoute.AddExpenses.path)
-                        NoteType.BREAKDOWN -> navController.navigate(LambaRoute.AddExpenses.path)
+                        NoteType.MAINTENANCE -> navController.navigate(LambaRoute.AddMaintenance.path)
+                        NoteType.BREAKDOWN -> navController.navigate(LambaRoute.AddBreakdown.path)
                     }
                 }
             )
@@ -213,6 +215,20 @@ fun AppNavigation() {
                         )
                     )
                 }
+            )
+        }
+
+        composable(LambaRoute.AddMaintenance.path) {
+            MaintenanceRecordScreen(
+                onBack = { navController.popBackStack() },
+                onSave = { /* data integration TBD */ }
+            )
+        }
+
+        composable(LambaRoute.AddBreakdown.path) {
+            RepairRecordScreen(
+                onBack = { navController.popBackStack() },
+                onSave = { /* data integration TBD */ }
             )
         }
 
@@ -343,6 +359,8 @@ private enum class LambaRoute(
     Home("home"),
     ChooseNoteType("choose_note_type"),
     AddExpenses("add_expenses"),
+    AddMaintenance("add_maintenance"),
+    AddBreakdown("add_breakdown"),
     History("history"),
     Statistics("statistics"),
     Documents("documents"),
