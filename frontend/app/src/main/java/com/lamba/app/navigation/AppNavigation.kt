@@ -1,5 +1,7 @@
 package com.lamba.app.navigation
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,6 +38,8 @@ import com.lamba.app.data.records.RecordsViewModel
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
 import com.lamba.app.screens.expenses.AddExpensesScreen
+import com.lamba.app.screens.expenses.ChooseNoteTypeScreen
+import com.lamba.app.screens.expenses.NoteType
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep2
 import com.lamba.app.screens.history.HistoryScreen
@@ -164,11 +168,30 @@ fun AppNavigation() {
             HomeScreen(
                 car = carState.currentCar,
                 onOpenAiChat = {},
-                onAddExpensesClick = { navController.navigate(LambaRoute.AddExpenses.path) },
+                onAddExpensesClick = { navController.navigate(LambaRoute.ChooseNoteType.path) },
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },
                 onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
                 onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
                 onOpenProfile = { navController.navigate(LambaRoute.Profile.path) }
+            )
+        }
+
+        composable(
+            LambaRoute.ChooseNoteType.path,
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { -it }) }
+        ) {
+            ChooseNoteTypeScreen(
+                onBackClick = { navController.popBackStack() },
+                onTypeSelected = { type ->
+                    when (type) {
+                        NoteType.EXPENSE -> navController.navigate(LambaRoute.AddExpenses.path)
+                        NoteType.MAINTENANCE -> navController.navigate(LambaRoute.AddExpenses.path)
+                        NoteType.BREAKDOWN -> navController.navigate(LambaRoute.AddExpenses.path)
+                    }
+                }
             )
         }
 
@@ -318,6 +341,7 @@ private enum class LambaRoute(
     CreateTwinStep1("create_twin_step_1"),
     CreateTwinStep2("create_twin_step_2"),
     Home("home"),
+    ChooseNoteType("choose_note_type"),
     AddExpenses("add_expenses"),
     History("history"),
     Statistics("statistics"),
