@@ -55,4 +55,4 @@ jobs:
           sleep 5
 
       - name: Run backend tests
-        run: pytest tests/test_registration_response_time.py tests/test_assistant_service.py
+        run: pytest tests/test_registration_response_time.py tests/test_returns_clarification_negative_cost.py
