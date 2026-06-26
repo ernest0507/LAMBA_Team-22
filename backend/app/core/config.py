@@ -22,6 +22,13 @@ class Settings:
     secret_key: str = getenv("SECRET_KEY", "change-this-secret-key")
     access_token_expire_minutes: int = int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440"))
 
+    ai_provider: str = getenv("AI_PROVIDER", "openai")
+    ai_api_key: str | None = getenv("AI_API_KEY")
+    ai_base_url: str | None = getenv("AI_BASE_URL")
+    ai_agent_id: str | None = getenv("AI_AGENT_ID")
+    ai_model: str = getenv("AI_MODEL", "default")
+    ai_request_timeout_seconds: int = int(getenv("AI_REQUEST_TIMEOUT_SECONDS", "30"))
+
     @property
     def sqlalchemy_database_uri(self) -> str:
         if self.database_url:
