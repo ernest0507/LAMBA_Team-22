@@ -10,7 +10,7 @@ import pytest
 from collections import Counter
 
 
-REQUEST_COUNT = 10
+REQUEST_COUNT = 20
 MAX_RESPOND_TIME_SEC = 2.0
 REQUIRED_FAST_RATIO = 0.95
 
