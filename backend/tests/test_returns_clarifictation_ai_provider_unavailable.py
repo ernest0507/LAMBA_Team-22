@@ -1,3 +1,12 @@
+from types import SimpleNamespace
+
+import pytest
+from openai import OpenAIError
+
+from app.core.config import Settings
+from app.schemas.assistant import AssistantAction, AssistantMessageRequest
+from app.services.assistant import extract_record_from_message
+
 class FailingClient:
     def __init__(self):
         self.chat = SimpleNamespace(
