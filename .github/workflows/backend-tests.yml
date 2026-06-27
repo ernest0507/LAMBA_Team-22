@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  backend-dependency-audit:
+  additional-test-backend-dependency-audit:
     runs-on: ubuntu-latest
 
     defaults:
