@@ -10,29 +10,9 @@ jobs:
   backend-tests:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: lamba_db
-          POSTGRES_USER: lamba_user
-          POSTGRES_PASSWORD: lamba_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U lamba_user -d lamba_db"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     defaults:
       run:
         working-directory: backend
-
-    env:
-      DATABASE_URL: postgresql+asyncpg://lamba_user:lamba_password@127.0.0.1:5432/lamba_db
-      BACKEND_BASE_URL: http://127.0.0.1:8000
-      API_PREFIX: /api/v1
 
     steps:
       - name: Checkout repository
@@ -49,13 +29,7 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-asyncio pytest-cov httpx
 
-      - name: Run database migrations
-        run: alembic upgrade head
-
-      - name: Start backend
-        run: |
-          uvicorn app.main:app --host 127.0.0.1 --port 8000 &
-          sleep 5
-
       - name: Run backend tests
+        env:
+          PYTHONPATH: .
         run: pytest tests --cov=app --cov-report=term-missing
