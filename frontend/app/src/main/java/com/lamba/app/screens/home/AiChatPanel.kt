@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -33,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,18 +57,27 @@ private val AiPanelDark = Color(0xFF0D2630)
 @Composable
 fun AiChatPanel(
     onSwipeUp: () -> Unit,
+    onSwipeDown: () -> Unit = {},
     onMenuClick: () -> Unit,
     onSendClick: (String) -> Unit,
+    messages: List<ChatMessage>,
+    isSending: Boolean = false,
     modifier: Modifier = Modifier,
     onDrag: (Float) -> Unit,
     onDragEnd: () -> Unit,
     expandProgress: Float = 0f
 ) {
     var messageText by remember { mutableStateOf("") }
-    var messages by remember { mutableStateOf<List<ChatMessage>>(emptyList()) }
     val listState = rememberLazyListState()
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) listState.animateScrollToItem(messages.lastIndex)
+    val bottomAnchorIndex = messages.size + if (isSending) 1 else 0
+    LaunchedEffect(bottomAnchorIndex) {
+        listState.animateScrollToItem(bottomAnchorIndex)
+    }
+    LaunchedEffect(bottomAnchorIndex, expandProgress) {
+        snapshotFlow { listState.layoutInfo.viewportEndOffset }
+            .collect {
+                listState.scrollToItem(bottomAnchorIndex)
+            }
     }
 
     val statusBarPadding = WindowInsets.statusBars
@@ -79,12 +87,6 @@ fun AiChatPanel(
     val topSafePadding = lerp(
         start = 0.dp,
         stop = statusBarPadding,
-        fraction = expandProgress
-    )
-
-    val handleOffsetY = lerp(
-        start = 0.dp,
-        stop = 35.dp,
         fraction = expandProgress
     )
 
@@ -143,6 +145,28 @@ fun AiChatPanel(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .pointerInput(onSwipeUp, onSwipeDown, onDrag, onDragEnd) {
+                        var totalDragY = 0f
+                        detectVerticalDragGestures(
+                            onDragStart = {
+                                totalDragY = 0f
+                            },
+                            onVerticalDrag = { _, dragAmount ->
+                                totalDragY += dragAmount
+                                onDrag(dragAmount)
+                            },
+                            onDragEnd = {
+                                onDragEnd()
+                                when {
+                                    totalDragY < -64f -> onSwipeUp()
+                                    totalDragY > 64f -> onSwipeDown()
+                                }
+                            },
+                            onDragCancel = {
+                                onDragEnd()
+                            }
+                        )
+                    }
                     .padding(top = 12.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -171,22 +195,10 @@ fun AiChatPanel(
 
                 Box(
                     modifier = Modifier
-//                        .padding(bottom = 40.dp)
-//                        .offset(y = handleOffsetY)
                         .width(54.dp)
                         .height(5.dp)
                         .clip(RoundedCornerShape(LambaRadius.Pill))
                         .background(Color.Gray.copy(alpha = 0.45f))
-                        .pointerInput(Unit) {
-                            detectVerticalDragGestures(
-                                onVerticalDrag = { _, dragAmount ->
-                                    onDrag(dragAmount)
-                                },
-                                onDragEnd = {
-                                    onDragEnd()
-                                }
-                            )
-                        }
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -213,6 +225,15 @@ fun AiChatPanel(
                     Spacer(modifier = Modifier.height(8.dp))
 
                 }
+                if (isSending) {
+                    item {
+                        AiBubble("Thinking...")
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(1.dp))
+                }
             }
 
             ChatInput(
@@ -221,10 +242,6 @@ fun AiChatPanel(
                 onSendClick = {
                     val textToSend = messageText.trim()
                     if (textToSend.isNotEmpty()) {
-                        messages = messages + ChatMessage(
-                            text = textToSend,
-                            isUser = true
-                        )
                         onSendClick(textToSend)
                         messageText = ""
                     }

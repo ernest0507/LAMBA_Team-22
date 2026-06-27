@@ -1,6 +1,5 @@
 package com.lamba.app.screens.home
 
-import androidx.collection.mutableFloatSetOf
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +24,8 @@ import com.lamba.app.ui.theme.LambaCanvas
 @Composable
 fun HomeScreen(
     car: CarResponse? = null,
+    messages: List<ChatMessage> = emptyList(),
+    isAssistantSending: Boolean = false,
     onOpenAiChat: () -> Unit = {},
     onAddExpensesClick: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
@@ -62,6 +63,8 @@ fun HomeScreen(
 
 
             AiChatPanel(
+                messages = messages,
+                isSending = isAssistantSending,
                 expandProgress = chatExpandProgress,
                 onDrag = { dragAmount ->
                     chatExpandProgress = (chatExpandProgress - dragAmount / dragDistancePx)
@@ -70,7 +73,12 @@ fun HomeScreen(
                 onDragEnd = {
                     if (chatExpandProgress > 0.35f)  chatExpandProgress = 1f else chatExpandProgress = 0f
                 },
-                onSwipeUp = {},
+                onSwipeUp = {
+                    chatExpandProgress = 1f
+                },
+                onSwipeDown = {
+                    chatExpandProgress = 0f
+                },
                 onMenuClick = {
                     isMenuOpen = true
                 },

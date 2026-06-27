@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.lamba.app.data.assistant.AssistantViewModel
 import com.lamba.app.data.auth.AuthViewModel
 import com.lamba.app.data.cars.CarDraft
 import com.lamba.app.data.cars.CarViewModel
@@ -60,6 +61,8 @@ fun AppNavigation() {
     val carState by carViewModel.uiState.collectAsState()
     val recordsViewModel: RecordsViewModel = viewModel()
     val recordsState by recordsViewModel.uiState.collectAsState()
+    val assistantViewModel: AssistantViewModel = viewModel()
+    val assistantState by assistantViewModel.uiState.collectAsState()
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
     val currentCarId = carState.currentCar?.id
     val isCheckingCars = authState.isAuthenticated && carState.isLoading
@@ -102,6 +105,18 @@ fun AppNavigation() {
             recordsViewModel.loadTimeline(authState.accessToken, createdRecord.carId)
             recordsViewModel.consumeCreatedRecord()
             navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(assistantState.lastResponse?.recordId) {
+        val response = assistantState.lastResponse
+        if (
+            response?.action == "record_created" &&
+            response.recordId != null &&
+            currentCarId != null
+        ) {
+            recordsViewModel.loadTimeline(authState.accessToken, currentCarId)
+            assistantViewModel.consumeLastResponse()
         }
     }
 
@@ -164,25 +179,46 @@ fun AppNavigation() {
         composable(LambaRoute.Home.path) {
             HomeScreen(
                 car = carState.currentCar,
+                messages = assistantState.messages,
+                isAssistantSending = assistantState.isSending,
                 onOpenAiChat = { navController.navigate(LambaRoute.AiChat.path) },
                 onAddExpensesClick = { navController.navigate(LambaRoute.AddExpenses.path) },
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },
                 onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
                 onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
-                onOpenProfile = { navController.navigate(LambaRoute.Profile.path) }
+                onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
+                onSendMessage = { message ->
+                    assistantViewModel.sendMessage(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        message = message
+                    )
+                }
             )
         }
 
         composable(LambaRoute.AiChat.path) {
             AiChatPanel(
                 onSwipeUp = {},
+                onSwipeDown = {
+                    navController.popBackStack()
+                },
                 onMenuClick = {
                     navController.popBackStack()
                 },
-                onSendClick = {},
+                onSendClick = { message ->
+                    assistantViewModel.sendMessage(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        message = message
+                    )
+                },
+                messages = assistantState.messages,
+                isSending = assistantState.isSending,
                 modifier = Modifier.fillMaxSize(),
                 onDrag = {},
-                onDragEnd = {}
+                onDragEnd = {},
+                expandProgress = 1f
             )
         }
 
