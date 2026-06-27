@@ -68,8 +68,15 @@ fun AiChatPanel(
     expandProgress: Float = 0f
 ) {
     var messageText by remember { mutableStateOf("") }
+    var localMessages by remember { mutableStateOf<List<ChatMessage>>(emptyList()) }
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            localMessages = emptyList()
+        }
+    }
+    val displayedMessages = messages + localMessages
     val listState = rememberLazyListState()
-    val bottomAnchorIndex = messages.size + if (isSending) 1 else 0
+    val bottomAnchorIndex = displayedMessages.size + if (isSending) 1 else 0
     LaunchedEffect(bottomAnchorIndex) {
         listState.animateScrollToItem(bottomAnchorIndex)
     }
@@ -218,7 +225,7 @@ fun AiChatPanel(
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                items(messages) { message ->
+                items(displayedMessages) { message ->
                     if (message.isUser) {
                         UserBubble(message.text)
                     } else AiBubble(message.text)
@@ -242,6 +249,10 @@ fun AiChatPanel(
                 onSendClick = {
                     val textToSend = messageText.trim()
                     if (textToSend.isNotEmpty()) {
+                        localMessages = localMessages + ChatMessage(
+                            text = textToSend,
+                            isUser = true
+                        )
                         onSendClick(textToSend)
                         messageText = ""
                     }

@@ -5,6 +5,18 @@ import java.time.LocalDate
 class RecordsRepository(
     private val api: RecordsApi = RecordsNetwork.api
 ) {
+    suspend fun createRecord(
+        accessToken: String,
+        carId: Int,
+        request: MaintenanceRecordCreateRequest
+    ): MaintenanceRecordResponse {
+        return api.createRecord(
+            authorization = "Bearer $accessToken",
+            carId = carId,
+            request = request
+        )
+    }
+
     suspend fun createExpense(
         accessToken: String,
         carId: Int,
@@ -13,8 +25,8 @@ class RecordsRepository(
         val cleanDescription = draft.description.trim()
         val title = cleanDescription.ifBlank { "Expense" }
 
-        return api.createRecord(
-            authorization = "Bearer $accessToken",
+        return createRecord(
+            accessToken = accessToken,
             carId = carId,
             request = MaintenanceRecordCreateRequest(
                 title = title,

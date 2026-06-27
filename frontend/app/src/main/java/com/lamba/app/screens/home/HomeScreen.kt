@@ -91,6 +91,7 @@ fun HomeScreen(
 
         if (isMenuOpen) {
             Sidebar(
+                car = car,
                 onClose = {
                     isMenuOpen = false
                 },
