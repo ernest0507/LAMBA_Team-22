@@ -1,12 +1,14 @@
 package com.lamba.app.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
@@ -20,13 +22,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lamba.app.ui.theme.LambaAccentStrong
+import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSurface
 
-
 @Composable
 fun ChatInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSendClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -44,18 +49,33 @@ fun ChatInput(
             tint = LambaInkMuted
         )
 
-        Text(
-            text = "Спросите об автомобиле",
-            style = MaterialTheme.typography.bodySmall,
-            color = LambaInkMuted,
+
+        // pattern "statChatInput.kte hoisting" - a state is passed from parent to child
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodySmall.copy(color = LambaInk),
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 12.dp)
+                .padding(start = 12.dp),
+            decorationBox = { innerTextField ->
+                if (value.isEmpty())             {
+                    Text(
+                        text = "Спросите об автомобиле",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LambaInkMuted
+                    )
+                }
+                innerTextField()
+            }
         )
+
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(LambaRadius.Pill))
                 .background(LambaAccentStrong)
+                .clickable(onClick = onSendClick)
                 .padding(12.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -67,18 +87,3 @@ fun ChatInput(
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

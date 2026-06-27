@@ -85,6 +85,44 @@ class RecordsViewModel(
         }
     }
 
+    fun createRecord(
+        accessToken: String?,
+        carId: Int?,
+        request: MaintenanceRecordCreateRequest
+    ) {
+        if (accessToken.isNullOrBlank()) {
+            _uiState.update {
+                it.copy(errorMessage = "Sign in before adding records.")
+            }
+            return
+        }
+
+        if (carId == null) {
+            _uiState.update {
+                it.copy(errorMessage = "Create a digital twin before adding records.")
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isSaving = true, errorMessage = null, createdRecord = null)
+            }
+
+            runCatching {
+                repository.createRecord(accessToken, carId, request)
+            }.onSuccess { record ->
+                _uiState.update {
+                    it.copy(isSaving = false, createdRecord = record, errorMessage = null)
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(isSaving = false, errorMessage = error.toRecordsMessage())
+                }
+            }
+        }
+    }
+
     fun consumeCreatedRecord() {
         _uiState.update {
             it.copy(createdRecord = null)

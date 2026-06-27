@@ -1,7 +1,5 @@
 package com.lamba.app.navigation
 
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,19 +28,24 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.lamba.app.data.assistant.AssistantViewModel
 import com.lamba.app.data.auth.AuthViewModel
 import com.lamba.app.data.cars.CarDraft
 import com.lamba.app.data.cars.CarViewModel
+import com.lamba.app.data.records.MaintenanceRecordCreateRequest
 import com.lamba.app.data.records.RecordsViewModel
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
-import com.lamba.app.screens.history.ChooseRecordTypeScreen
-import com.lamba.app.screens.history.ExpensesRecordScreen
-import com.lamba.app.screens.history.RecordType
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep2
+import com.lamba.app.screens.history.ChooseRecordTypeScreen
+import com.lamba.app.screens.history.ExpensesRecordFormData
+import com.lamba.app.screens.history.ExpensesRecordScreen
 import com.lamba.app.screens.history.HistoryScreen
+import com.lamba.app.screens.history.MaintenanceRecordFormData
 import com.lamba.app.screens.history.MaintenanceRecordScreen
+import com.lamba.app.screens.history.RecordType
+import com.lamba.app.screens.history.RepairRecordFormData
 import com.lamba.app.screens.history.RepairRecordScreen
 import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.screens.profile.ProfileScreen
@@ -54,6 +57,9 @@ import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
 import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 @Composable
 fun AppNavigation() {
@@ -64,6 +70,8 @@ fun AppNavigation() {
     val carState by carViewModel.uiState.collectAsState()
     val recordsViewModel: RecordsViewModel = viewModel()
     val recordsState by recordsViewModel.uiState.collectAsState()
+    val assistantViewModel: AssistantViewModel = viewModel()
+    val assistantState by assistantViewModel.uiState.collectAsState()
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
     val currentCarId = carState.currentCar?.id
     val isCheckingCars = authState.isAuthenticated && carState.isLoading
@@ -109,9 +117,21 @@ fun AppNavigation() {
         }
     }
 
+    LaunchedEffect(assistantState.lastResponse?.recordId) {
+        val response = assistantState.lastResponse
+        if (
+            response?.action == "record_created" &&
+            response.recordId != null &&
+            currentCarId != null
+        ) {
+            recordsViewModel.loadTimeline(authState.accessToken, currentCarId)
+            assistantViewModel.consumeLastResponse()
+        }
+    }
+
     NavHost(
         navController = navController,
-        startDestination = LambaRoute.ChooseRecordType.path
+        startDestination = LambaRoute.Login.path
     ) {
         composable(LambaRoute.Login.path) {
             LoginScreen(
@@ -168,22 +188,25 @@ fun AppNavigation() {
         composable(LambaRoute.Home.path) {
             HomeScreen(
                 car = carState.currentCar,
+                messages = assistantState.messages,
+                isAssistantSending = assistantState.isSending,
                 onOpenAiChat = {},
                 onAddExpensesClick = { navController.navigate(LambaRoute.ChooseRecordType.path) },
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },
                 onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
                 onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
-                onOpenProfile = { navController.navigate(LambaRoute.Profile.path) }
+                onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
+                onSendMessage = { message ->
+                    assistantViewModel.sendMessage(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        message = message
+                    )
+                }
             )
         }
 
-        composable(
-            LambaRoute.ChooseRecordType.path,
-            enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
-            exitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
-            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
-            popExitTransition = { slideOutHorizontally(targetOffsetX = { -it }) }
-        ) {
+        composable(LambaRoute.ChooseRecordType.path) {
             ChooseRecordTypeScreen(
                 onBackClick = { navController.popBackStack() },
                 onTypeSelected = { type ->
@@ -199,21 +222,45 @@ fun AppNavigation() {
         composable(LambaRoute.ExpensesRecord.path) {
             ExpensesRecordScreen(
                 onBack = { navController.popBackStack() },
-                onSave = { /* data integration TBD */ }
+                onSave = { form ->
+                    recordsViewModel.createRecord(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        request = form.toRecordRequest()
+                    )
+                },
+                isSaving = recordsState.isSaving,
+                errorMessage = recordsState.errorMessage
             )
         }
 
         composable(LambaRoute.AddMaintenance.path) {
             MaintenanceRecordScreen(
                 onBack = { navController.popBackStack() },
-                onSave = { /* data integration TBD */ }
+                onSave = { form ->
+                    recordsViewModel.createRecord(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        request = form.toRecordRequest()
+                    )
+                },
+                isSaving = recordsState.isSaving,
+                errorMessage = recordsState.errorMessage
             )
         }
 
         composable(LambaRoute.AddBreakdown.path) {
             RepairRecordScreen(
                 onBack = { navController.popBackStack() },
-                onSave = { /* data integration TBD */ }
+                onSave = { form ->
+                    recordsViewModel.createRecord(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        request = form.toRecordRequest()
+                    )
+                },
+                isSaving = recordsState.isSaving,
+                errorMessage = recordsState.errorMessage
             )
         }
 
@@ -275,6 +322,63 @@ private fun NavHostController.openHomeAfterCarCreation() {
         }
         launchSingleTop = true
     }
+}
+
+private val RecordDisplayDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+
+private fun ExpensesRecordFormData.toRecordRequest(): MaintenanceRecordCreateRequest {
+    val expenseType = category.trim()
+    val cleanDescription = description.trim()
+    val details = listOfNotNull(
+        expenseType.takeIf { it.isNotBlank() }?.let { "Type: $it" },
+        cleanDescription.takeIf { it.isNotBlank() }
+    ).joinToString(separator = "\n")
+
+    return MaintenanceRecordCreateRequest(
+        category = "expense",
+        title = name.trim(),
+        description = details.takeIf { it.isNotBlank() },
+        occurredAt = date.toIsoRecordDateOrNull(),
+        costAmount = cost.toRecordCostAmount()
+    )
+}
+
+private fun MaintenanceRecordFormData.toRecordRequest(): MaintenanceRecordCreateRequest {
+    return MaintenanceRecordCreateRequest(
+        category = "maintenance",
+        title = title.trim(),
+        description = description.trim().takeIf { it.isNotBlank() },
+        occurredAt = serviceDate.toIsoRecordDateOrNull(),
+        mileageKm = mileage.toIntOrNull(),
+        costAmount = cost.toRecordCostAmount(),
+        vendor = organization.trim().takeIf { it.isNotBlank() }
+    )
+}
+
+private fun RepairRecordFormData.toRecordRequest(): MaintenanceRecordCreateRequest {
+    return MaintenanceRecordCreateRequest(
+        category = "repair",
+        title = category.trim(),
+        description = description.trim().takeIf { it.isNotBlank() },
+        occurredAt = breakdownDate.toIsoRecordDateOrNull(),
+        mileageKm = mileage.toIntOrNull(),
+        costAmount = "0.00"
+    )
+}
+
+private fun String.toIsoRecordDateOrNull(): String? {
+    val cleanDate = trim()
+    if (cleanDate.isEmpty()) return null
+
+    return try {
+        LocalDate.parse(cleanDate, RecordDisplayDateFormatter).toString()
+    } catch (_: DateTimeParseException) {
+        cleanDate
+    }
+}
+
+private fun String.toRecordCostAmount(): String {
+    return trim().ifBlank { "0.00" }
 }
 
 @Composable

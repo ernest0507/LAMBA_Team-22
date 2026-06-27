@@ -30,7 +30,9 @@ private val RepairCategories = listOf(
 @Composable
 fun RepairRecordScreen(
     onBack: () -> Unit,
-    onSave: (RepairRecordFormData) -> Unit
+    onSave: (RepairRecordFormData) -> Unit,
+    isSaving: Boolean = false,
+    errorMessage: String? = null
 ) {
     var category by rememberSaveable { mutableStateOf("") }
     var description by rememberSaveable { mutableStateOf("") }
@@ -40,6 +42,8 @@ fun RepairRecordScreen(
     RecordFormScreen(
         subtitle = "Поломки",
         onBack = onBack,
+        isSaving = isSaving,
+        errorMessage = errorMessage,
         onSave = {
             onSave(
                 RepairRecordFormData(

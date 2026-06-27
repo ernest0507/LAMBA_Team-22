@@ -22,7 +22,9 @@ private val ExpenseCategories = listOf("Заправка", "Деталь", "Мо
 @Composable
 fun ExpensesRecordScreen(
     onBack: () -> Unit,
-    onSave: (ExpensesRecordFormData) -> Unit
+    onSave: (ExpensesRecordFormData) -> Unit,
+    isSaving: Boolean = false,
+    errorMessage: String? = null
 ) {
     var category by rememberSaveable { mutableStateOf("") }
     var name by rememberSaveable { mutableStateOf("") }
@@ -33,6 +35,8 @@ fun ExpensesRecordScreen(
     RecordFormScreen(
         subtitle = "Траты",
         onBack = onBack,
+        isSaving = isSaving,
+        errorMessage = errorMessage,
         onSave = {
             onSave(
                 ExpensesRecordFormData(
@@ -44,7 +48,7 @@ fun ExpensesRecordScreen(
                 )
             )
         },
-        saveEnabled = category.isNotBlank() && name.isNotBlank()
+        saveEnabled = category.isNotBlank() && name.isNotBlank() && cost.isNotBlank()
     ) {
         RecordDropdownField(
             label = "Категория",

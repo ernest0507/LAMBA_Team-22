@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -91,7 +93,9 @@ private val RecordDateFormatter = DateTimeFormatter.ofPattern(
 @Composable
 fun MaintenanceRecordScreen(
     onBack: () -> Unit,
-    onSave: (MaintenanceRecordFormData) -> Unit
+    onSave: (MaintenanceRecordFormData) -> Unit,
+    isSaving: Boolean = false,
+    errorMessage: String? = null
 ) {
     var category by rememberSaveable { mutableStateOf("") }
     var title by rememberSaveable { mutableStateOf("") }
@@ -104,6 +108,8 @@ fun MaintenanceRecordScreen(
     RecordFormScreen(
         subtitle = "Обслуживание",
         onBack = onBack,
+        isSaving = isSaving,
+        errorMessage = errorMessage,
         onSave = {
             onSave(
                 MaintenanceRecordFormData(
@@ -182,6 +188,8 @@ internal fun RecordFormScreen(
     onBack: () -> Unit,
     onSave: () -> Unit,
     saveEnabled: Boolean,
+    isSaving: Boolean = false,
+    errorMessage: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Scaffold(
@@ -202,7 +210,7 @@ internal fun RecordFormScreen(
                 ContinueButton(
                     onClick = onSave,
                     text = "Сохранить",
-                    enabled = saveEnabled
+                    enabled = saveEnabled && !isSaving
                 )
             }
         }
@@ -236,6 +244,14 @@ internal fun RecordFormScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = LambaInkMuted
             )
+
+            if (!errorMessage.isNullOrBlank()) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -413,10 +429,7 @@ internal fun RecordSelectableField(
 
         Spacer(modifier = Modifier.height(LambaSpacing.Step))
 
-        TextField(
-            value = value,
-            onValueChange = {},
-            readOnly = true,
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = RecordFieldMinHeight)
@@ -427,19 +440,24 @@ internal fun RecordSelectableField(
                     color = LambaOutlineSoft,
                     shape = fieldShape
                 )
-                .clickable(onClick = onClick),
-            placeholder = {
+                .clickable(onClick = onClick)
+                .padding(horizontal = LambaSpacing.CardPadding, vertical = 14.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = placeholder,
+                    text = value.ifBlank { placeholder },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = if (value.isBlank()) LambaInkMuted else LambaInk,
+                    modifier = Modifier.weight(1f)
                 )
-            },
-            trailingIcon = trailingContent,
-            textStyle = MaterialTheme.typography.bodyMedium.copy(color = LambaInk),
-            shape = fieldShape,
-            colors = recordFieldColors()
-        )
+
+                trailingContent?.invoke()
+            }
+        }
     }
 }
 

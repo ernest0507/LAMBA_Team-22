@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import com.lamba.app.data.cars.CarResponse
 import com.lamba.app.ui.theme.LambaAccentStrong
 import com.lamba.app.ui.theme.LambaChatInk
 import com.lamba.app.ui.theme.LambaInk
@@ -41,6 +42,7 @@ import com.lamba.app.ui.theme.LambaSurface
 
 @Composable
 fun Sidebar(
+    car: CarResponse? = null,
     onClose: () -> Unit,
     onAddExpensesClick: () -> Unit,
     onHistoryClick: () -> Unit,
@@ -49,6 +51,11 @@ fun Sidebar(
     onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val carTitle = car?.displayName().orEmpty().ifBlank { "Автомобиль" }
+    val carDetails = car?.let {
+        "${it.currentMileageKm.formatMileage()} км · ${it.year}"
+    } ?: "Данные авто загружаются"
+
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -78,13 +85,13 @@ fun Sidebar(
                     )
 
                     Text(
-                        text = "Toyota Corolla",
+                        text = carTitle,
                         style = MaterialTheme.typography.titleLarge,
                         color = LambaInk
                     )
 
                     Text(
-                        text = "48 230 км · 2021",
+                        text = carDetails,
                         style = MaterialTheme.typography.bodySmall,
                         color = LambaInkMuted
                     )

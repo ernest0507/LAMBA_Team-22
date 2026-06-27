@@ -34,6 +34,13 @@ fun CarSummaryCard(
     modifier: Modifier = Modifier
 ) {
     val vehicleColor = car?.color.toVehicleColor()
+    val title = car?.displayName().orEmpty().ifBlank { "Модель автомобиля" }
+    val subtitle = car?.bodyType?.takeIf { it.isNotBlank() }
+        ?: car?.color?.takeIf { it.isNotBlank() }
+        ?: "Цифровой двойник"
+    val details = car?.let {
+        "${it.currentMileageKm.formatMileage()} км · ${it.year}"
+    } ?: "Данные авто загружаются"
 
     Column(
         modifier = modifier
@@ -44,12 +51,12 @@ fun CarSummaryCard(
         {
 
             Text(
-                text = "Модель автомобиля",
+                text = title,
                 style = MaterialTheme.typography.titleLarge,
                 color = LambaInk
             )
             Text(
-                text = "Цифровой двойник",
+                text = subtitle,
                 style = MaterialTheme.typography.labelLarge,
                 color = LambaInk
             )
@@ -71,7 +78,7 @@ fun CarSummaryCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "2021 · 48 230 км",
+                text = details,
                 style = MaterialTheme.typography.labelSmall,
                 color = LambaInkMuted
             )
@@ -95,6 +102,7 @@ private fun String?.toVehicleColor(): Color {
         else -> LambaVehicleSilver
     }
 }
+
 
 
 
