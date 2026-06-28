@@ -7,6 +7,29 @@ on:
       - main
 
 jobs:
+  backend-lint:
+    runs-on: ubuntu-latest
+  
+    defaults:
+      run:
+        working-directory: backend
+  
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+  
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+  
+      - name: Install Ruff
+        run: python -m pip install ruff
+  
+      - name: Run backend lint
+        run: ruff check app tests
+
+
   additional-test-backend-dependency-audit:
     runs-on: ubuntu-latest
 
