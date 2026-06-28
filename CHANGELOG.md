@@ -29,6 +29,14 @@ All notable changes to the LAMBA project are documented in this file.
 
 - Added application-wide navigation flow between screens, including forward and back navigation and transitions to History and Statistics screens. Related #51
 
+- Added an expandable AI chat panel on the Home screen with swipe gestures, message bubbles, input field, and automatic scrolling to the latest messages. Related #138
+
+- Added Record Type selection screen for creating new history entries, allowing users to choose the type of record before adding event details. Related #118
+
+- Added Expense Record screen with a form for entering expense information and navigation from the Record Type selection screen. Related #118
+
+- Added Maintenance and Repair Record screens for creating vehicle service history entries using the shared application interface. Related #116
+
 ### Changed
 
 - Introduced shared LAMBA UI design tokens for colors, typography, spacing, corner radii, and reusable styling components to ensure consistent visual appearance across the application. Related #54
