@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lamba.app.common.LoadingOverlay
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaCanvas
 import com.lamba.app.ui.theme.LambaInk
@@ -192,79 +193,88 @@ internal fun RecordFormScreen(
     errorMessage: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Scaffold(
-        containerColor = LambaCanvas,
-        bottomBar = {
-            Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            containerColor = LambaCanvas,
+            bottomBar = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(LambaCanvas)
+                        .navigationBarsPadding()
+                        .padding(
+                            start = LambaSpacing.ScreenHorizontal,
+                            end = LambaSpacing.ScreenHorizontal,
+                            top = LambaSpacing.Step * 2,
+                            bottom = LambaSpacing.ScreenBottom
+                        )
+                ) {
+                    ContinueButton(
+                        onClick = onSave,
+                        text = "Сохранить",
+                        enabled = saveEnabled && !isSaving
+                    )
+                }
+            }
+        ) { innerPadding ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(LambaCanvas)
-                    .navigationBarsPadding()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
                     .padding(
                         start = LambaSpacing.ScreenHorizontal,
                         end = LambaSpacing.ScreenHorizontal,
-                        top = LambaSpacing.Step * 2,
+                        top = LambaSpacing.ScreenTop,
                         bottom = LambaSpacing.ScreenBottom
-                    )
+                    ),
+                verticalArrangement = Arrangement.spacedBy(LambaSpacing.CardPadding)
             ) {
-                ContinueButton(
-                    onClick = onSave,
-                    text = "Сохранить",
-                    enabled = saveEnabled && !isSaving
-                )
-            }
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(LambaCanvas)
-                .verticalScroll(rememberScrollState())
-                .padding(innerPadding)
-                .padding(
-                    start = LambaSpacing.ScreenHorizontal,
-                    end = LambaSpacing.ScreenHorizontal,
-                    top = LambaSpacing.ScreenTop,
-                    bottom = LambaSpacing.ScreenBottom
-                ),
-            verticalArrangement = Arrangement.spacedBy(LambaSpacing.CardPadding)
-        ) {
-            BackButton(onClick = onBack)
+                BackButton(onClick = onBack)
 
-            Spacer(modifier = Modifier.height(LambaSpacing.Step * 2))
+                Spacer(modifier = Modifier.height(LambaSpacing.Step * 2))
 
-            Text(
-                text = "Новая запись",
-                style = MaterialTheme.typography.headlineMedium,
-                color = LambaInk
-            )
-
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = LambaInkMuted
-            )
-
-            if (!errorMessage.isNullOrBlank()) {
                 Text(
-                    text = errorMessage,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error
+                    text = "Новая запись",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = LambaInk
                 )
-            }
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = LambaSurface,
-                shape = RoundedCornerShape(LambaRadius.Large)
-            ) {
-                Column(
-                    modifier = Modifier.padding(LambaSpacing.CardPadding),
-                    verticalArrangement = Arrangement.spacedBy(LambaSpacing.CardPadding),
-                    content = content
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = LambaInkMuted
                 )
+
+                if (!errorMessage.isNullOrBlank()) {
+                    Text(
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = LambaSurface,
+                    shape = RoundedCornerShape(LambaRadius.Large)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(LambaSpacing.CardPadding),
+                        verticalArrangement = Arrangement.spacedBy(LambaSpacing.CardPadding),
+                        content = content
+                    )
+                }
             }
         }
+        if (isSaving) {
+            LoadingOverlay(
+                title = "Добавление записи",
+                message = "Пожалуйста, подождите. Ваши данные обрабатываются"
+            )
+    }
+
     }
 }
 

@@ -1,0 +1,12 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="320" height="132" viewBox="0 0 320 132" role="img" aria-label="Sedan body" style="color:#B5C0BD">
+  <path fill="#0F1720" fill-opacity=".12" d="M38 119c42 6 194 6 244 0 8-1 8-5 0-6-54-5-195-5-244 0-8 1-8 5 0 6Z"/>
+  <circle cx="60" cy="103" r="26" fill="var(--car-wheel,#000000)"/>
+  <circle cx="225" cy="103" r="26" fill="var(--car-wheel,#000000)"/>
+  <path fill="var(--car-body,currentColor)" fill-rule="evenodd" d="M13 91c3-10 11-17 23-20l47-11c15-4 27-12 38-25 8-8 18-12 31-12h58c22 0 39 12 55 34l27 8c14 4 22 13 24 27l-10 18h-45c-3-18-18-32-36-32s-33 14-36 32H96c-3-18-18-32-36-32s-33 14-36 32H5V99c0-4 3-6 8-8Zm47 45a33 33 0 1 0 0-66 33 33 0 1 0 0 66Zm165 0a33 33 0 1 0 0-66 33 33 0 1 0 0 66Z"/>
+  <path fill="#17242E" d="M124 57c10-14 19-22 30-25h27v25h-57Zm65-25h20c16 0 29 9 42 25h-62V32Z"/>
+  <path fill="#FFFFFF" fill-opacity=".24" d="M24 88c12-7 31-13 58-18 21-4 33-12 46-27 7-9 17-14 30-14h50c20 0 35 11 51 32 18 4 33 10 42 21-69-12-203-11-277 6Z"/>
+  <path fill="#101820" fill-opacity=".22" d="M16 103h11c1-7 4-13 9-18-16 4-25 9-31 15v10h19l-8-7Zm172 7c5-24 20-38 37-38s32 14 37 38h39l8-13c-49-6-88-5-121 13Zm-92 0c-5-24-20-38-36-38s-31 14-36 38h72Z"/>
+  <path fill="#EEF3F5" fill-opacity=".78" d="M289 72c10 3 17 10 20 20h-30c-2-8-6-15-12-22l22 2ZM22 90c5-8 12-13 21-16l24-6c-7 7-12 15-15 24H23l-1-2Z"/>
+  <circle cx="60" cy="103" r="10" fill="var(--car-wheel-rim,#A9B3B8)"/>
+  <circle cx="225" cy="103" r="10" fill="var(--car-wheel-rim,#A9B3B8)"/>
+</svg>

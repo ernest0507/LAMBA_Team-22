@@ -1,0 +1,12 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="320" height="132" viewBox="0 0 320 132" role="img" aria-label="Hatchback body" style="color:#B5C0BD">
+  <path fill="#0F1720" fill-opacity=".12" d="M38 119c42 6 198 6 247 0 8-1 8-5 0-6-54-5-199-5-247 0-8 1-8 5 0 6Z"/>
+  <circle cx="60" cy="104" r="27" fill="var(--car-wheel,#000000)"/>
+  <circle cx="226" cy="104" r="27" fill="var(--car-wheel,#000000)"/>
+  <path fill="var(--car-body,currentColor)" fill-rule="evenodd" d="M13 91c4-11 13-18 27-22l45-11c15-4 27-12 39-24l10-10h80c26 0 48 14 64 39l23 8c10 8 15 20 13 39h-50c-3-19-19-33-38-33s-35 14-38 33H98c-3-19-19-33-38-33s-35 14-38 33H4V98c0-4 3-6 9-7Zm47 47a34 34 0 1 0 0-68 34 34 0 1 0 0 68Zm166 0a34 34 0 1 0 0-68 34 34 0 1 0 0 68Z"/>
+  <path fill="#17242E" d="M123 58l28-25h33v25h-61Zm69-25h22c18 1 33 10 45 25h-67V33Z"/>
+  <path fill="#FFFFFF" fill-opacity=".23" d="M24 87c11-7 28-13 55-19 21-4 35-12 49-27l12-11h74c23 0 42 13 57 38l24 7c7 6 12 13 14 21-69-12-200-12-285-9Z"/>
+  <path fill="#101820" fill-opacity=".21" d="M14 103h11c1-7 5-14 10-19-16 4-26 9-31 16v10h18l-8-7Zm173 7c6-24 21-39 39-39s34 15 39 39h42l6-18c-47-5-89-4-126 18Zm-89 0c-6-24-21-39-38-39s-32 15-38 39h76Z"/>
+  <path fill="#EEF3F5" fill-opacity=".78" d="M282 76c13 4 22 13 26 26h-31c-1-10-4-19-9-27l14 1ZM22 89c5-8 12-13 22-16l23-6c-7 7-13 16-16 25H22v-3Z"/>
+  <circle cx="60" cy="104" r="10" fill="var(--car-wheel-rim,#A9B3B8)"/>
+  <circle cx="226" cy="104" r="10" fill="var(--car-wheel-rim,#A9B3B8)"/>
+</svg>
