@@ -31,6 +31,7 @@ fun ExpensesRecordScreen(
     var description by rememberSaveable { mutableStateOf("") }
     var dateMillis by rememberSaveable { mutableStateOf<Long?>(null) }
     var cost by rememberSaveable { mutableStateOf("") }
+    var imageUri by rememberSaveable { mutableStateOf<String?>(null) }
 
     RecordFormScreen(
         subtitle = "Траты",
@@ -88,6 +89,11 @@ fun ExpensesRecordScreen(
             onValueChange = { cost = it.filter(Char::isDigit) },
             placeholder = "0 ₽",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        )
+
+        RecordImageField(
+            imageUri = imageUri,
+            onImageSelected = { imageUri = it }
         )
     }
 }

@@ -38,6 +38,7 @@ fun RepairRecordScreen(
     var description by rememberSaveable { mutableStateOf("") }
     var mileage by rememberSaveable { mutableStateOf("") }
     var breakdownDateMillis by rememberSaveable { mutableStateOf<Long?>(null) }
+    var imageUri by rememberSaveable { mutableStateOf<String?>(null) }
 
     RecordFormScreen(
         subtitle = "Поломки",
@@ -87,6 +88,11 @@ fun RepairRecordScreen(
             placeholder = "Выберите дату",
             selectedDateMillis = breakdownDateMillis,
             onDateSelected = { breakdownDateMillis = it }
+        )
+
+        RecordImageField(
+            imageUri = imageUri,
+            onImageSelected = { imageUri = it }
         )
     }
 }
