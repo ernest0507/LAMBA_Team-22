@@ -1,0 +1,64 @@
+@startuml
+title LAMBA Architecture Component Diagram
+
+top to bottom direction
+skinparam nodesep 100
+skinparam ranksep 150
+
+actor "Car Owner" as User
+
+package "LAMBA System" {
+
+  package "Client Layer" {
+    component "Android Mobile App\n(Kotlin / Jetpack Compose)" as AndroidApp
+  }
+
+  interface "REST/JSON API" as REST
+
+  package "Backend Layer" {
+    component "FastAPI Backend\nAPI Routes" as BackendAPI
+    component "Application Services\nAuth, Cars, Records, Assistant" as Services
+  }
+
+  interface "Persistence API" as Persistence
+
+  package "Data Layer" {
+    component "CRUD / Repository Layer" as Repository
+    interface "SQL Database Interface" as SQLDB
+    database "PostgreSQL Database" as Postgres
+    interface "Schema Migration Interface" as MigrationInterface
+    component "Alembic Migrations" as Alembic
+
+    Repository -right- SQLDB
+    SQLDB )-left- Postgres
+
+    Alembic -right- MigrationInterface
+    MigrationInterface )-left- Postgres
+  }
+}
+
+package "External Ecosystem" {
+  interface "AI Provider API" as AIAPI
+  component "OpenAI-compatible\nAI Provider" as AIProvider
+  interface "Database Admin API" as DBAdmin
+  component "pgAdmin" as PgAdmin
+}
+
+User --> AndroidApp : uses
+
+AndroidApp -down- REST
+REST )-down- BackendAPI
+
+BackendAPI --> Services : delegates
+
+Services -down- Persistence
+Persistence )-down- Repository
+
+Services -right- AIAPI
+AIAPI )-right- AIProvider
+
+PgAdmin -down- DBAdmin
+DBAdmin )-down- Postgres
+
+
+@enduml
