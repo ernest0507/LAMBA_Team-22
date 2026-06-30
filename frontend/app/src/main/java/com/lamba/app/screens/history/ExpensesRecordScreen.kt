@@ -31,7 +31,7 @@ fun ExpensesRecordScreen(
     var description by rememberSaveable { mutableStateOf("") }
     var dateMillis by rememberSaveable { mutableStateOf<Long?>(null) }
     var cost by rememberSaveable { mutableStateOf("") }
-    var imageUri by rememberSaveable { mutableStateOf<String?>(null) }
+    var imageUris by rememberSaveable { mutableStateOf(listOf<String>()) }
 
     RecordFormScreen(
         subtitle = "Траты",
@@ -92,8 +92,8 @@ fun ExpensesRecordScreen(
         )
 
         RecordImageField(
-            imageUri = imageUri,
-            onImageSelected = { imageUri = it }
+            imageUris = imageUris,
+            onImageUrisChanged = { imageUris = it }
         )
     }
 }

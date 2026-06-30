@@ -38,7 +38,7 @@ fun RepairRecordScreen(
     var description by rememberSaveable { mutableStateOf("") }
     var mileage by rememberSaveable { mutableStateOf("") }
     var breakdownDateMillis by rememberSaveable { mutableStateOf<Long?>(null) }
-    var imageUri by rememberSaveable { mutableStateOf<String?>(null) }
+    var imageUris by rememberSaveable { mutableStateOf(listOf<String>()) }
 
     RecordFormScreen(
         subtitle = "Поломки",
@@ -91,8 +91,8 @@ fun RepairRecordScreen(
         )
 
         RecordImageField(
-            imageUri = imageUri,
-            onImageSelected = { imageUri = it }
+            imageUris = imageUris,
+            onImageUrisChanged = { imageUris = it }
         )
     }
 }

@@ -64,8 +64,11 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -115,7 +118,7 @@ fun MaintenanceRecordScreen(
     var mileage by rememberSaveable { mutableStateOf("") }
     var cost by rememberSaveable { mutableStateOf("") }
     var organization by rememberSaveable { mutableStateOf("") }
-    var imageUri by rememberSaveable { mutableStateOf<String?>(null) }
+    var imageUris by rememberSaveable { mutableStateOf(listOf<String>()) }
 
     RecordFormScreen(
         subtitle = "Обслуживание",
@@ -193,8 +196,8 @@ fun MaintenanceRecordScreen(
         )
 
         RecordImageField(
-            imageUri = imageUri,
-            onImageSelected = { imageUri = it }
+            imageUris = imageUris,
+            onImageUrisChanged = { imageUris = it }
         )
     }
 }
@@ -509,76 +512,107 @@ internal fun formatRecordDate(selectedDateMillis: Long): String {
 
 @Composable
 internal fun RecordImageField(
-    imageUri: String?,
-    onImageSelected: (String?) -> Unit
+    imageUris: List<String>,
+    onImageUrisChanged: (List<String>) -> Unit
 ) {
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        onImageSelected(uri?.toString())
+        contract = ActivityResultContracts.GetMultipleContents()
+    ) { uris ->
+        val newUris = uris.map { it.toString() }
+        onImageUrisChanged((imageUris + newUris).take(3))
     }
 
-    val bitmap = remember(imageUri) {
-        imageUri?.let {
-            try {
-                val uri = android.net.Uri.parse(it)
-                context.contentResolver.openInputStream(uri)?.use { input ->
-                    BitmapFactory.decodeStream(input)
-                }
-            } catch (_: Exception) {
-                null
+    fun decodeBitmap(uriStr: String) = remember(uriStr) {
+        try {
+            val uri = android.net.Uri.parse(uriStr)
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                BitmapFactory.decodeStream(input)?.asImageBitmap()
             }
+        } catch (_: Exception) {
+            null
         }
     }
 
     val fieldShape = RoundedCornerShape(LambaRadius.Medium)
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = "Фото",
-            style = MaterialTheme.typography.labelSmall,
-            color = LambaInkMuted
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Фото",
+                style = MaterialTheme.typography.labelSmall,
+                color = LambaInkMuted
+            )
+            Text(
+                text = "${imageUris.size}/3",
+                style = MaterialTheme.typography.labelSmall,
+                color = LambaInkMuted
+            )
+        }
 
         Spacer(modifier = Modifier.height(LambaSpacing.Step))
 
-        if (bitmap != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(fieldShape)
-                    .background(LambaSurface, fieldShape)
-                    .border(1.dp, LambaOutlineSoft, fieldShape)
+        if (imageUris.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = "Фото",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 200.dp)
-                        .clip(fieldShape),
-                    contentScale = ContentScale.Crop
-                )
+                imageUris.forEachIndexed { index, uriStr ->
+                    val bitmap = decodeBitmap(uriStr)
+                    if (bitmap != null) {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(fieldShape)
+                                .background(LambaSurface, fieldShape)
+                                .border(1.dp, LambaOutlineSoft, fieldShape)
+                        ) {
+                            Image(
+                                bitmap = bitmap,
+                                contentDescription = "Фото ${index + 1}",
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(fieldShape),
+                                contentScale = ContentScale.Crop
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .size(24.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.Black.copy(alpha = 0.5f))
+                                    .clickable {
+                                        onImageUrisChanged(imageUris.toMutableList().apply { removeAt(index) })
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Удалить",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(LambaSpacing.Step))
+        }
 
-            TextButton(onClick = { onImageSelected(null) }) {
-                Text("Удалить фото", color = LambaError)
-            }
-        } else {
+        if (imageUris.size < 3) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = RecordFieldMinHeight)
                     .clip(fieldShape)
                     .background(LambaSurface, fieldShape)
-                    .border(
-                        width = 1.dp,
-                        color = LambaOutlineSoft,
-                        shape = fieldShape
-                    )
+                    .border(1.dp, LambaOutlineSoft, fieldShape)
                     .clickable { launcher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
