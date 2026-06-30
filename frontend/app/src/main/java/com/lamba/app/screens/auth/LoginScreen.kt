@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lamba.app.common.LoadingOverlay
 import components.ContinueButton
 import components.LambaTextField as SharedLambaTextField
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
@@ -193,7 +194,8 @@ fun LoginScreen(
                             onLoginClick(email.trim(), password)
                         }
                     },
-                    text = "Войти"
+                    text = "Войти",
+                    enabled = canSubmit
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -204,6 +206,12 @@ fun LoginScreen(
                     onClick = onRegisterClick
                 )
             }
+        }
+        if (isLoading) {
+            LoadingOverlay(
+                title = "Выполняется вход",
+                message = "Пожалуйста, подождите. Ваши данные обрабатываются"
+            )
         }
     }
 }

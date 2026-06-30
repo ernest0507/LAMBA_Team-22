@@ -28,6 +28,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.lamba.app.common.SuccessScreen
 import com.lamba.app.data.assistant.AssistantViewModel
 import com.lamba.app.data.auth.AuthViewModel
 import com.lamba.app.data.cars.CarDraft
@@ -74,7 +75,7 @@ fun AppNavigation() {
     val assistantState by assistantViewModel.uiState.collectAsState()
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
     val currentCarId = carState.currentCar?.id
-    val isCheckingCars = authState.isAuthenticated && carState.isLoading
+    val isCheckingCars = authState.isAuthenticated && !carState.hasCompletedCarsCheck
     val routeErrorMessage = authState.errorMessage ?: carState.errorMessage
 
     LaunchedEffect(authState.accessToken) {
@@ -113,7 +114,7 @@ fun AppNavigation() {
         if (createdRecord != null) {
             recordsViewModel.loadTimeline(authState.accessToken, createdRecord.carId)
             recordsViewModel.consumeCreatedRecord()
-            navController.popBackStack()
+            navController.navigate(LambaRoute.RecordSuccess.path)
         }
     }
 
@@ -142,8 +143,7 @@ fun AppNavigation() {
                     authViewModel.clearError()
                     navController.navigate(LambaRoute.Registration.path)
                 }
-            )
-        }
+            ) }
 
         composable(LambaRoute.Registration.path) {
             RegistrationScreen(
@@ -292,6 +292,21 @@ fun AppNavigation() {
         composable(LambaRoute.Profile.path) {
             ProfileScreen(
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(LambaRoute.RecordSuccess.path) {
+            SuccessScreen(
+                title = "Запись добавлена.",
+                message = "Данные успешно сохранены",
+                buttonText = "Перейти к истории",
+                onContinue = {
+                    navController.navigate(LambaRoute.History.path) {
+                        popUpTo(LambaRoute.ChooseRecordType.path) {
+                            inclusive = true
+                        }
+                    }
+                }
             )
         }
     }
@@ -453,5 +468,6 @@ private enum class LambaRoute(
     History("history"),
     Statistics("statistics"),
     Documents("documents"),
-    Profile("profile")
+    Profile("profile"),
+    RecordSuccess("record_success")
 }

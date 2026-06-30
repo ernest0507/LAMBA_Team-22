@@ -137,7 +137,10 @@ fun CreationDigitalTwinStep2(
                     .background(LambaSurface),
                 contentAlignment = Alignment.Center
             ) {
-                CarImage(bodyColor = selectedColor.color)
+                CarImage(
+                    bodyColor = selectedColor.color,
+                    bodyType = selectedBodyType
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))

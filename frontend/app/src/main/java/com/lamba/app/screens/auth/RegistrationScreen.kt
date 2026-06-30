@@ -44,6 +44,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lamba.app.common.LoadingOverlay
 import components.ContinueButton
 import components.LambaTextField as SharedLambaTextField
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
@@ -228,7 +229,8 @@ fun RegistrationScreen(
                             onCreateAccountClick(name.trim(), email.trim(), password)
                         }
                     },
-                    text = "Создать аккаунт"
+                    text = "Создать аккаунт",
+                    enabled = canSubmit
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -239,6 +241,14 @@ fun RegistrationScreen(
                     onClick = onLoginClick
                 )
             }
+            if (isLoading) {
+                LoadingOverlay(
+                    title = "Регистрация",
+                    message = "Пожалуйста, подождите. Ваши данные обрабатываются.",
+                )
+            }
+
+
         }
     }
 }
