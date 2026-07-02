@@ -1,0 +1,45 @@
+@startuml
+
+title Deployment View
+
+left to right direction
+skinparam shadowing false
+
+node "Client Device" as ClientDevice {
+  artifact "Client Application\n(Android Mobile App)" as AndroidApp
+}
+
+node "Server / Docker Host" as Server {
+  node "Backend Container" as BackendContainer {
+    artifact "FastAPI Backend App\n(Auth, Routes,\nSQLAlchemy, CRUD)" as BackendApp
+    artifact "Alembic Migration Tool" as Alembic
+  }
+
+  node "PostgreSQL Container" as PostgresContainer {
+    database "PostgreSQL Database" as Postgres
+  }
+}
+
+cloud "External AI Provider" as ExternalAI {
+  artifact "AI Provider" as AIProvider
+}
+
+AndroidApp --> BackendApp : HTTPS REST/JSON
+
+BackendApp --> Postgres : TCP/IP +\nPostgreSQL protocol
+Alembic --> Postgres : TCP/IP +\nPostgreSQL protocol\nschema migrations
+
+BackendApp --> AIProvider : HTTPS API/JSON
+
+legend bottom
+  Parallelepiped = runtime environment or host
+  Artifact = deployed application or tool
+  Database = persistent database runtime
+  Cloud = external service outside the server
+
+  HTTPS REST/JSON = client-to-backend API communication
+  HTTPS API/JSON = backend-to-external AI provider communication
+  TCP/IP + PostgreSQL protocol = direct database connection
+endlegend
+
+@enduml
