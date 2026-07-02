@@ -3,6 +3,7 @@ package com.lamba.app.data.cars
 import com.google.gson.annotations.SerializedName
 
 data class CarDraft(
+    val make: String? = null,
     val model: String,
     val year: Int,
     val currentMileageKm: Int,
@@ -12,6 +13,7 @@ data class CarDraft(
 ) {
     fun toCreateRequest(): CarCreateRequest {
         return CarCreateRequest(
+            make = make,
             model = model,
             year = year,
             currentMileageKm = currentMileageKm,
