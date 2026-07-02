@@ -40,9 +40,25 @@ The scenario is important to the product because it is the main feature of the a
 
 #### Architecture decisions, integration boundaries, or quality requirements
 
-Architecture decision: the frontend does not directly communicate with the database. Instead of this, the Android Mobile App makes a request to the backend by using the API. In turn, the backend gets or posts data through CRUD, which allows it to read or modify data. The diagram also shows the integration boundary between the Record API routes and Auth Logic. This boundary is important for security, because the maintenance record can be created only after successful token validation. In terms of quality requirements, the diagram mainly supports reasoning about security, data integrity, and maintainability.
+Architecture decision: the frontend does not directly communicate with the database. Instead of this, the Android Mobile App makes a request to the backend by using the API. In turn, the backend gets or posts data through CRUD, which allows it to read or modify data. The diagram also shows the integration boundary between the Record API routes and Auth Logic. This is important because the maintenance record can be created only after successful token validation. In terms of quality requirements, the diagram mainly supports reasoning about security, data integrity, and maintainability.
 
+### Deployment View
 
+In the deployment view the diagram shows a few components. The first one is the Client Side. The client has a device with the Android Mobile Application. This application has a connection with the server or rather the backend side, through HTTPS REST/JSON connection.
+Inside the server wrapper there is a backend container. Within the backend container, there are the Alembic Migration Tool and the FastAPI Backend App, which includes routes, crud, sqlalchemy, and authentication logic. Alembic and FastAPI communicate with the database with the help of TCP/IP and PostgreSQL protocol connections.
+There is also an external service that represents the AI Provider. The FastAPI Backend communicates with the AI Provider using HTTPS API/JSON connection.
 
+#### Selected deploy model 
 
+During the development process we have chosen the docker deployment model because it is the simple approach to run the server side and also this solution covers our requirements in terms of deployment. The docker allows to set up separete containers for FastAPI and database on the same server. Docker also helps keep enviroment dependencies isolated from remote server. 
 
+#### Deployment support or constraints 
+
+The current deployment supports simple and stable server setup because the FastAPI and PostgreSQL database run on the separate containers. This makes the system easire to run or update. 
+
+The main constraint is that the backend and database are both located on the same server. If the server becomes unavailable, there will be a problem for whole system. Also, the current deployment does not have a load balancer or several backend instances, so scalability is limited.
+
+#### What must be considered when deploying or operating it for the customer
+
+It is important to keep the backend API available for Android Mobile Application full time. The backend and PostreSQL must be running on the containers and must be set up correctly. 
+Also database migrations should be applied befor running or updated backend version.
