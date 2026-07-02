@@ -24,7 +24,7 @@ cloud "External AI Provider" as ExternalAI {
   artifact "AI Provider" as AIProvider
 }
 
-AndroidApp --> BackendApp : HTTPS REST/JSON
+AndroidApp --> BackendApp : HTTP REST/JSON
 
 BackendApp --> Postgres : TCP/IP +\nPostgreSQL protocol
 Alembic --> Postgres : TCP/IP +\nPostgreSQL protocol\nschema migrations
