@@ -270,9 +270,6 @@ fun AppNavigation() {
             }
 
             HistoryScreen(
-                isLoading = recordsState.isLoading,
-                errorMessage = recordsState.errorMessage,
-                records = recordsState.timeline,
                 onBackClick = { navController.popBackStack() }
             )
         }
