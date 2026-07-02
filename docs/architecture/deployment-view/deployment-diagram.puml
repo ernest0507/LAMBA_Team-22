@@ -9,7 +9,7 @@ node "Client Device" as ClientDevice {
   artifact "Client Application\n(Android Mobile App)" as AndroidApp
 }
 
-node "Server / Docker Host" as Server {
+node "Server" as Server {
   node "Backend Container" as BackendContainer {
     artifact "FastAPI Backend App\n(Auth, Routes,\nSQLAlchemy, CRUD)" as BackendApp
     artifact "Alembic Migration Tool" as Alembic
