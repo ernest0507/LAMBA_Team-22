@@ -44,7 +44,7 @@ Architecture decision: the frontend does not directly communicate with the datab
 
 ### Deployment View
 
-In the deployment view the diagram shows a few components. The first one is the Client Side. The client has a device with the Android Mobile Application. This application has a connection with the server or rather the backend side, through HTTPS REST/JSON connection.
+In the deployment view the diagram shows a few components. The first one is the Client Side. The client has a device with the Android Mobile Application. This application has a connection with the server or rather the backend side, through HTTP REST/JSON connection.
 Inside the server wrapper there is a backend container. Within the backend container, there are the Alembic Migration Tool and the FastAPI Backend App, which includes routes, crud, sqlalchemy, and authentication logic. Alembic and FastAPI communicate with the database with the help of TCP/IP and PostgreSQL protocol connections.
 There is also an external service that represents the AI Provider. The FastAPI Backend communicates with the AI Provider using HTTPS API/JSON connection.
 
