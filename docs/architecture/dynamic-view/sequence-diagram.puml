@@ -1,44 +1,45 @@
 @startuml
 
-title Dynamic View - Create Maintenance Record
+title Deployment View
 
-participant "Car Owner\n(Client)" as user
-participant "Android Mobile App\n(Frontend)" as app
-participant "Record API routes\n(FastAPI)" as record
-participant "Auth Logic" as auth
-participant "CRUD" as crud
-participant "Database\n(PosrgreSQL)" as db
+left to right direction
+skinparam shadowing false
 
-user -> app : Filling the login form 
-app -> auth : Auth request
+node "Client Device" as ClientDevice {
+  artifact "Client Application\n(Android Mobile App)" as AndroidApp
+}
 
-auth -> crud : Check the user credentials 
-crud -> db : SELECT user by email
-db --> crud : User data
-crud --> auth : User data
+node "Server / Docker Host" as Server {
+  node "Backend Container" as BackendContainer {
+    artifact "FastAPI Backend App\n(Auth, Routes,\nSQLAlchemy, CRUD)" as BackendApp
+    artifact "Alembic Migration Tool" as Alembic
+  }
 
-auth -> auth : Compare password hash
-auth --> app : Access token
-app --> user : Login success
+  node "PostgreSQL Container" as PostgresContainer {
+    database "PostgreSQL Database" as Postgres
+  }
+}
 
-user -> app : Filling the record form 
-app -> record : Request for creating a record + access token
+cloud "External AI Provider" as ExternalAI {
+  artifact "AI Provider" as AIProvider
+}
 
-record -> auth : Validate token
+AndroidApp --> BackendApp : HTTPS REST/JSON
 
-alt token is valid
-  auth --> record : Success response
-  record -> crud : Form data
-  crud -> db : INSERT form data
-  db --> crud : Created record
-  crud --> record : Created record
-  record --> app : Success response
-  app --> user : Record created
+BackendApp --> Postgres : TCP/IP +\nPostgreSQL protocol
+Alembic --> Postgres : TCP/IP +\nPostgreSQL protocol\nschema migrations
 
-else token is invalid
-  auth --> record : Access denied
-  record --> app : 401 Unauthorized
-  app --> user : Show error message
-end
+BackendApp --> AIProvider : HTTPS API/JSON
+
+legend bottom
+  Parallelepiped = runtime environment or host
+  Artifact = deployed application or tool
+  Database = persistent database runtime
+  Cloud = external service outside the server
+
+  HTTPS REST/JSON = client-to-backend API communication
+  HTTPS API/JSON = backend-to-external AI provider communication
+  TCP/IP + PostgreSQL protocol = direct database connection
+endlegend
 
 @enduml
