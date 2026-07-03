@@ -1,6 +1,10 @@
 package com.lamba.app.screens.history
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +31,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,6 +61,7 @@ fun HistoryScreen(
     onBackClick: () -> Unit = {}
 ) {
     val sections = rememberHistorySections(records)
+    var expandedItemId by remember { mutableStateOf<Int?>(null) }
 
     Scaffold(
         containerColor = HistoryScreenBackground,
@@ -121,7 +130,13 @@ fun HistoryScreen(
                 }
 
                 items(section.items) { item ->
-                    HistoryEventCard(item = item)
+                    HistoryEventCard(
+                        item = item,
+                        isExpanded = expandedItemId == item.id,
+                        onToggle = {
+                            expandedItemId = if (expandedItemId == item.id) null else item.id
+                        }
+                    )
                 }
             }
 
@@ -137,49 +152,100 @@ fun HistoryScreen(
 
 @Composable
 private fun HistoryEventCard(
-    item: HistoryItem
+    item: HistoryItem,
+    isExpanded: Boolean,
+    onToggle: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onToggle),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = HistoryCardBackground
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 18.dp, vertical = 16.dp)
         ) {
-            HistoryBadge(title = item.title)
-
-            Column(
-                modifier = Modifier.weight(1f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                HistoryBadge(title = item.title)
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = item.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = HistoryPrimaryText,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = item.subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = HistorySecondaryText
+                    )
+                }
+
                 Text(
-                    text = item.title,
+                    text = item.amount,
                     style = MaterialTheme.typography.titleMedium,
                     color = HistoryPrimaryText,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = item.subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = HistorySecondaryText
+                    fontWeight = FontWeight.Bold
                 )
             }
 
-            Text(
-                text = item.amount,
-                style = MaterialTheme.typography.titleMedium,
-                color = HistoryPrimaryText,
-                fontWeight = FontWeight.Bold
-            )
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier.padding(top = 12.dp, start = 64.dp)
+                ) {
+                    HistoryDetailRow(label = "Тип", value = item.category.toRecordTypeName())
+                    HistoryDetailRow(label = "Категория", value = item.title)
+                    item.mileageKm?.let {
+                        HistoryDetailRow(label = "Пробег", value = "$it км")
+                    }
+                    item.occurredAt?.let {
+                        HistoryDetailRow(label = "Дата", value = it)
+                    }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun HistoryDetailRow(
+    label: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = HistorySecondaryText
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodySmall,
+            color = HistoryPrimaryText
+        )
     }
 }
 
@@ -270,9 +336,13 @@ private data class HistorySection(
 )
 
 private data class HistoryItem(
+    val id: Int,
     val title: String,
     val subtitle: String,
-    val amount: String
+    val amount: String,
+    val category: String? = null,
+    val mileageKm: Int? = null,
+    val occurredAt: String? = null
 )
 
 private fun rememberHistorySections(records: List<TimelineItemResponse>): List<HistorySection> {
@@ -283,9 +353,13 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
                 title = date,
                 items = items.map { record ->
                     HistoryItem(
+                        id = record.id,
                         title = record.title ?: "Expense",
                         subtitle = record.subtitleText(),
-                        amount = record.costAmount.formatAmount()
+                        amount = record.costAmount.formatAmount(),
+                        category = record.category,
+                        mileageKm = record.mileageKm,
+                        occurredAt = record.occurredAt
                     )
                 }
             )
@@ -294,13 +368,22 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
 
 private fun TimelineItemResponse.subtitleText(): String {
     return listOfNotNull(
-        category,
-        mileageKm?.let { "$it km" }
-    ).joinToString(" | ").ifBlank { "expense" }
+        category.toRecordTypeName().takeIf { it != "—" },
+        mileageKm?.let { "$it км" }
+    ).joinToString(" | ")
 }
 
 private fun String.formatAmount(): String {
     return "${substringBefore('.')} RUB"
+}
+
+private fun String?.toRecordTypeName(): String {
+    return when (this) {
+        "expense" -> "Трата"
+        "maintenance" -> "Обслуживание"
+        "repair" -> "Поломка"
+        else -> this ?: "—"
+    }
 }
 
 private fun rememberHistorySections(): List<HistorySection> {
@@ -309,14 +392,22 @@ private fun rememberHistorySections(): List<HistorySection> {
             title = "СЕГОДНЯ",
             items = listOf(
                 HistoryItem(
+                    id = 1,
                     title = "Замена масла",
                     subtitle = "Сервис · 12:40",
-                    amount = "7 000 ₽"
+                    amount = "7 000 ₽",
+                    category = "maintenance",
+                    mileageKm = 45200,
+                    occurredAt = "12.06.2026"
                 ),
                 HistoryItem(
+                    id = 2,
                     title = "Заправка",
                     subtitle = "52 л · распознано из чека",
-                    amount = "3 500 ₽"
+                    amount = "3 500 ₽",
+                    category = "expense",
+                    mileageKm = 45150,
+                    occurredAt = "12.06.2026"
                 )
             )
         ),
@@ -324,9 +415,13 @@ private fun rememberHistorySections(): List<HistorySection> {
             title = "2 НЕДЕЛИ НАЗАД",
             items = listOf(
                 HistoryItem(
-                    title = "Техническое обслуживание",
+                    id = 3,
+                    title = "Диагностика",
                     subtitle = "Фильтры, диагностика",
-                    amount = "12 000 ₽"
+                    amount = "12 000 ₽",
+                    category = "maintenance",
+                    mileageKm = 44000,
+                    occurredAt = "28.05.2026"
                 )
             )
         ),
@@ -334,9 +429,13 @@ private fun rememberHistorySections(): List<HistorySection> {
             title = "МАРТ",
             items = listOf(
                 HistoryItem(
+                    id = 4,
                     title = "Заправка",
                     subtitle = "46 л · город",
-                    amount = "4 200 ₽"
+                    amount = "4 200 ₽",
+                    category = "expense",
+                    mileageKm = 43800,
+                    occurredAt = "15.03.2026"
                 )
             )
         )
