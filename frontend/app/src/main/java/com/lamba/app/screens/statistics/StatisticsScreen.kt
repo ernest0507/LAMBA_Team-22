@@ -66,6 +66,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.lamba.app.data.statistics.CarStatisticsResponse
+import com.lamba.app.data.statistics.StatisticsCategoryResponse
+import com.lamba.app.data.statistics.StatisticsChartPointResponse
+import com.lamba.app.data.statistics.StatisticsMetricResponse
+import com.lamba.app.data.statistics.StatisticsPeriodResponse
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaAccent
 import com.lamba.app.ui.theme.LambaAccentSoft
@@ -359,37 +364,42 @@ private val statisticsPreviewData = mapOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
+    isLoading: Boolean = false,
+    errorMessage: String? = null,
+    statistics: CarStatisticsResponse? = null,
     onBackClick: () -> Unit = {}
 ) {
     var selectedPeriod by rememberSaveable { mutableStateOf(StatisticsPeriod.MONTH) }
-    var selectedMonthIndex by rememberSaveable { mutableStateOf(1) }
+    var selectedMonthIndex by rememberSaveable { mutableStateOf(0) }
     var selectedHalfYearIndex by rememberSaveable { mutableStateOf(0) }
-    var selectedYearIndex by rememberSaveable { mutableStateOf(1) }
+    var selectedYearIndex by rememberSaveable { mutableStateOf(0) }
 
-    val selectedIndex = when (selectedPeriod) {
+    val statisticsData = remember(statistics) {
+        statistics?.toStatisticsUiData() ?: emptyStatisticsData()
+    }
+
+    val rawSelectedIndex = when (selectedPeriod) {
         StatisticsPeriod.MONTH -> selectedMonthIndex
         StatisticsPeriod.HALF_YEAR -> selectedHalfYearIndex
         StatisticsPeriod.YEAR -> selectedYearIndex
     }
-
-    val periodStates = remember(selectedPeriod) {
-        statisticsPreviewData.getValue(selectedPeriod)
-    }
+    val periodStates = statisticsData.getValue(selectedPeriod)
+    val selectedIndex = rawSelectedIndex.coerceIn(0, periodStates.lastIndex)
     val state = periodStates[selectedIndex]
 
     fun movePeriod(delta: Int) {
         when (selectedPeriod) {
             StatisticsPeriod.MONTH -> {
                 selectedMonthIndex = (selectedMonthIndex + delta)
-                    .coerceIn(0, monthlyStatistics.lastIndex)
+                    .coerceIn(0, statisticsData.getValue(StatisticsPeriod.MONTH).lastIndex)
             }
             StatisticsPeriod.HALF_YEAR -> {
                 selectedHalfYearIndex = (selectedHalfYearIndex + delta)
-                    .coerceIn(0, halfYearStatistics.lastIndex)
+                    .coerceIn(0, statisticsData.getValue(StatisticsPeriod.HALF_YEAR).lastIndex)
             }
             StatisticsPeriod.YEAR -> {
                 selectedYearIndex = (selectedYearIndex + delta)
-                    .coerceIn(0, yearlyStatistics.lastIndex)
+                    .coerceIn(0, statisticsData.getValue(StatisticsPeriod.YEAR).lastIndex)
             }
         }
     }
@@ -466,6 +476,21 @@ fun StatisticsScreen(
                 )
             }
 
+            if (isLoading) {
+                item {
+                    StatisticsStatusCard(text = "Загрузка статистики...")
+                }
+            }
+
+            if (!errorMessage.isNullOrBlank()) {
+                item {
+                    StatisticsStatusCard(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -495,6 +520,134 @@ fun StatisticsScreen(
                 )
             }
         }
+    }
+}
+
+private fun CarStatisticsResponse.toStatisticsUiData(): Map<StatisticsPeriod, List<StatisticsUiState>> {
+    return mapOf(
+        StatisticsPeriod.MONTH to month.toUiStates(StatisticsPeriod.MONTH),
+        StatisticsPeriod.HALF_YEAR to halfYear.toUiStates(StatisticsPeriod.HALF_YEAR),
+        StatisticsPeriod.YEAR to year.toUiStates(StatisticsPeriod.YEAR)
+    )
+}
+
+private fun List<StatisticsPeriodResponse>.toUiStates(
+    period: StatisticsPeriod
+): List<StatisticsUiState> {
+    return map { item -> item.toUiState(period) }
+        .ifEmpty { listOf(emptyStatisticsState(period)) }
+}
+
+private fun StatisticsPeriodResponse.toUiState(period: StatisticsPeriod): StatisticsUiState {
+    return StatisticsUiState(
+        periodTitle = periodTitle,
+        metrics = metrics.toMetricData(),
+        dynamics = dynamics.map(StatisticsChartPointResponse::toChartPoint)
+            .ifEmpty { emptyDynamics(period) },
+        dynamicsStyle = if (dynamicsStyle == "line") DynamicsChartStyle.LINE else DynamicsChartStyle.BAR,
+        categories = categories.mapIndexed { index, category -> category.toCategoryData(index) },
+        donutCenterValue = totalAmount.toMoneyText(),
+        donutCenterLabel = totalLabel
+    )
+}
+
+private fun List<StatisticsMetricResponse>.toMetricData(): List<MetricData> {
+    val metricsByType = associateBy { it.type }
+    return listOf(
+        metricsByType["expenses"].toMetricData("Расходы", MetricIconType.EXPENSES),
+        metricsByType["mileage"].toMetricData("Пробег", MetricIconType.MILEAGE),
+        metricsByType["fuel"].toMetricData("Бензин", MetricIconType.FUEL)
+    )
+}
+
+private fun StatisticsMetricResponse?.toMetricData(
+    fallbackTitle: String,
+    iconType: MetricIconType
+): MetricData {
+    return MetricData(
+        title = this?.title ?: fallbackTitle,
+        value = this?.value ?: if (iconType == MetricIconType.MILEAGE) "0 км" else "0 ₽",
+        delta = this?.delta ?: "Нет данных",
+        iconType = iconType
+    )
+}
+
+private fun StatisticsChartPointResponse.toChartPoint(): ChartPoint {
+    return ChartPoint(label = label, value = value)
+}
+
+private fun StatisticsCategoryResponse.toCategoryData(index: Int): CategoryData {
+    return CategoryData(
+        title = title,
+        percent = percent.coerceIn(0, 100),
+        amount = amount,
+        color = categoryColor(index)
+    )
+}
+
+private fun categoryColor(index: Int): Color {
+    return when (index % 4) {
+        0 -> LambaAccentStrong
+        1 -> LambaAccent
+        2 -> LambaSignal
+        else -> LambaAccent.copy(alpha = 0.45f)
+    }
+}
+
+private fun emptyStatisticsData(): Map<StatisticsPeriod, List<StatisticsUiState>> {
+    return StatisticsPeriod.entries.associateWith { period ->
+        listOf(emptyStatisticsState(period))
+    }
+}
+
+private fun emptyStatisticsState(period: StatisticsPeriod): StatisticsUiState {
+    return StatisticsUiState(
+        periodTitle = period.title,
+        metrics = listOf(
+            MetricData("Расходы", "0 ₽", "Нет данных", MetricIconType.EXPENSES),
+            MetricData("Пробег", "0 км", "Нет данных", MetricIconType.MILEAGE),
+            MetricData("Бензин", "0 ₽", "Нет данных", MetricIconType.FUEL)
+        ),
+        dynamics = emptyDynamics(period),
+        dynamicsStyle = if (period == StatisticsPeriod.YEAR) DynamicsChartStyle.LINE else DynamicsChartStyle.BAR,
+        categories = emptyList(),
+        donutCenterValue = "0 ₽",
+        donutCenterLabel = period.title
+    )
+}
+
+private fun emptyDynamics(period: StatisticsPeriod): List<ChartPoint> {
+    return when (period) {
+        StatisticsPeriod.MONTH -> (1..5).map { ChartPoint("Нед $it", 0) }
+        StatisticsPeriod.HALF_YEAR -> listOf("Янв", "Фев", "Мар", "Апр", "Май", "Июн")
+            .map { ChartPoint(it, 0) }
+        StatisticsPeriod.YEAR -> listOf("Я", "Ф", "М", "А", "М", "И", "И", "А", "С", "О", "Н", "Д")
+            .map { ChartPoint(it, 0) }
+    }
+}
+
+private fun String.toMoneyText(): String {
+    val integerPart = substringBefore('.').toIntOrNull() ?: return this
+    return "%,d ₽".format(integerPart).replace(",", " ")
+}
+
+@Composable
+private fun StatisticsStatusCard(
+    text: String,
+    color: Color = LambaInkMuted
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(LambaRadius.Large),
+        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = color,
+            modifier = Modifier.padding(LambaSpacing.CardPadding)
+        )
     }
 }
 
@@ -942,6 +1095,15 @@ private fun CategoryBreakdownCard(
                 color = LambaInk,
                 fontWeight = FontWeight.SemiBold
             )
+
+            if (categories.isEmpty()) {
+                Text(
+                    text = "Нет расходов за этот период.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = LambaInkMuted
+                )
+                return@Column
+            }
 
             BoxWithConstraints(
                 modifier = Modifier.fillMaxWidth()

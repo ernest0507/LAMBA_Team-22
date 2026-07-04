@@ -36,6 +36,7 @@ import com.lamba.app.data.cars.CarDraft
 import com.lamba.app.data.cars.CarViewModel
 import com.lamba.app.data.records.MaintenanceRecordCreateRequest
 import com.lamba.app.data.records.RecordsViewModel
+import com.lamba.app.data.statistics.StatisticsViewModel
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
@@ -73,6 +74,8 @@ fun AppNavigation() {
     val carState by carViewModel.uiState.collectAsState()
     val recordsViewModel: RecordsViewModel = viewModel()
     val recordsState by recordsViewModel.uiState.collectAsState()
+    val statisticsViewModel: StatisticsViewModel = viewModel()
+    val statisticsState by statisticsViewModel.uiState.collectAsState()
     val assistantViewModel: AssistantViewModel = viewModel()
     val assistantState by assistantViewModel.uiState.collectAsState()
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
@@ -305,7 +308,14 @@ fun AppNavigation() {
         }
 
         composable(LambaRoute.Statistics.path) {
+            LaunchedEffect(authState.accessToken, currentCarId) {
+                statisticsViewModel.loadStatistics(authState.accessToken, currentCarId)
+            }
+
             StatisticsScreen(
+                isLoading = statisticsState.isLoading,
+                errorMessage = statisticsState.errorMessage,
+                statistics = statisticsState.statistics,
                 onBackClick = { navController.popBackStack() }
             )
         }

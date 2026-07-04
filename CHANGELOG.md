@@ -6,6 +6,7 @@ All notable changes to the LAMBA project are documented in this file.
 
 ### Added
 
+- Connected the Android statistics screen to the backend statistics endpoint. Closes #181; Related #34; Related #166
 - Connected Android record forms and history to record photo upload and display flows. Closes #180; Related #179
 - Added backend persistence and API endpoints for maintenance record photos. Closes #179
 - Added assistant mileage update handling with Android car refresh after successful updates. Closes #178; Related #175
