@@ -7,6 +7,10 @@ All notable changes to the LAMBA project are documented in this file.
 ### Added
 
 - Added assistant mileage update handling with Android car refresh after successful updates. Closes #178; Related #175
+### Fixed
+
+- Fixed Android history compile errors caused by the missing wagon drawable and composable bitmap decoding. Closes #177
+- Fixed registration response-time failures under concurrent load by releasing the email lookup connection before password hashing and running password hashing and verification outside the async event loop. Closes #187
 
 ## [v0.2.0] - 2026-06-28
 
