@@ -43,3 +43,54 @@ records could corrupt maintenance history, expense statistics, and future
 recommendations if the backend accepted them without validation.
 
 **Linked quality requirement tests:** [QRT-003](quality-requirement-tests.md#qrt-003-ai-assistant-negative-cost-validation)
+
+
+## QR-004: Maintenance record persistence integrity
+
+**ISO/IEC 25010 sub-characteristic:** Integrity
+
+**Scenario:** When an authenticated user creates a vehicle maintenance record, the backend shall persist the record and return the same record through the record detail endpoint and the vehicle timeline endpoint without losing or corrupting the submitted data.
+
+**Why this matters:** MVP v2 relies on maintenance and expense history being stored consistently. If a created record is not persisted correctly or does not appear in the timeline, users cannot trust the vehicle history, statistics, or future assistant recommendations.
+
+**Linked quality requirement tests:** [QRT-004](quality-requirement-tests.md#qrt-004-maintenance-record-persistence-integrity)
+
+**Related ADRs:** [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
+
+## QR-005: Registration event-loop responsiveness
+
+**ISO/IEC 25010 sub-characteristic:** Time behaviour
+
+**Scenario:** When users register or sign in under the backend runtime environment, the authentication workflow shall run password hashing and password verification outside the async event loop so that the backend can continue processing other requests while password operations are executing.
+
+**Why this matters:** Password hashing is intentionally expensive. If it blocks the async event loop, registration and login can slow down unrelated backend requests and make the product feel unavailable during normal onboarding.
+
+**Linked quality requirement tests:** [QRT-005](quality-requirement-tests.md#qrt-005-registration-event-loop-responsiveness)
+
+**Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md)
+
+
+## QR-006: Registration database connection release
+
+**ISO/IEC 25010 sub-characteristic:** Resource utilization
+
+**Scenario:** When a new user registration request checks whether an email already exists under the backend runtime environment, the backend shall release the lookup transaction before creating the new user so that database connections are not held longer than necessary during password hashing and user creation.
+
+**Why this matters:** Registration is a high-risk onboarding path. Holding a database connection while expensive work continues can exhaust the connection pool and slow or block other users.
+
+**Linked quality requirement tests:** [QRT-006](quality-requirement-tests.md#qrt-006-registration-database-connection-release)
+
+**Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md), [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
+
+
+## QR-007: Record photo upload validation
+
+**ISO/IEC 25010 sub-characteristic:** Integrity
+
+**Scenario:** When an authenticated user uploads photos for a vehicle record under the backend runtime environment, the backend shall accept valid image uploads, return photo metadata with an access URL, reject non-image files, and prevent a record from having more than three uploaded photos.
+
+**Why this matters:** MVP v2 adds record photo support. The backend must prevent invalid files and excessive uploads from corrupting record evidence, confusing the Android client, or consuming storage unexpectedly.
+
+**Linked quality requirement tests:** [QRT-007](quality-requirement-tests.md#qrt-007-record-photo-upload-validation)
+
+**Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md), [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
