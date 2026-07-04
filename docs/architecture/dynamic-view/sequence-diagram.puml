@@ -1,0 +1,44 @@
+@startuml
+
+title Dynamic View - Create Maintenance Record
+
+participant "Car Owner\n(Client)" as user
+participant "Android Mobile App\n(Frontend)" as app
+participant "Record API routes\n(FastAPI)" as record
+participant "Auth Logic" as auth
+participant "CRUD" as crud
+participant "Database\n(PosrgreSQL)" as db
+
+user -> app : Filling the login form 
+app -> auth : Auth request
+
+auth -> crud : Check the user credentials 
+crud -> db : SELECT user by email
+db --> crud : User data
+crud --> auth : User data
+
+auth -> auth : Compare password hash
+auth --> app : Access token
+app --> user : Login success
+
+user -> app : Filling the record form 
+app -> record : Request for creating a record + access token
+
+record -> auth : Validate token
+
+alt token is valid
+  auth --> record : Success response
+  record -> crud : Form data
+  crud -> db : INSERT form data
+  db --> crud : Created record
+  crud --> record : Created record
+  record --> app : Success response
+  app --> user : Record created
+
+else token is invalid
+  auth --> record : Access denied
+  record --> app : 401 Unauthorized
+  app --> user : Show error message
+end
+
+@enduml
