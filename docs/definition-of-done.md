@@ -33,4 +33,3 @@ A Product Backlog Item is `Done` only when:
 - [ ] Customer feedback or UAT findings that affect scope, quality, or usability are linked to a follow-up issue, PBI, roadmap item, or documented decision.
 - [ ] Architecture documentation and related ADRs are updated when the change affects backend structure, persistence, deployment, integrations, critical modules, or major quality risks.
 - [ ] Quality requirements added or changed for Assignment 5 and later work link to the related ADRs when applicable.
-- [ ] Record-photo, maintenance-record, statistics, and persistence changes preserve backend/database consistency and include relevant automated or documented verification evidence.
