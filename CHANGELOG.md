@@ -4,6 +4,10 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Connected the Android statistics screen to the backend statistics endpoint. Closes #181; Related #34; Related #166
+
 ## [v0.2.0] - 2026-06-28
 
 ### Added
