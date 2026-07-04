@@ -165,15 +165,35 @@ For user stories, the story is complete only when all supporting PBIs required t
 
 The team maintains its detailed Definition of Done in [docs/definition-of-done.md](definition-of-done.md). A PBI may be marked `Done` only when its own acceptance criteria are satisfied and the team Definition of Done is satisfied.
 
-The Definition of Done requires, among other items:
+The detailed checklist lives in docs/definition-of-done.md. A Product Backlog Item may be marked Done only when its issue-specific acceptance criteria are satisfied and the team Definition of Done is satisfied.
 
-- issue acceptance criteria are verified
-- work is linked to the related issue or PBI
-- review is completed by another team member
-- issue-linked PR is merged into the protected default branch
-- relevant CI checks and automated tests pass
-- testing, quality, UAT, README, and changelog documentation are updated when applicable
-- public artifacts are sanitized and do not expose secrets, private customer data, recordings, unnecessary PII, or confidential material
+The Definition of Done requires:
+
+- all issue acceptance criteria are verified
+- the work is linked to the related GitHub issue or PBI
+- the work is reviewed and approved by another team member
+- the issue-linked pull request is merged into the protected default branch
+- relevant CI checks pass on the pull request and protected default branch
+- relevant automated unit tests pass
+- relevant automated integration tests pass
+- relevant automated quality requirement tests pass for affected quality requirements
+- critical modules affected by the change keep at least 30% automated line coverage or have a documented TA-approved exception
+- the selected additional QA check passes when applicable
+- testing evidence is preserved in the pull request, CI run, test report, or linked documentation
+- registration and login changes handle valid input, invalid input, and clear user-facing error messages
+- vehicle digital twin changes correctly save and display car data
+- maintenance history, expense, and timeline changes keep records consistent between the UI, backend, and database where applicable
+- AI chat changes return a useful response or fallback message and do not freeze or crash the application
+- for user stories, all linked supporting PBIs required to satisfy the story are completed, reviewed, merged, verified, and marked Done
+- docs/testing.md is updated when tests, coverage, CI checks, QA checks, or testing evidence change
+- docs/quality-requirements.md is updated when quality requirements change
+- docs/quality-requirement-tests.md is updated when automated QRTs change
+- docs/user-acceptance-tests.md is updated when UAT scenarios, execution results, customer comments, or resulting PBIs change
+- README.md is updated when setup, run, deployment, backend, Android, or access instructions change
+- CHANGELOG.md is updated for user-visible changes, or the pull request marks the changelog update as not applicable
+- public repository artifacts do not include credentials, private customer data, recordings, unnecessary PII, or confidential materials
+- customer feedback or UAT findings that affect scope, quality, or usability are linked to a follow-up issue, PBI, roadmap item, or documented decision
+- CI checks, automated tests, QRTs, coverage expectations, and the additional QA check remain active for later work or are replaced with documented equivalent or stronger checks
 
 ## Configuration and Secrets Management
 
@@ -231,15 +251,15 @@ The repository does not currently document automatic continuous deployment as th
 
 ## Related Artifacts
 
-- [README.md](../README.md)
-- [Maintained documentation index](README.md)
-- [Backend README](../backend/README.md)
-- [Definition of Done](definition-of-done.md)
-- [User-story index](user-stories.md)
-- [Roadmap](roadmap.md)
-- [Testing documentation](testing.md)
-- [Quality requirements](quality-requirements.md)
-- [Quality requirement tests](quality-requirement-tests.md)
-- [User acceptance tests](user-acceptance-tests.md)
-- [Changelog](../CHANGELOG.md)
-- [Week 5 public report](../reports/week5/README.md)
+- [Root README](https://github.com/ernest0507/LAMBA_Team-22/blob/main/README.md)
+- [Maintained documentation index](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/README.md)
+- [Backend setup and API documentation](https://github.com/ernest0507/LAMBA_Team-22/blob/main/backend/README.md)
+- [Definition of Done](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/definition-of-done.md)
+- [User-story index](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/user-stories.md)
+- [Roadmap](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/roadmap.md)
+- [Testing documentation](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/testing.md)
+- [Quality requirements](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/quality-requirements.md)
+- [Quality requirement tests](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/quality-requirement-tests.md)
+- [User acceptance tests](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/user-acceptance-tests.md)
+- [Changelog](https://github.com/ernest0507/LAMBA_Team-22/blob/main/CHANGELOG.md)
+- [Week 5 public report](https://github.com/ernest0507/LAMBA_Team-22/blob/main/reports/week5/README.md)
