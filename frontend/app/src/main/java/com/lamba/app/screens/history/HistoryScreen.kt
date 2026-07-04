@@ -1,9 +1,12 @@
 package com.lamba.app.screens.history
 
+import android.graphics.BitmapFactory
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,10 +44,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.lamba.app.data.records.RecordPhotoImage
+import com.lamba.app.data.records.RecordPhotosUiState
 import com.lamba.app.data.records.TimelineItemResponse
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 
@@ -58,16 +69,19 @@ fun HistoryScreen(
     isLoading: Boolean = false,
     errorMessage: String? = null,
     records: List<TimelineItemResponse> = emptyList(),
+    recordPhotos: Map<Int, RecordPhotosUiState> = emptyMap(),
+    onRecordExpanded: (Int) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val sections = rememberHistorySections(records)
     var expandedItemId by remember { mutableStateOf<Int?>(null) }
+    var selectedPhoto by remember { mutableStateOf<RecordPhotoImage?>(null) }
 
     Scaffold(
         containerColor = HistoryScreenBackground,
         topBar = {
             TopAppBar(
-                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = HistoryScreenBackground,
                     titleContentColor = HistoryPrimaryText,
                     navigationIconContentColor = HistoryPrimaryText
@@ -102,7 +116,7 @@ fun HistoryScreen(
         ) {
             if (isLoading) {
                 item {
-                    HistoryStatusCard(text = "Loading history...")
+                    HistoryStatusCard(text = "Загрузка истории...")
                 }
             }
 
@@ -114,7 +128,7 @@ fun HistoryScreen(
 
             if (!isLoading && errorMessage.isNullOrBlank() && sections.isEmpty()) {
                 item {
-                    HistoryStatusCard(text = "No expense records yet.")
+                    HistoryStatusCard(text = "Записей пока нет.")
                 }
             }
 
@@ -129,12 +143,18 @@ fun HistoryScreen(
                     )
                 }
 
-                items(section.items) { item ->
+                items(section.items, key = { it.id }) { item ->
                     HistoryEventCard(
                         item = item,
                         isExpanded = expandedItemId == item.id,
+                        photoState = recordPhotos[item.id],
+                        onPhotoClick = { selectedPhoto = it },
                         onToggle = {
-                            expandedItemId = if (expandedItemId == item.id) null else item.id
+                            val shouldExpand = expandedItemId != item.id
+                            expandedItemId = if (shouldExpand) item.id else null
+                            if (shouldExpand) {
+                                onRecordExpanded(item.id)
+                            }
                         }
                     )
                 }
@@ -148,12 +168,21 @@ fun HistoryScreen(
             }
         }
     }
+
+    selectedPhoto?.let { photo ->
+        PhotoPreviewDialog(
+            photo = photo,
+            onDismiss = { selectedPhoto = null }
+        )
+    }
 }
 
 @Composable
 private fun HistoryEventCard(
     item: HistoryItem,
     isExpanded: Boolean,
+    photoState: RecordPhotosUiState?,
+    onPhotoClick: (RecordPhotoImage) -> Unit,
     onToggle: () -> Unit
 ) {
     Card(
@@ -219,8 +248,151 @@ private fun HistoryEventCard(
                     item.occurredAt?.let {
                         HistoryDetailRow(label = "Дата", value = it)
                     }
+
+                    HistoryPhotosSection(
+                        photoState = photoState,
+                        onPhotoClick = onPhotoClick,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun HistoryPhotosSection(
+    photoState: RecordPhotosUiState?,
+    onPhotoClick: (RecordPhotoImage) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = "Фото",
+            style = MaterialTheme.typography.bodySmall,
+            color = HistorySecondaryText,
+            fontWeight = FontWeight.SemiBold
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        when {
+            photoState == null || photoState.isLoading -> {
+                Text(
+                    text = "Загрузка фото...",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = HistorySecondaryText
+                )
+            }
+
+            !photoState.errorMessage.isNullOrBlank() -> {
+                Text(
+                    text = photoState.errorMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFFB3261E)
+                )
+            }
+
+            photoState.photos.isEmpty() -> {
+                Text(
+                    text = "Фото не добавлены",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = HistorySecondaryText
+                )
+            }
+
+            else -> {
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(end = 18.dp)
+                ) {
+                    items(photoState.photos, key = { it.id }) { photo ->
+                        HistoryPhotoThumbnail(
+                            photo = photo,
+                            onClick = { onPhotoClick(photo) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryPhotoThumbnail(
+    photo: RecordPhotoImage,
+    onClick: () -> Unit
+) {
+    val image = remember(photo.id, photo.bytes) {
+        BitmapFactory.decodeByteArray(photo.bytes, 0, photo.bytes.size)?.asImageBitmap()
+    }
+
+    Box(
+        modifier = Modifier
+            .size(86.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(HistoryAccent.copy(alpha = 0.08f))
+            .border(1.dp, HistoryAccent.copy(alpha = 0.18f), RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        if (image != null) {
+            Image(
+                bitmap = image,
+                contentDescription = photo.filename,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            Text(
+                text = "Фото",
+                style = MaterialTheme.typography.bodySmall,
+                color = HistorySecondaryText
+            )
+        }
+    }
+}
+
+@Composable
+private fun PhotoPreviewDialog(
+    photo: RecordPhotoImage,
+    onDismiss: () -> Unit
+) {
+    val image = remember(photo.id, photo.bytes) {
+        BitmapFactory.decodeByteArray(photo.bytes, 0, photo.bytes.size)?.asImageBitmap()
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.92f))
+                .clickable(onClick = onDismiss)
+                .padding(20.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (image != null) {
+                Image(
+                    bitmap = image,
+                    contentDescription = photo.filename,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(18.dp)),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            Text(
+                text = "x",
+                style = MaterialTheme.typography.headlineMedium,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 12.dp, end = 12.dp)
+            )
         }
     }
 }
@@ -276,8 +448,8 @@ private fun HistoryBadge(
     title: String
 ) {
     val badgeText = when {
-        title.contains("Заправка") -> "АЗС"
-        title.contains("масла") -> "ТО"
+        title.contains("Заправка", ignoreCase = true) -> "АЗС"
+        title.contains("масл", ignoreCase = true) -> "ТО"
         else -> "СВ"
     }
 
@@ -347,14 +519,14 @@ private data class HistoryItem(
 
 private fun rememberHistorySections(records: List<TimelineItemResponse>): List<HistorySection> {
     return records
-        .groupBy { it.occurredAt ?: "No date" }
+        .groupBy { it.occurredAt ?: "Без даты" }
         .map { (date, items) ->
             HistorySection(
                 title = date,
                 items = items.map { record ->
                     HistoryItem(
                         id = record.id,
-                        title = record.title ?: "Expense",
+                        title = record.title ?: "Событие",
                         subtitle = record.subtitleText(),
                         amount = record.costAmount.formatAmount(),
                         category = record.category,
@@ -368,13 +540,13 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
 
 private fun TimelineItemResponse.subtitleText(): String {
     return listOfNotNull(
-        category.toRecordTypeName().takeIf { it != "—" },
+        category.toRecordTypeName().takeIf { it != "-" },
         mileageKm?.let { "$it км" }
     ).joinToString(" | ")
 }
 
 private fun String.formatAmount(): String {
-    return "${substringBefore('.')} RUB"
+    return "${substringBefore('.')} ₽"
 }
 
 private fun String?.toRecordTypeName(): String {
@@ -382,64 +554,8 @@ private fun String?.toRecordTypeName(): String {
         "expense" -> "Трата"
         "maintenance" -> "Обслуживание"
         "repair" -> "Поломка"
-        else -> this ?: "—"
+        else -> this ?: "-"
     }
-}
-
-private fun rememberHistorySections(): List<HistorySection> {
-    return listOf(
-        HistorySection(
-            title = "СЕГОДНЯ",
-            items = listOf(
-                HistoryItem(
-                    id = 1,
-                    title = "Замена масла",
-                    subtitle = "Сервис · 12:40",
-                    amount = "7 000 ₽",
-                    category = "maintenance",
-                    mileageKm = 45200,
-                    occurredAt = "12.06.2026"
-                ),
-                HistoryItem(
-                    id = 2,
-                    title = "Заправка",
-                    subtitle = "52 л · распознано из чека",
-                    amount = "3 500 ₽",
-                    category = "expense",
-                    mileageKm = 45150,
-                    occurredAt = "12.06.2026"
-                )
-            )
-        ),
-        HistorySection(
-            title = "2 НЕДЕЛИ НАЗАД",
-            items = listOf(
-                HistoryItem(
-                    id = 3,
-                    title = "Диагностика",
-                    subtitle = "Фильтры, диагностика",
-                    amount = "12 000 ₽",
-                    category = "maintenance",
-                    mileageKm = 44000,
-                    occurredAt = "28.05.2026"
-                )
-            )
-        ),
-        HistorySection(
-            title = "МАРТ",
-            items = listOf(
-                HistoryItem(
-                    id = 4,
-                    title = "Заправка",
-                    subtitle = "46 л · город",
-                    amount = "4 200 ₽",
-                    category = "expense",
-                    mileageKm = 43800,
-                    occurredAt = "15.03.2026"
-                )
-            )
-        )
-    )
 }
 
 @Preview(showBackground = true)
@@ -447,7 +563,18 @@ private fun rememberHistorySections(): List<HistorySection> {
 private fun HistoryScreenPreview() {
     LAMBA_MVPv0Theme {
         Surface {
-            HistoryScreen()
+            HistoryScreen(
+                records = listOf(
+                    TimelineItemResponse(
+                        id = 1,
+                        category = "maintenance",
+                        title = "Замена масла",
+                        occurredAt = "2026-07-03",
+                        mileageKm = 45200,
+                        costAmount = "7000.00"
+                    )
+                )
+            )
         }
     }
 }

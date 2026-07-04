@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -65,6 +66,7 @@ import java.time.format.DateTimeParseException
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
     val authViewModel: AuthViewModel = viewModel()
     val authState by authViewModel.uiState.collectAsState()
     val carViewModel: CarViewModel = viewModel()
@@ -226,7 +228,9 @@ fun AppNavigation() {
                     recordsViewModel.createRecord(
                         accessToken = authState.accessToken,
                         carId = currentCarId,
-                        request = form.toRecordRequest()
+                        request = form.toRecordRequest(),
+                        imageUris = form.imageUris,
+                        contentResolver = context.contentResolver
                     )
                 },
                 isSaving = recordsState.isSaving,
@@ -241,7 +245,9 @@ fun AppNavigation() {
                     recordsViewModel.createRecord(
                         accessToken = authState.accessToken,
                         carId = currentCarId,
-                        request = form.toRecordRequest()
+                        request = form.toRecordRequest(),
+                        imageUris = form.imageUris,
+                        contentResolver = context.contentResolver
                     )
                 },
                 isSaving = recordsState.isSaving,
@@ -256,7 +262,9 @@ fun AppNavigation() {
                     recordsViewModel.createRecord(
                         accessToken = authState.accessToken,
                         carId = currentCarId,
-                        request = form.toRecordRequest()
+                        request = form.toRecordRequest(),
+                        imageUris = form.imageUris,
+                        contentResolver = context.contentResolver
                     )
                 },
                 isSaving = recordsState.isSaving,
@@ -270,6 +278,17 @@ fun AppNavigation() {
             }
 
             HistoryScreen(
+                isLoading = recordsState.isLoading,
+                errorMessage = recordsState.errorMessage,
+                records = recordsState.timeline,
+                recordPhotos = recordsState.recordPhotos,
+                onRecordExpanded = { recordId ->
+                    recordsViewModel.loadRecordPhotos(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        recordId = recordId
+                    )
+                },
                 onBackClick = { navController.popBackStack() }
             )
         }

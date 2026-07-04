@@ -4,6 +4,10 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Connected Android record forms and history to record photo upload and display flows. Closes #180; Related #179
+
 ## [v0.2.0] - 2026-06-28
 
 ### Added

@@ -40,6 +40,20 @@ data class MaintenanceRecordResponse(
     val updatedAt: String
 )
 
+data class RecordPhotoResponse(
+    val id: Int,
+    @SerializedName("record_id")
+    val recordId: Int,
+    val filename: String,
+    @SerializedName("content_type")
+    val contentType: String,
+    @SerializedName("size_bytes")
+    val sizeBytes: Int,
+    @SerializedName("created_at")
+    val createdAt: String,
+    val url: String
+)
+
 data class TimelineItemResponse(
     val id: Int,
     val category: String?,

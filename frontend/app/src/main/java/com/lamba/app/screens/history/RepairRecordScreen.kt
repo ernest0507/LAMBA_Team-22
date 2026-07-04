@@ -15,7 +15,8 @@ data class RepairRecordFormData(
     val category: String,
     val description: String,
     val mileage: String,
-    val breakdownDate: String
+    val breakdownDate: String,
+    val imageUris: List<String> = emptyList()
 )
 
 private val RepairCategories = listOf(
@@ -51,7 +52,8 @@ fun RepairRecordScreen(
                     category = category,
                     description = description,
                     mileage = mileage,
-                    breakdownDate = breakdownDateMillis?.let(::formatRecordDate).orEmpty()
+                    breakdownDate = breakdownDateMillis?.let(::formatRecordDate).orEmpty(),
+                    imageUris = imageUris
                 )
             )
         },
