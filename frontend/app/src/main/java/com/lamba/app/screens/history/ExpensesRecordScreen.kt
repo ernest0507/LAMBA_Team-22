@@ -14,7 +14,8 @@ data class ExpensesRecordFormData(
     val name: String,
     val description: String,
     val date: String,
-    val cost: String
+    val cost: String,
+    val imageUris: List<String> = emptyList()
 )
 
 private val ExpenseCategories = listOf("Заправка", "Деталь", "Мойка", "Прочее")
@@ -45,7 +46,8 @@ fun ExpensesRecordScreen(
                     name = name,
                     description = description,
                     date = dateMillis?.let(::formatRecordDate).orEmpty(),
-                    cost = cost
+                    cost = cost,
+                    imageUris = imageUris
                 )
             )
         },

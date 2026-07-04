@@ -1,3 +1,5 @@
+import asyncio
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -16,11 +18,20 @@ async def get_user(db: AsyncSession, user_id: int) -> User | None:
     return result.scalar_one_or_none()
 
 
+async def _hash_password(password: str) -> str:
+    return await asyncio.to_thread(hash_password, password)
+
+
+async def _verify_password(password: str, password_hash: str) -> bool:
+    return await asyncio.to_thread(verify_password, password, password_hash)
+
+
 async def create_user(db: AsyncSession, data: RegisterRequest) -> User:
+    password_hash = await _hash_password(data.password)
     user = User(
         email=data.email.lower(),
         full_name=data.full_name,
-        password_hash=hash_password(data.password),
+        password_hash=password_hash,
     )
     db.add(user)
     await db.commit()
@@ -30,6 +41,6 @@ async def create_user(db: AsyncSession, data: RegisterRequest) -> User:
 
 async def authenticate_user(db: AsyncSession, email: str, password: str) -> User | None:
     user = await get_user_by_email(db, email)
-    if not user or not verify_password(password, user.password_hash):
+    if not user or not await _verify_password(password, user.password_hash):
         return None
     return user
