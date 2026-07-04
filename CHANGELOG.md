@@ -6,6 +6,7 @@ All notable changes to the LAMBA project are documented in this file.
 
 ### Added
 
+- Added backend persistence and API endpoints for maintenance record photos. Closes #179
 - Added assistant mileage update handling with Android car refresh after successful updates. Closes #178; Related #175
 ### Fixed
 
