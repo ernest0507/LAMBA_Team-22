@@ -4,6 +4,10 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- Added backend persistence and API endpoints for maintenance record photos. Closes #179
+
 ## [v0.2.0] - 2026-06-28
 
 ### Added
