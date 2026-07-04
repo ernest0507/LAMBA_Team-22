@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 
 from app.api.routes import assistant as assistant_route
@@ -67,15 +69,39 @@ async def test_assistant_route_updates_current_mileage(monkeypatch):
         return car_to_update
 
     async def fake_extract_record_from_message(data, car_context):
-        assert car_context["current_mileage_km"] == 41000
+        assert car_context["car"]["current_mileage_km"] == 41000
         return AssistantMessageResponse(
             assistant_message="Updating current mileage to 52300 km.",
             action=AssistantAction.UPDATE_MILEAGE,
             mileage_update=AssistantMileageUpdate(current_mileage_km=52300),
         )
 
+    async def fake_resolve_chat(db, car_id, chat_id, first_message):
+        assert car_id == car.id
+        assert chat_id is None
+        assert first_message == "обнови пробег до 52300"
+        return SimpleNamespace(id=99)
+
+    async def fake_list_messages(db, chat_id):
+        assert chat_id == 99
+        return []
+
+    async def fake_create_chat_message(db, **kwargs):
+        assert kwargs["chat_id"] == 99
+        return SimpleNamespace()
+
+    async def fake_build_assistant_context(db, user, context_car, recent_messages):
+        assert user is current_user
+        assert context_car is car
+        assert recent_messages == []
+        return {"car": {"current_mileage_km": context_car.current_mileage_km}}
+
     monkeypatch.setattr(assistant_route, "get_car", fake_get_car)
     monkeypatch.setattr(assistant_route, "update_car", fake_update_car)
+    monkeypatch.setattr(assistant_route, "_resolve_chat", fake_resolve_chat)
+    monkeypatch.setattr(assistant_route, "list_messages", fake_list_messages)
+    monkeypatch.setattr(assistant_route, "create_chat_message", fake_create_chat_message)
+    monkeypatch.setattr(assistant_route, "build_assistant_context", fake_build_assistant_context)
     monkeypatch.setattr(
         assistant_route,
         "extract_record_from_message",
@@ -90,6 +116,7 @@ async def test_assistant_route_updates_current_mileage(monkeypatch):
     )
 
     assert result.action == AssistantAction.MILEAGE_UPDATED
+    assert result.chat_id == 99
     assert result.mileage_update is not None
     assert result.mileage_update.current_mileage_km == 52300
     assert result.record_id is None

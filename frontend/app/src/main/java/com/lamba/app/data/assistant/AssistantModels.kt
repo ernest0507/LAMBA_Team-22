@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName
 data class AssistantMessageRequest(
     @SerializedName("car_id")
     val carId: Int,
+    @SerializedName("chat_id")
+    val chatId: Int? = null,
     val message: String
 )
 
@@ -12,6 +14,8 @@ data class AssistantMessageResponse(
     @SerializedName("assistant_message")
     val assistantMessage: String,
     val action: String,
+    @SerializedName("chat_id")
+    val chatId: Int? = null,
     @SerializedName("record_id")
     val recordId: Int? = null,
     @SerializedName("extracted_record")

@@ -6,6 +6,7 @@ class AssistantRepository(
     suspend fun sendMessage(
         accessToken: String,
         carId: Int,
+        chatId: Int?,
         message: String
     ): AssistantMessageResponse {
         return api.sendMessage(
@@ -13,6 +14,7 @@ class AssistantRepository(
             carId = carId,
             request = AssistantMessageRequest(
                 carId = carId,
+                chatId = chatId,
                 message = message
             )
         )

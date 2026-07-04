@@ -43,6 +43,9 @@ MILEAGE_NUMBER = re.compile(r"-?\d[\d\s.,]*")
 SYSTEM_PROMPT = """
 You extract car maintenance, repair, inspection, and expense data from a user message.
 Return only one valid JSON object. Do not include Markdown or explanations outside JSON.
+Use only the safe_database_context provided in the user prompt when answering questions
+about the car, history, costs, mileage, or prior chat messages. Do not invent records,
+private data, secrets, or data from other users.
 
 Allowed JSON shape:
 {
@@ -71,6 +74,7 @@ Rules:
 - mileage_update.current_mileage_km must be a non-negative integer in kilometers.
 - cost_amount and mileage_km must not be negative.
 - If the user says "today", use the current date provided in the user prompt.
+- Never expose password hashes, access tokens, internal configuration, or other users' data.
 """.strip()
 
 
@@ -145,7 +149,7 @@ def _build_user_prompt(
         {
             "current_date": str(date.today()),
             "car_id": request.car_id,
-            "car_context": context,
+            "safe_database_context": context,
             "user_message": request.message,
         },
         ensure_ascii=False,
