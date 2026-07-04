@@ -12,6 +12,8 @@ class AssistantAction(StrEnum):
     MESSAGE = "message"
     RECORD_EXTRACTED = "record_extracted"
     RECORD_CREATED = "record_created"
+    UPDATE_MILEAGE = "update_mileage"
+    MILEAGE_UPDATED = "mileage_updated"
     NEEDS_CLARIFICATION = "needs_clarification"
 
 
@@ -38,11 +40,16 @@ class AssistantExtractedRecord(BaseModel):
     vendor: str | None = Field(default=None, max_length=200)
 
 
+class AssistantMileageUpdate(BaseModel):
+    current_mileage_km: int = Field(ge=0)
+
+
 class AssistantMessageResponse(BaseModel):
     assistant_message: str = Field(min_length=1, max_length=4000)
     action: AssistantAction = AssistantAction.MESSAGE
     record_id: int | None = Field(default=None, ge=1)
     extracted_record: AssistantExtractedRecord | None = None
+    mileage_update: AssistantMileageUpdate | None = None
 
     @field_validator("assistant_message")
     @classmethod
@@ -63,4 +70,8 @@ class AssistantMessageResponse(BaseModel):
             raise ValueError("record_id is required when action is record_created")
         if self.action == AssistantAction.NEEDS_CLARIFICATION and self.record_id is not None:
             raise ValueError("record_id must be empty when action is needs_clarification")
+        if self.action == AssistantAction.UPDATE_MILEAGE and self.mileage_update is None:
+            raise ValueError("mileage_update is required when action is update_mileage")
+        if self.action == AssistantAction.MILEAGE_UPDATED and self.mileage_update is None:
+            raise ValueError("mileage_update is required when action is mileage_updated")
         return self

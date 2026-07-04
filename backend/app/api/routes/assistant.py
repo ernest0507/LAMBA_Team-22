@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
-from app.crud.cars import get_car
+from app.crud.cars import get_car, update_car
 from app.crud.maintenance_records import create_record
 from app.models.car import Car
 from app.models.user import User
@@ -14,6 +14,7 @@ from app.schemas.assistant import (
     AssistantMessageRequest,
     AssistantMessageResponse,
 )
+from app.schemas.car import CarUpdate
 from app.schemas.maintenance_record import MaintenanceRecordCreate
 from app.services.assistant import extract_record_from_message
 
@@ -43,6 +44,24 @@ async def create_assistant_message(
         car_context=_build_car_context(car),
     )
 
+    if assistant_result.action == AssistantAction.UPDATE_MILEAGE:
+        if assistant_result.mileage_update is None:
+            return AssistantMessageResponse(
+                assistant_message="Please provide the new current mileage in kilometers.",
+                action=AssistantAction.NEEDS_CLARIFICATION,
+            )
+
+        updated_car = await update_car(
+            db,
+            car,
+            CarUpdate(current_mileage_km=assistant_result.mileage_update.current_mileage_km),
+        )
+        return AssistantMessageResponse(
+            assistant_message=f"Current mileage updated to {updated_car.current_mileage_km} km.",
+            action=AssistantAction.MILEAGE_UPDATED,
+            mileage_update=assistant_result.mileage_update,
+        )
+
     if assistant_result.action != AssistantAction.RECORD_EXTRACTED:
         return assistant_result
 
@@ -57,7 +76,9 @@ async def create_assistant_message(
         title=assistant_result.extracted_record.title,
         description=assistant_result.extracted_record.description,
         occurred_at=assistant_result.extracted_record.occurred_at,
-        mileage_km=assistant_result.extracted_record.mileage_km,
+        mileage_km=assistant_result.extracted_record.mileage_km
+        if assistant_result.extracted_record.mileage_km is not None
+        else car.current_mileage_km,
         cost_amount=assistant_result.extracted_record.cost_amount,
         vendor=assistant_result.extracted_record.vendor,
     )
