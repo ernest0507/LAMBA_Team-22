@@ -118,7 +118,11 @@ fun AppNavigation() {
         }
     }
 
-    LaunchedEffect(assistantState.lastResponse?.recordId) {
+    LaunchedEffect(
+        assistantState.lastResponse?.action,
+        assistantState.lastResponse?.recordId,
+        assistantState.lastResponse?.mileageUpdate?.currentMileageKm
+    ) {
         val response = assistantState.lastResponse
         if (
             response?.action == "record_created" &&
@@ -126,6 +130,13 @@ fun AppNavigation() {
             currentCarId != null
         ) {
             recordsViewModel.loadTimeline(authState.accessToken, currentCarId)
+            assistantViewModel.consumeLastResponse()
+        }
+        if (
+            response?.action == "mileage_updated" &&
+            currentCarId != null
+        ) {
+            carViewModel.loadCars(authState.accessToken)
             assistantViewModel.consumeLastResponse()
         }
     }

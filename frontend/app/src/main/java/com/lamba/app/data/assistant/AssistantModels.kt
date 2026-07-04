@@ -13,9 +13,11 @@ data class AssistantMessageResponse(
     val assistantMessage: String,
     val action: String,
     @SerializedName("record_id")
-    val recordId: Int?,
+    val recordId: Int? = null,
     @SerializedName("extracted_record")
-    val extractedRecord: AssistantMessageRecord?
+    val extractedRecord: AssistantMessageRecord? = null,
+    @SerializedName("mileage_update")
+    val mileageUpdate: AssistantMileageUpdate? = null
 )
 
 data class AssistantMessageRecord(
@@ -29,4 +31,9 @@ data class AssistantMessageRecord(
     @SerializedName("cost_amount")
     val costAmount: String?,
     val vendor: String?
+)
+
+data class AssistantMileageUpdate(
+    @SerializedName("current_mileage_km")
+    val currentMileageKm: Int
 )
