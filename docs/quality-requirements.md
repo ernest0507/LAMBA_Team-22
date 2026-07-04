@@ -14,6 +14,8 @@ unavailable before users can create their car profile.
 
 **Linked quality requirement tests:** [QRT-001](quality-requirement-tests.md#qrt-001-registration-api-response-time)
 
+**Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md), [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
+
 ## QR-002: AI assistant provider failure handling
 
 **ISO/IEC 25010 sub-characteristic:** Fault tolerance
@@ -28,6 +30,8 @@ still need a stable product response when that provider fails, and backend
 failures must not break the chat workflow.
 
 **Linked quality requirement tests:** [QRT-002](quality-requirement-tests.md#qrt-002-ai-assistant-provider-failure-handling)
+
+**Related ADRs:** [ADR-002: Use AI agent for maintenance records](architecture/adr/ADR-002-use-ai-agent-for-maintenance-records.md)
 
 ## QR-003: AI assistant extracted record data validation
 
@@ -44,6 +48,7 @@ recommendations if the backend accepted them without validation.
 
 **Linked quality requirement tests:** [QRT-003](quality-requirement-tests.md#qrt-003-ai-assistant-negative-cost-validation)
 
+**Related ADRs:** [ADR-002: Use AI agent for maintenance records](architecture/adr/ADR-002-use-ai-agent-for-maintenance-records.md), [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
 
 ## QR-004: Maintenance record persistence integrity
 
@@ -69,7 +74,6 @@ recommendations if the backend accepted them without validation.
 
 **Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md)
 
-
 ## QR-006: Registration database connection release
 
 **ISO/IEC 25010 sub-characteristic:** Resource utilization
@@ -81,7 +85,6 @@ recommendations if the backend accepted them without validation.
 **Linked quality requirement tests:** [QRT-006](quality-requirement-tests.md#qrt-006-registration-database-connection-release)
 
 **Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md), [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
-
 
 ## QR-007: Record photo upload validation
 
