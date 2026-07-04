@@ -52,12 +52,12 @@ Sprints are the team's recurring planning and inspection container. Sprint runs 
 
 During Sprint Planning, the team defines:
 
-- the Sprint Goal;
-- selected Sprint PBIs;
-- Story Point estimates;
-- implementer and reviewer responsibilities;
-- acceptance criteria and required evidence;
-- the Sprint milestone or Sprint Backlog view used to inspect progress.
+- the Sprint Goal
+- selected Sprint PBIs
+- Story Point estimates
+- implementer and reviewer responsibilities
+- acceptance criteria and required evidence
+- the Sprint milestone or Sprint Backlog view used to inspect progress
 
 During the Sprint, the team coordinates progress through the Sprint Backlog and issue statuses. If customer feedback, technical blockers, or availability risks make the original scope less valuable, the team adjusts the Sprint plan and records the decision in the relevant issue, roadmap, report, or retrospective.
 
