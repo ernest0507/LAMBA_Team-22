@@ -10,5 +10,5 @@
 **Consequences and tradeoffs**: As a consequense the user can make new records or get information about car not only through of manually filling form but also with help if AI assistant. Tradeof is that the product depends from the extarnal AI Provider and must validate extracted data from messages and invalid values
 
 **Quality requirements addressed where applicable** 
-- QR-002: Controlled AI provider failure handling
-- QR-003: Invalid extracted maintenance data rejection
+- [QR-002: AI assistant provider failure handling](../../quality-requirements.md#qr-002-ai-assistant-provider-failure-handling)
+- [QR-003: AI assistant extracted record data validation](../../quality-requirements.md#qr-003-ai-assistant-extracted-record-data-validation)
