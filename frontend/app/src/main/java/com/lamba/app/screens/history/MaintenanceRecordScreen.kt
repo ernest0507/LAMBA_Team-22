@@ -88,7 +88,8 @@ data class MaintenanceRecordFormData(
     val serviceDate: String,
     val mileage: String,
     val cost: String,
-    val organization: String
+    val organization: String,
+    val imageUris: List<String> = emptyList()
 )
 
 private val MaintenanceCategories = listOf(
@@ -135,7 +136,8 @@ fun MaintenanceRecordScreen(
                     serviceDate = serviceDateMillis?.let(::formatRecordDate).orEmpty(),
                     mileage = mileage,
                     cost = cost,
-                    organization = organization
+                    organization = organization,
+                    imageUris = imageUris
                 )
             )
         },
