@@ -1,10 +1,5 @@
 # Definition of Done
 
-A Product Backlog Item may be marked as `Done` only when both conditions are satisfied:
-
-- Its issue-specific acceptance criteria are satisfied.
-- This team Definition of Done is satisfied.
-
 A Product Backlog Item is `Done` only when:
 
 - [ ] All issue acceptance criteria are verified.
