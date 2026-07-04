@@ -88,9 +88,9 @@ Bug reports use the bug template and should include reproduction steps, expected
 
 The team uses a branch-and-pull-request workflow with `main` as the protected default branch.
 
-Before starting new work, developers update their local repository metadata with `git fetch --all --prune` and check whether the local `main` and `origin/main` are synchronized. Work should branch from the current `main` after the developer has confirmed that it matches the protected remote baseline.
+Before starting new work, developers update their local repository metadata with git fetch origin and check whether the local main and origin/main are synchronized. Work should branch from the current main after the developer has confirmed that it matches the protected remote baseline.
 
-The repository history shows both older `feature/...` branches and newer issue-linked branches. For current Assignment 5 work and later work, the team uses the issue-linked branch format required by the course repository rules.
+The repository history shows both older branches and newer issue-linked branches. 
 
 ### Branching
 
@@ -102,19 +102,17 @@ New work starts from the latest `main`. Branches should be created from the rela
 
 Examples from the repository include `164-add-autocomplete-brand-model`, `170-document-architecture-and-adr`, and `172-integration-test-for-database`. A short-lived local branch may use an equivalent descriptive name while drafting, but the PR branch should keep the issue number visible so reviewers and graders can trace the work.
 
-Legacy branch names such as `feature/ai-chat-mock` and `feature/home-timeline` remain in the repository history, but they should not be used as the current pattern for new issue-linked work.
-
 ### Pull Requests
 
 Pull requests should use the repository PR template. Each PR should include:
 
-- a short description of the change;
-- the related issue, using `Closes #...` when the PR completes the issue;
-- the type of change;
-- acceptance criteria verification;
-- testing performed;
-- changelog decision;
-- reviewer checklist confirmation.
+- a short description of the change
+- the related issue, using `Closes #...` when the PR completes the issue
+- the type of change
+- acceptance criteria verification
+- testing performed
+- changelog decision
+- reviewer checklist confirmation
 
 The PR should be linked to the related issue or PBI so GitHub preserves traceability between issue, branch, commits, review, checks, and merge.
 
@@ -146,8 +144,6 @@ gitGraph
 
 The diagram shows the team's normal repository workflow. `main` is the stable baseline and should match `origin/main` before new work starts. A developer creates a short-lived issue-linked branch for a feature, bug fix, test update, architecture update, or documentation change. The branch contains implementation commits and any required tests, changelog entries, or documentation updates. The change returns to `main` only through a reviewed pull request. Assignment reports and maintained documentation may also be updated through their own issue-linked documentation branches when the work is large enough to review separately.
 
-The team uses the diagram operationally as a rule of thumb: one focused issue or PBI should produce one focused branch and PR when practical; review and CI happen before merge; and the related issue moves to `Done` only after the merge and Definition of Done evidence are complete.
-
 ## Traceability
 
 The team preserves traceability between requirements, implementation, review, and verification evidence.
@@ -171,13 +167,13 @@ The team maintains its detailed Definition of Done in [docs/definition-of-done.m
 
 The Definition of Done requires, among other items:
 
-- issue acceptance criteria are verified;
-- work is linked to the related issue or PBI;
-- review is completed by another team member;
-- issue-linked PR is merged into the protected default branch;
-- relevant CI checks and automated tests pass;
-- testing, quality, UAT, README, and changelog documentation are updated when applicable;
-- public artifacts are sanitized and do not expose secrets, private customer data, recordings, unnecessary PII, or confidential material.
+- issue acceptance criteria are verified
+- work is linked to the related issue or PBI
+- review is completed by another team member
+- issue-linked PR is merged into the protected default branch
+- relevant CI checks and automated tests pass
+- testing, quality, UAT, README, and changelog documentation are updated when applicable
+- public artifacts are sanitized and do not expose secrets, private customer data, recordings, unnecessary PII, or confidential material
 
 ## Configuration and Secrets Management
 
