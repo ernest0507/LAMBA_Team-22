@@ -4,6 +4,10 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed Android history compile errors caused by the missing wagon drawable and composable bitmap decoding. Closes #177
+
 ## [v0.2.0] - 2026-06-28
 
 ### Added
