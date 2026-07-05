@@ -133,7 +133,8 @@ async def test_build_assistant_context_excludes_sensitive_data(monkeypatch):
     )
 
     assert context["user"] == {"id": current_user.id, "full_name": current_user.full_name}
-    assert "password_hash" not in str(context)
+    assert "password_hash" in context["privacy_rules"]["excluded"]
+    assert current_user.password_hash not in str(context)
     assert context["car"]["id"] == car.id
     assert context["records_summary"]["total_cost_amount"] == "6500.00"
     assert context["recent_chat_messages"][0]["content"] == "What did I repair?"
