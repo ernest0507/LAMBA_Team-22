@@ -6,7 +6,7 @@ All notable changes to the LAMBA project are documented in this file.
 
 ### Added
 
-- Added backend car statistics API for `/api/v1/cars/{car_id}/statistics`. Closes #189
+- Added persistent assistant chat history with chat-specific message storage and active chat support. Closes #190
 - Connected the Android statistics screen to the backend statistics endpoint. Closes #181; Related #34; Related #166
 - Connected Android record forms and history to record photo upload and display flows. Closes #180; Related #179
 - Added backend persistence and API endpoints for maintenance record photos. Closes #179

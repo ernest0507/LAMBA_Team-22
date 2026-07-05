@@ -16,6 +16,7 @@ data class AssistantUiState(
     val messages: List<ChatMessage> = emptyList(),
     val isSending: Boolean = false,
     val errorMessage: String? = null,
+    val activeChatId: Int? = null,
     val lastResponse: AssistantMessageResponse? = null
 )
 
@@ -39,6 +40,7 @@ class AssistantViewModel(
             return
         }
 
+        val activeChatId = _uiState.value.activeChatId
         _uiState.update {
             it.copy(
                 messages = it.messages + ChatMessage(cleanMessage, isUser = true),
@@ -50,7 +52,12 @@ class AssistantViewModel(
 
         viewModelScope.launch {
             runCatching {
-                repository.sendMessage(accessToken, carId, cleanMessage)
+                repository.sendMessage(
+                    accessToken = accessToken,
+                    carId = carId,
+                    chatId = activeChatId,
+                    message = cleanMessage
+                )
             }.onSuccess { response ->
                 _uiState.update {
                     it.copy(
@@ -60,6 +67,7 @@ class AssistantViewModel(
                         ),
                         isSending = false,
                         errorMessage = null,
+                        activeChatId = response.chatId ?: activeChatId,
                         lastResponse = response
                     )
                 }

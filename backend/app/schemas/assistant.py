@@ -1,10 +1,11 @@
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Self
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from app.models.assistant_chat import AssistantMessageRole
 from app.models.maintenance_record import RecordCategory
 
 
@@ -19,6 +20,7 @@ class AssistantAction(StrEnum):
 
 class AssistantMessageRequest(BaseModel):
     car_id: int = Field(ge=1)
+    chat_id: int | None = Field(default=None, ge=1)
     message: str = Field(min_length=1, max_length=4000)
 
     @field_validator("message")
@@ -47,6 +49,7 @@ class AssistantMileageUpdate(BaseModel):
 class AssistantMessageResponse(BaseModel):
     assistant_message: str = Field(min_length=1, max_length=4000)
     action: AssistantAction = AssistantAction.MESSAGE
+    chat_id: int | None = Field(default=None, ge=1)
     record_id: int | None = Field(default=None, ge=1)
     extracted_record: AssistantExtractedRecord | None = None
     mileage_update: AssistantMileageUpdate | None = None
@@ -75,3 +78,37 @@ class AssistantMessageResponse(BaseModel):
         if self.action == AssistantAction.MILEAGE_UPDATED and self.mileage_update is None:
             raise ValueError("mileage_update is required when action is mileage_updated")
         return self
+
+
+class AssistantChatCreate(BaseModel):
+    title: str | None = Field(default=None, max_length=120)
+
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        return value or None
+
+
+class AssistantChatRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    car_id: int
+    title: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class AssistantChatMessageRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    chat_id: int
+    role: AssistantMessageRole
+    content: str
+    action: AssistantAction | None = None
+    record_id: int | None = None
+    created_at: datetime
