@@ -1,5 +1,3 @@
-## Static View - Component Diagram
-
 # Architecture Overview
 
 This document is the maintained architecture index for LAMBA. It describes the current delivered architecture and links the architecture view artifacts and Architecture Decision Records used to explain the system.
@@ -29,6 +27,8 @@ Relevant ADRs:
 - [ADR-003: Use database for persistent storage](adr/ADR-003-database-for-persistent-storage.md)
 
 These decisions explain why the project uses a FastAPI backend, an AI-agent integration for maintenance-record workflows, and PostgreSQL-backed persistent storage. The related quality requirements are linked from each ADR and from [quality requirements](../quality-requirements.md).
+
+## Static View - Component Diagram
 
 In the diagram there is a starting point from the Client Layer. In the Client Layer there is a component called Android Mobile Application. This component represents the frontend side of the product. This component is based on Kotlin and Jetpack Compose.
 
