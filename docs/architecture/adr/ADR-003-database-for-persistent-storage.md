@@ -9,4 +9,7 @@
 **Consequences and tradeoffs**: As a consequences, the product stores user accounts, vehicle profile, records in a persistant database. The backend can request to access the data and client can receive it using endpoints API. Tradeoffs: database must provide stable access to data. The developers team needs to maintain access, migration and configuration. 
 
 **Quality requirements addressed where applicable** 
-TBD
+- [QR-001: Registration API response time](../../quality-requirements.md#qr-001-registration-api-response-time)
+- [QR-004: Maintenance record persistence integrity](../../quality-requirements.md#qr-004-maintenance-record-persistence-integrity)
+- [QR-006: Registration database connection release](../../quality-requirements.md#qr-006-registration-database-connection-release)
+- [QR-007: Record photo upload validation](../../quality-requirements.md#qr-007-record-photo-upload-validation)

@@ -1,10 +1,5 @@
 # Definition of Done
 
-A Product Backlog Item may be marked as `Done` only when both conditions are satisfied:
-
-- Its issue-specific acceptance criteria are satisfied.
-- This team Definition of Done is satisfied.
-
 A Product Backlog Item is `Done` only when:
 
 - [ ] All issue acceptance criteria are verified.
@@ -30,5 +25,5 @@ A Product Backlog Item is `Done` only when:
 - [ ] `README.md` is updated when setup, run, deployment, backend, Android, or access instructions change.
 - [ ] `CHANGELOG.md` is updated for user-visible changes, or the pull request marks the changelog update as not applicable.
 - [ ] Public repository artifacts do not include credentials, private customer data, recordings, unnecessary PII, or confidential materials
-- [ ] Customer feedback or UAT findings that affect scope, quality, or usability are linked to a follow-up issue, PBI, roadmap item, or documented decision.
-- [ ] Assignment 4 CI checks, automated tests, QRTs, coverage expectations, and the additional QA check remain active for later work or are replaced with documented equivalent or stronger checks
+- [ ] Architecture documentation and related ADRs are updated when the change affects backend structure, persistence, deployment, integrations, critical modules, or major quality risks.
+- [ ] Quality requirements added or changed for Assignment 5 and later work link to the related ADRs when applicable.
