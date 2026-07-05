@@ -4,6 +4,8 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [Unreleased]
 
+## [v0.3.0] - 2026-07-05
+
 ### Added
 
 - Added persistent assistant chat history with chat-specific message storage and active chat support. Closes #190
@@ -11,6 +13,11 @@ All notable changes to the LAMBA project are documented in this file.
 - Connected Android record forms and history to record photo upload and display flows. Closes #180; Related #179
 - Added backend persistence and API endpoints for maintenance record photos. Closes #179
 - Added assistant mileage update handling with Android car refresh after successful updates. Closes #178; Related #175
+- Enhanced vehicle setup with suggested mark and model selection, while allowing manual model entry when the desired model is unavailable. Related #164
+- Enhanced the Statistics screen with monthly, 6-month, and yearly views, period navigation, summary cards, charts, and responsive layout improvements. Related #165
+- Added loading and success states for registration and record creation flows to provide clear progress feedback during backend requests. Related #162
+- Added image picker support to all history record forms, allowing users to select photos directly from their device. Related #163
+
 ### Fixed
 
 - Fixed Android history compile errors caused by the missing wagon drawable and composable bitmap decoding. Closes #177
