@@ -182,27 +182,39 @@ The expected reviewer path is to download the APK from the linked product access
 
 The following screenshots show the delivered MVP v2 product state and the main Week 5 product areas.
 
-| Product screenshot | Path |
-|---|---|
-| Expense/history screen | `reports/week5/images/expense-history-screen.jpg` |
-| Statistics screen for July 2026 | `reports/week5/images/statistics-month-july-2026.jpg` |
-| Statistics screen for June 2026 | `reports/week5/images/statistics-month-june-2026.jpg` |
-| Statistics screen for year 2026 | `reports/week5/images/statistics-year-2026.jpg` |
-| AI assistant chat screen | `reports/week5/images/ai-assistant-chat-screen.jpg` |
+### Expense/history screen
+
+![Expense and history screen](images/expense-history-screen.jpg)
+
+### Statistics screen for July 2026
+
+![Statistics screen for July 2026](images/statistics-month-july-2026.jpg)
+
+### Statistics screen for June 2026
+
+![Statistics screen for June 2026](images/statistics-month-june-2026.jpg)
+
+### Statistics screen for year 2026
+
+![Statistics screen for year 2026](images/statistics-year-2026.jpg)
+
+### AI assistant chat screen
+
+![AI assistant chat screen](images/ai-assistant-chat-screen.jpg)
 
 ## 13. Screenshots and visual evidence
 
-Screenshots must be added to `reports/week5/images/` before final submission.
+The following screenshots provide public evidence for the Sprint board, milestone, CI run, reviewed PR, hosted documentation site, release, and product access artifact.
 
-| Required screenshot | Status | Expected path |
-|---|---|---|
-| Sprint milestone | Added | `reports/week5/images/sprint-milestone.png` |
-| Product/Sprint board or workflow view | Added | `reports/week5/images/sprint-board.png` |
-| Latest protected-default-branch CI run | Added | `reports/week5/images/latest-ci-run.png` |
-| SemVer MVP v2 release | Added | `reports/week5/images/release.png` |
-| Example reviewed issue-linked PR | Added | `reports/week5/images/reviewed-pr.png` |
-| Hosted documentation site | Added | `reports/week5/images/hosted-docs-site.png` |
-| Product access artifact screenshot | Added | `reports/week5/images/product-access-artifact.png` |
+| Evidence | Screenshot |
+|---|---|
+| Sprint milestone | ![Sprint milestone](images/sprint-milestone.png) |
+| Product/Sprint board or workflow view | ![Sprint board](images/sprint-board.png) |
+| Latest protected-default-branch CI run | ![Latest CI run](images/latest-ci-run.png) |
+| SemVer MVP v2 release | ![MVP v2 release](images/release.png) |
+| Example reviewed issue-linked PR | ![Reviewed PR](images/reviewed-pr.png) |
+| Hosted documentation site | ![Hosted documentation site](images/hosted-docs-site.png) |
+| Product access artifact | ![Product access artifact](images/product-access-artifact.png) |
 
 ## 14. Week 5 report artifacts
 
@@ -226,20 +238,3 @@ The table below summarizes Week 5 contribution evidence based on merged issue-li
 | Ernest Kashapov | Implemented Assignment 5 documentation and quality work: architecture/ADR documentation, database workflow integration test, development-process documentation, UAT update, ADR/quality documentation, and architecture/quality index fixes. Also coordinated PO-side backlog and review alignment. | [#171](https://github.com/ernest0507/LAMBA_Team-22/pull/171), [#173](https://github.com/ernest0507/LAMBA_Team-22/pull/173), [#194](https://github.com/ernest0507/LAMBA_Team-22/pull/194), [#196](https://github.com/ernest0507/LAMBA_Team-22/pull/196), [#204](https://github.com/ernest0507/LAMBA_Team-22/pull/204), [#207](https://github.com/ernest0507/LAMBA_Team-22/pull/207) |
 | Varvara Chizhikova | Implemented expenses/statistics screen work and updated the changelog for latest user-visible features. | [#169](https://github.com/ernest0507/LAMBA_Team-22/pull/169), [#205](https://github.com/ernest0507/LAMBA_Team-22/pull/205) |
 | Ildar Faskhutdinov | Implemented frontend updates for image picker fields, car brand/model fields, and history card updates. | [#168](https://github.com/ernest0507/LAMBA_Team-22/pull/168), [#174](https://github.com/ernest0507/LAMBA_Team-22/pull/174) |
-
-## 16. Current product status
-
-MVP v2 is in progress as the next release-mapped increment after MVP v1. The Sprint Review validated the direction of the statistics feature, AI assistant improvements, and backlog decisions. The customer accepted the general direction and gave follow-up feedback on AI assistant response quality, UI polish, trip mode, and achievements.
-
-Before final Assignment 5 submission, the team still needs to:
-
-- merge the final Week 5 README and screenshot updates into `main`;
-- generate the final commit-hash permalink for this report;
-- prepare the Moodle PDF private wrapper with recording links, private timecodes, and access instructions.
-
-## 17. Next steps
-
-1. Merge the final Week 5 README and screenshot updates into `main`.
-2. Confirm that the hosted documentation site remains deployed and accessible.
-3. After all PRs are merged, generate the final commit-hash permalinks for Moodle PDF submission.
-4. Prepare the Moodle PDF private wrapper with the Sprint Review/UAT recording link, private timecodes, and access instructions.
