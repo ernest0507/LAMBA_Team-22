@@ -31,6 +31,8 @@ from app.schemas.maintenance_record import (
     TimelineItem,
 )
 from app.schemas.record_photo import RecordPhotoRead
+from app.schemas.statistics import CarStatistics
+from app.services.statistics import build_car_statistics
 
 
 router = APIRouter(prefix="/cars/{car_id}", tags=["maintenance records"])
@@ -222,6 +224,17 @@ async def read_timeline(
         )
         for record in records
     ]
+
+
+@router.get("/statistics", response_model=CarStatistics)
+async def read_statistics(
+    car_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> CarStatistics:
+    await ensure_car_owner(db, current_user, car_id)
+    records = await list_records(db, car_id, 0, 500)
+    return build_car_statistics(records)
 
 
 async def _get_owned_record(
