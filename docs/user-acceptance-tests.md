@@ -162,8 +162,87 @@ chat so that I do not have to manually fill in an expense form.
   error or fallback message.
 - The application does not freeze, crash, or break the chat flow.
 
-**Assignment 4 execution results:** Failed
+**Assignment 4 execution results:** Passed
 
 **Customer comments or observed issues:** AI agent does not cover all possible scenario of conversation
 
 **Resulting PBIs or issues:** More comprehensive context must be written to AI agent
+
+
+
+## UAT-005: View Expense Statistics
+
+**Status:** Active
+
+**Related requirement:** [US-04: Expenses statistics](https://github.com/ernest0507/LAMBA_Team-22/issues/34)
+
+**User goal:** As a car owner, I want to view expense statistics for my vehicle so that I can understand my car spending over time.
+
+**Preconditions:**
+
+- The LAMBA mobile application is installed and opens successfully.
+- The user is signed in.
+- The user has a vehicle digital twin available.
+- The statistics screen is available.
+- The selected test vehicle has several expense or maintenance records with different costs, or the test environment intentionally has no records to verify the empty state.
+
+**Steps:**
+
+1. Add several expense or maintenance records with different costs.
+2. Open the side menu or application navigation.
+3. Go to the statistics screen.
+4. Review the displayed expense statistics.
+
+**Expected outcome:**
+
+- The statistics screen opens successfully.
+- The user sees a summary of vehicle expenses.
+- The statistics include the added expense or maintenance records.
+- Amounts and categories are displayed clearly for the user.
+- If there is no data for statistics, the application shows a clear empty state.
+- The application does not freeze or crash when opening statistics.
+
+**Assignment 5 execution results:** Passed
+
+**Customer comments or observed issues:** From the user side, everything is clear and intuitive 
+
+**Resulting PBIs or issues:** No follow-up PBI or issue was created because the customer accepted the statistics flow during UAT.
+
+## UAT-006: View Vehicle Event Timeline
+
+**Status:** Active
+
+**Related requirement:** [US-03: Main expenses and events timeline](https://github.com/ernest0507/LAMBA_Team-22/issues/33)
+
+**User goal:** As a car owner, I want to view the history of expenses, repairs, and maintenance events in a timeline so that I can track what happened to my vehicle.
+
+**Preconditions:**
+
+- The LAMBA mobile application is installed and opens successfully.
+- The user is signed in.
+- The user has a vehicle digital twin available.
+- The vehicle history or timeline screen is available.
+- The selected test vehicle has one or more records, or the test environment intentionally has no records to verify the empty state.
+
+**Steps:**
+
+1. Add one or more records, for example an expense, maintenance event, or repair.
+2. Open the side menu or application navigation.
+3. Go to the vehicle history screen.
+4. Review the event timeline.
+5. Find the previously added record in the timeline.
+
+**Expected outcome:**
+
+- The history screen opens successfully.
+- The timeline displays events related to the selected vehicle.
+- The added record appears in the timeline.
+- Each record shows the main available data, such as title, date, category, cost, and mileage when those values were provided.
+- If there are no records, the application shows a clear empty state.
+- The application does not freeze or crash when opening the timeline.
+
+**Assignment 5 execution results:** To be executed during the Assignment 5 customer UAT session.
+
+**Customer comments or observed issues:** From the user side, everything is clear and intuitive 
+
+**Resulting PBIs or issues:** No follow-up PBI or issue was created because the customer accepted the statistics flow during UAT.
