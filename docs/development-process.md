@@ -252,7 +252,6 @@ The repository does not currently document automatic continuous deployment as th
 ## Related Artifacts
 
 - [Root README](https://github.com/ernest0507/LAMBA_Team-22/blob/main/README.md)
-- [Maintained documentation index](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/README.md)
 - [Backend setup and API documentation](https://github.com/ernest0507/LAMBA_Team-22/blob/main/backend/README.md)
 - [Definition of Done](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/definition-of-done.md)
 - [User-story index](https://github.com/ernest0507/LAMBA_Team-22/blob/main/docs/user-stories.md)
