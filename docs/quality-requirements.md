@@ -46,7 +46,7 @@ accepted as a maintenance record.
 records could corrupt maintenance history, expense statistics, and future
 recommendations if the backend accepted them without validation.
 
-**Linked quality requirement tests:** **Linked quality requirement tests:** [QRT-003](quality-requirement-tests.md#qrt-003-ai-assistant-extracted-record-data-validation)
+**Linked quality requirement tests:** [QRT-003](quality-requirement-tests.md#qrt-003-ai-assistant-extracted-record-data-validation)
 
 **Related ADRs:** [ADR-002: Use AI agent for maintenance records](architecture/adr/ADR-002-use-ai-agent-for-maintenance-records.md), [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
 
