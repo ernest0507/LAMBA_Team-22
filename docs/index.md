@@ -22,7 +22,7 @@ The documentation is kept in the repository under `docs/` and is published as a 
 
 ## Architecture documentation
 
-- [Architecture Overview](architecture/)
+- [Architecture Overview](architecture/README.md)
 - [Static View](architecture/static-view/)
 - [Dynamic View](architecture/dynamic-view/)
 - [Deployment View](architecture/deployment-view/)
