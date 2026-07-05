@@ -4,7 +4,7 @@
 |---|---|---|---|---|---|---|
 | US-01 | Storing car's data | Must Have | [#31](https://github.com/ernest0507/LAMBA_Team-22/issues/31) | Active | Done | [Sprint 1 - MVP v1](https://github.com/ernest0507/LAMBA_Team-22/milestone/1) |
 | US-02 | Interact with AI-agent | Must Have | [#32](https://github.com/ernest0507/LAMBA_Team-22/issues/32) | Active | Done | [Assignment 4 Sprint](https://github.com/ernest0507/LAMBA_Team-22/milestone/2) |
-| US-03 | Main expenses and events timeline | Must Have | [#33](https://github.com/ernest0507/LAMBA_Team-22/issues/33) | Active | Done | [Sprint 3 - MVP v2](https://github.com/ernest0507/LAMBA_Team-22/milestone/3) |
+| US-03 | Main expenses and events timeline | Must Have | [#33](https://github.com/ernest0507/LAMBA_Team-22/issues/33) | Active | Done | [Assignment 4 Sprint](https://github.com/ernest0507/LAMBA_Team-22/milestone/2) |
 | US-04 | Expenses statistics | Must Have | [#34](https://github.com/ernest0507/LAMBA_Team-22/issues/34) | Active | Done | [Sprint 3 - MVP v2](https://github.com/ernest0507/LAMBA_Team-22/milestone/3) |
 | US-11 | Create account and sign in | Must Have | [#61](https://github.com/ernest0507/LAMBA_Team-22/issues/61) | Active | Done | [Sprint 1 - MVP v1](https://github.com/ernest0507/LAMBA_Team-22/milestone/1) |
 | US-12 | Start and finish trip mode with refueling and mileage update | Must Have | [#175](https://github.com/ernest0507/LAMBA_Team-22/issues/175) | Active | To Do |  |

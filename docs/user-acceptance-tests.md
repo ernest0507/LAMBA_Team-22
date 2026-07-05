@@ -35,7 +35,7 @@ using LAMBA and continue to digital twin registration.
   validation or registration error.
 - The application does not freeze, crash, or leave the user without feedback.
 
-**Assignment 4 execution results:** Passed
+**Execution result:** Passed
 
 **Customer comments or observed issues:** From the user side, everything is clear and intuitive 
 
@@ -79,7 +79,7 @@ that the application can store and use my car information.
   appropriate validation message.
 - The application does not freeze, crash, or lose entered data without feedback.
 
-**Assignment 4 execution results:** Passed
+**Execution result:** Passed
 
 **Customer comments or observed issues:** From the user side, everything is clear and intuitive 
 
@@ -119,7 +119,7 @@ so that I can access the main application screen.
 - If the email or password is incorrect, the application shows an error message.
 - The application does not freeze, crash, or leave the user without feedback.
 
-**Assignment 4 execution results:** Passed
+**Execution result:** Passed
 
 **Customer comments or observed issues:** from the user's point of view, everything is clear and intuitive.
 
@@ -162,7 +162,7 @@ chat so that I do not have to manually fill in an expense form.
   error or fallback message.
 - The application does not freeze, crash, or break the chat flow.
 
-**Assignment 4 execution results:** Passed
+**Execution result:** Passed
 
 **Customer comments or observed issues:** AI agent does not cover all possible scenario of conversation
 
@@ -202,7 +202,7 @@ chat so that I do not have to manually fill in an expense form.
 - If there is no data for statistics, the application shows a clear empty state.
 - The application does not freeze or crash when opening statistics.
 
-**Assignment 5 execution results:** Passed
+**Execution result** Passed
 
 **Customer comments or observed issues:** From the user side, everything is clear and intuitive 
 
@@ -241,8 +241,8 @@ chat so that I do not have to manually fill in an expense form.
 - If there are no records, the application shows a clear empty state.
 - The application does not freeze or crash when opening the timeline.
 
-**Assignment 5 execution results:** To be executed during the Assignment 5 customer UAT session.
+**Execution result** Passed
 
 **Customer comments or observed issues:** From the user side, everything is clear and intuitive 
 
-**Resulting PBIs or issues:** No follow-up PBI or issue was created because the customer accepted the statistics flow during UAT.
+**Resulting PBIs or issues:** No follow-up PBI or issue was created because the customer accepted the Vehicle Event Timeline flow during UAT

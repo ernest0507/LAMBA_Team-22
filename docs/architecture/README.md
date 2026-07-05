@@ -1,5 +1,35 @@
 ## Static View - Component Diagram
 
+# Architecture Overview
+
+This document is the maintained architecture index for LAMBA. It describes the current delivered architecture and links the architecture view artifacts and Architecture Decision Records used to explain the system.
+
+## Current Delivered Architecture
+
+LAMBA is delivered as an Android mobile application connected to a FastAPI backend through a REST/JSON API. The backend handles authentication, car data, maintenance records, statistics, record photos, and AI-assistant workflows. Product data is stored in PostgreSQL, database schema changes are managed with Alembic migrations, and AI-assistant behavior depends on an OpenAI-compatible external AI provider.
+
+The Android client does not connect directly to the database or AI provider. It communicates with the backend API, and the backend coordinates persistence, validation, authentication, and external AI-provider access.
+
+## Architecture View Artifacts
+
+| View | Directory | Source | Rendered diagram |
+|---|---|---|---|
+| Static view / component diagram | [static-view/](static-view/) | [component-diagram.puml](static-view/component-diagram.puml) | [component-diagram.svg](static-view/component-diagram.svg) |
+| Dynamic view / sequence diagram | [dynamic-view/](dynamic-view/) | [sequence-diagram.puml](dynamic-view/sequence-diagram.puml) | [sequence-diagram.svg](dynamic-view/sequence-diagram.svg) |
+| Deployment view | [deployment-view/](deployment-view/) | [deployment-diagram.puml](deployment-view/deployment-diagram.puml) | [deployment-diagram.svg](deployment-view/deployment-diagram.svg) |
+
+## Architecture Decision Records
+
+The maintained ADR set is stored in [adr/](adr/). The ADR index is available at [adr/index.md](adr/index.md).
+
+Relevant ADRs:
+
+- [ADR-001: Use the FastAPI for backend implementation](adr/ADR-001-backend-implementation.md)
+- [ADR-002: Use AI-agent for maintenance records](adr/ADR-002-use-ai-agent-for-maintenance-records.md)
+- [ADR-003: Use database for persistent storage](adr/ADR-003-database-for-persistent-storage.md)
+
+These decisions explain why the project uses a FastAPI backend, an AI-agent integration for maintenance-record workflows, and PostgreSQL-backed persistent storage. The related quality requirements are linked from each ADR and from [quality requirements](../quality-requirements.md).
+
 In the diagram there is a starting point from the Client Layer. In the Client Layer there is a component called Android Mobile Application. This component represents the frontend side of the product. This component is based on Kotlin and Jetpack Compose.
 
 The Android Mobile Application has a connection with the Backend Layer. This connection is represented as a lollipop connection through the REST/JSON API. The Backend Layer provides the REST/JSON API, and the Android Mobile Application uses this interface to communicate with the backend.
