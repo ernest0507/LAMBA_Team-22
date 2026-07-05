@@ -1,0 +1,16 @@
+site_name: LAMBA Documentation
+site_description: Maintained documentation for the LAMBA project
+site_url: https://ernest0507.github.io/LAMBA_Team-22/
+repo_url: https://github.com/ernest0507/LAMBA_Team-22
+repo_name: ernest0507/LAMBA_Team-22
+
+docs_dir: docs
+site_dir: site
+
+theme:
+  name: mkdocs
+
+plugins:
+  - search
+
+use_directory_urls: true
