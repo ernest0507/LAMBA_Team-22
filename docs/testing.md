@@ -26,18 +26,6 @@ the same environment created by CI.
 | Automated QRTs | QR-001 through QR-007. | `pytest tests --cov=app --cov-report=term-missing` | Passing when the `backend-tests` CI job passes. | [Quality requirement tests](quality-requirement-tests.md) |
 | Coverage reporting | Backend application modules under `backend/app`. | `pytest tests --cov=app --cov-report=term-missing` | Reported in the `backend-tests` CI output. | [Backend tests workflow](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml) |
 
-## MVP v2 Test Inventory
-
-| Test file | Scope | Counts as QRT? | Notes |
-|---|---|---|---|
-| `backend/tests/test_registration_response_time.py` | Sends 20 concurrent registration requests and checks successful responses within the required response-time threshold. | Yes, QRT-001. | Runs in CI against the FastAPI backend started by the workflow. |
-| `backend/tests/test_returns_clarifictation_ai_provider_unavailable.py` | Verifies a controlled clarification response when the AI provider raises an unavailable-provider error. | Yes, QRT-002. | The filename currently contains the typo `clarifictation`; documentation commands match the actual file name. |
-| `backend/tests/test_returns_clarification_negative_cost.py` | Verifies that invalid AI-extracted data with a negative cost is rejected with a clarification response. | Yes, QRT-003. | Prevents invalid AI output from becoming product data. |
-| `backend/tests/test_database_persists_car_and_maintenance_record_workflow.py` | Registers a user, logs in, creates a car, creates a maintenance record, reads it back, and verifies it appears in the timeline. | Yes, QRT-004. | Covers persistent storage behavior for the core maintenance-record workflow. |
-| `backend/tests/test_password_hash_threadpool.py` | Verifies password hashing and verification run outside the event-loop thread. | Yes, QRT-005. | Supports registration responsiveness under slow password hashing/verification work. |
-| `backend/tests/test_registration_releases_connection.py` | Verifies registration performs lookup, rollback, then user creation. | Yes, QRT-006. | Confirms the lookup transaction is not kept open during the user creation step. |
-| `backend/tests/test_record_photo_uploads.py` | Verifies valid image metadata, rejection of non-image uploads, and rejection of uploads that exceed three photos per record. | Yes, QRT-007. | Confirms invalid photo-upload inputs produce controlled HTTP errors instead of unhandled server errors. |
-| `backend/tests/test_assistant_mileage_updates.py` | Verifies assistant mileage-update intent extraction and route-level mileage update behavior. | No. | Product behavior test; it supports confidence in MVP v2 functionality but does not currently map to a separate measurable quality requirement. |
 
 ## CI and QA Check Status
 
