@@ -241,8 +241,8 @@ chat so that I do not have to manually fill in an expense form.
 - If there are no records, the application shows a clear empty state.
 - The application does not freeze or crash when opening the timeline.
 
-**Assignment 5 execution results:** To be executed during the Assignment 5 customer UAT session.
+**Assignment 5 execution results:** Passed
 
 **Customer comments or observed issues:** From the user side, everything is clear and intuitive 
 
-**Resulting PBIs or issues:** No follow-up PBI or issue was created because the customer accepted the statistics flow during UAT.
+**Resulting PBIs or issues:** No follow-up PBI or issue was created because the customer accepted the Vehicle Event Timeline flow during UAT
