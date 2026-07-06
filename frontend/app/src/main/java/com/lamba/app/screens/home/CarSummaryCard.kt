@@ -19,7 +19,6 @@ import com.lamba.app.data.cars.CarResponse
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaSurface
-import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaVehicleBlue
 import com.lamba.app.ui.theme.LambaVehicleGraphite
 import com.lamba.app.ui.theme.LambaVehicleGreen
@@ -31,7 +30,11 @@ import components.CarImage
 @Composable
 fun CarSummaryCard(
     car: CarResponse? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onStartTripClick: () -> Unit = {},
+    isTripActive: Boolean = false,
+    tripStartedAtMillis: Long? = null,
+    onTripHoldComplete: () -> Unit = {}
 ) {
     val vehicleColor = car?.color.toVehicleColor()
     val title = car?.displayName().orEmpty().ifBlank { "Модель автомобиля" }
@@ -45,7 +48,12 @@ fun CarSummaryCard(
     Column(
         modifier = modifier
             .background(LambaSurface)
-            .padding(horizontal = 24.dp, vertical = 32.dp)
+            .padding(
+                start = 24.dp,
+                top = 32.dp,
+                end = 24.dp,
+                bottom = 14.dp
+            )
     ) {
         Column()
         {
@@ -90,6 +98,15 @@ fun CarSummaryCard(
                 color = LambaInkMuted
             )
         }
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        TripStartButton(
+            onTripHoldComplete = onTripHoldComplete,
+            modifier = Modifier.fillMaxWidth(),
+            isTripActive = isTripActive,
+            tripStartedAtMillis = tripStartedAtMillis
+        )
     }
 }
 
