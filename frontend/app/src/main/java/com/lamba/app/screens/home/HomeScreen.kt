@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -32,12 +31,16 @@ fun HomeScreen(
     onOpenStatistics: () -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenProfile: () -> Unit = {},
-    onSendMessage: (String) -> Unit = {}
+    onSendMessage: (String) -> Unit = {},
+    onStartTripClick: () -> Unit = {},
+    isTripActive: Boolean = false,
+    tripStartedAtMillis: Long? = null,
+    onTripHoldComplete: () -> Unit = {}
 ) {
     var isMenuOpen by remember { mutableStateOf(false) }
     var chatExpandProgress by remember { mutableFloatStateOf(0f) }
     val carHeight = lerp(
-        start = 333.dp,
+        start = 430.dp,
         stop = 0.dp,
         fraction = chatExpandProgress
     )
@@ -58,7 +61,11 @@ fun HomeScreen(
                 car = car,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(carHeight)
+                    .height(carHeight),
+                onStartTripClick = onStartTripClick,
+                isTripActive = isTripActive,
+                tripStartedAtMillis = tripStartedAtMillis,
+                onTripHoldComplete = onTripHoldComplete
             )
 
 

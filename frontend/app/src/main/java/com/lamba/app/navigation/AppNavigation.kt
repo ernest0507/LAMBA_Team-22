@@ -53,6 +53,8 @@ import com.lamba.app.screens.history.RepairRecordScreen
 import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.screens.profile.ProfileScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
+import com.lamba.app.screens.trip.TripFinishedScreen
+import com.lamba.app.screens.trip.TripModeScreen
 import com.lamba.app.ui.theme.LambaCanvas
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
@@ -82,6 +84,9 @@ fun AppNavigation() {
     val currentCarId = carState.currentCar?.id
     val isCheckingCars = authState.isAuthenticated && !carState.hasCompletedCarsCheck
     val routeErrorMessage = authState.errorMessage ?: carState.errorMessage
+    var isTripActive by remember { mutableStateOf(false) }
+    var tripStartedAtMillis by remember { mutableStateOf<Long?>(null) }
+    var finishedTripDurationMillis by remember { mutableStateOf(0L) }
 
     LaunchedEffect(authState.accessToken) {
         if (authState.isAuthenticated) {
@@ -159,7 +164,8 @@ fun AppNavigation() {
                     authViewModel.clearError()
                     navController.navigate(LambaRoute.Registration.path)
                 }
-            ) }
+            )
+        }
 
         composable(LambaRoute.Registration.path) {
             RegistrationScreen(
@@ -218,9 +224,47 @@ fun AppNavigation() {
                         carId = currentCarId,
                         message = message
                     )
+                },
+                isTripActive = isTripActive,
+                tripStartedAtMillis = tripStartedAtMillis,
+                onTripHoldComplete = {
+                    if (isTripActive) {
+                        val startedAt = tripStartedAtMillis
+
+                        finishedTripDurationMillis = if (startedAt != null) {
+                            System.currentTimeMillis() - startedAt
+                        } else { 0L }
+
+                        isTripActive = false
+                        tripStartedAtMillis = null
+                        navController.navigate(LambaRoute.TripFinished.path)
+                    } else {
+                        isTripActive = true
+                        tripStartedAtMillis = System.currentTimeMillis()
+                    }
                 }
             )
         }
+
+
+
+        composable(LambaRoute.TripFinished.path) {
+            TripFinishedScreen(
+                durationMillis = finishedTripDurationMillis,
+                distanceKm = 0.0,
+                averageSpeedKmH = 0.0,
+                fuelConsumptionL = 0.0,
+                onDoneClick = {
+                    navController.navigate(LambaRoute.Home.path) {
+                        popUpTo(LambaRoute.Home.path) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
 
         composable(LambaRoute.ChooseRecordType.path) {
             ChooseRecordTypeScreen(
@@ -376,7 +420,8 @@ private fun NavHostController.openHomeAfterCarCreation() {
     }
 }
 
-private val RecordDisplayDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+private val RecordDisplayDateFormatter: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
 private fun ExpensesRecordFormData.toRecordRequest(): MaintenanceRecordCreateRequest {
     val expenseType = category.trim()
@@ -506,5 +551,6 @@ private enum class LambaRoute(
     Statistics("statistics"),
     Documents("documents"),
     Profile("profile"),
-    RecordSuccess("record_success")
+    RecordSuccess("record_success"),
+    TripFinished("trip_finished")
 }
