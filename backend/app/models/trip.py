@@ -23,6 +23,10 @@ class Trip(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
+    @property
+    def status(self) -> str:
+        return "finished" if self.ended_at is not None else "active"
+
 
 class TripPoint(Base):
     __tablename__ = "trip_points"
