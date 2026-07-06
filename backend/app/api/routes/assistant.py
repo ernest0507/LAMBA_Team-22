@@ -231,6 +231,9 @@ async def _resolve_chat(
         if chat is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Chat not found")
         return chat
+    chats = await list_chats(db, car_id)
+    if chats:
+        return chats[0]
     return await create_assistant_chat(db, car_id, _chat_title_from_message(first_message))
 
 

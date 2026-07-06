@@ -47,6 +47,10 @@ async def test_assistant_message_creates_chat_and_persists_messages(monkeypatch)
         assert title == "How much did I spend this month?"
         return SimpleNamespace(id=55, car_id=car_id, title=title)
 
+    async def fake_list_chats(db, car_id):
+        assert car_id == car.id
+        return []
+
     async def fake_list_messages(db, chat_id):
         assert chat_id == 55
         return []
@@ -70,6 +74,7 @@ async def test_assistant_message_creates_chat_and_persists_messages(monkeypatch)
 
     monkeypatch.setattr(assistant_route, "get_car", fake_get_car)
     monkeypatch.setattr(assistant_route, "create_assistant_chat", fake_create_assistant_chat)
+    monkeypatch.setattr(assistant_route, "list_chats", fake_list_chats)
     monkeypatch.setattr(assistant_route, "list_messages", fake_list_messages)
     monkeypatch.setattr(assistant_route, "create_chat_message", fake_create_chat_message)
     monkeypatch.setattr(assistant_route, "build_assistant_context", fake_build_assistant_context)
@@ -92,6 +97,65 @@ async def test_assistant_message_creates_chat_and_persists_messages(monkeypatch)
     assert saved_messages[1]["role"] == AssistantMessageRole.ASSISTANT
     assert saved_messages[1]["content"] == "You spent 10 000 RUB this month."
     assert saved_messages[1]["action"] == AssistantAction.MESSAGE.value
+
+
+@pytest.mark.asyncio
+async def test_assistant_message_without_chat_id_reuses_latest_chat(monkeypatch):
+    car = make_car()
+    current_user = make_user()
+    saved_messages = []
+    existing_chat = SimpleNamespace(id=55, car_id=car.id, title="Previous chat")
+
+    async def fake_get_car(db, owner_id, car_id):
+        assert owner_id == current_user.id
+        assert car_id == car.id
+        return car
+
+    async def fake_list_chats(db, car_id):
+        assert car_id == car.id
+        return [existing_chat]
+
+    async def fake_create_assistant_chat(db, car_id, title):
+        raise AssertionError("Existing chat should be reused")
+
+    async def fake_list_messages(db, chat_id):
+        assert chat_id == existing_chat.id
+        return []
+
+    async def fake_create_chat_message(db, **kwargs):
+        saved_messages.append(kwargs)
+        return SimpleNamespace(id=len(saved_messages), **kwargs)
+
+    async def fake_build_assistant_context(db, user, context_car, recent_messages):
+        assert user is current_user
+        assert context_car is car
+        assert recent_messages == []
+        return {"car": {"id": context_car.id}, "recent_chat_messages": []}
+
+    async def fake_extract_record_from_message(data, car_context):
+        return AssistantMessageResponse(
+            assistant_message="Continuing the previous chat.",
+            action=AssistantAction.MESSAGE,
+        )
+
+    monkeypatch.setattr(assistant_route, "get_car", fake_get_car)
+    monkeypatch.setattr(assistant_route, "list_chats", fake_list_chats)
+    monkeypatch.setattr(assistant_route, "create_assistant_chat", fake_create_assistant_chat)
+    monkeypatch.setattr(assistant_route, "list_messages", fake_list_messages)
+    monkeypatch.setattr(assistant_route, "create_chat_message", fake_create_chat_message)
+    monkeypatch.setattr(assistant_route, "build_assistant_context", fake_build_assistant_context)
+    monkeypatch.setattr(assistant_route, "extract_record_from_message", fake_extract_record_from_message)
+
+    result = await assistant_route.create_assistant_message(
+        car_id=car.id,
+        data=AssistantMessageRequest(car_id=car.id, message="Add the same as before"),
+        db=object(),
+        current_user=current_user,
+    )
+
+    assert result.chat_id == existing_chat.id
+    assert saved_messages[0]["chat_id"] == existing_chat.id
+    assert saved_messages[1]["chat_id"] == existing_chat.id
 
 
 @pytest.mark.asyncio
