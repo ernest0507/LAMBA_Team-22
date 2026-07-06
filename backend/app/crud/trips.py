@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.car import Car
 from app.models.trip import Trip, TripPoint
-from app.schemas.trip import TripCreate, TripPointCreate
+from app.schemas.trip import TripCreate, TripListFilter, TripPointCreate
 from app.services.trip_metrics import build_trip_metrics
 
 
@@ -27,6 +27,25 @@ async def get_trip_for_user(db: AsyncSession, owner_id: int, trip_id: int) -> Tr
         .where(Trip.id == trip_id, Car.owner_id == owner_id)
     )
     return result.scalar_one_or_none()
+
+
+async def list_trips(
+    db: AsyncSession,
+    car_id: int,
+    state: TripListFilter = TripListFilter.ALL,
+    skip: int = 0,
+    limit: int = 100,
+) -> list[Trip]:
+    query = select(Trip).where(Trip.car_id == car_id)
+    if state == TripListFilter.ACTIVE:
+        query = query.where(Trip.ended_at.is_(None))
+    elif state == TripListFilter.FINISHED:
+        query = query.where(Trip.ended_at.is_not(None))
+
+    result = await db.execute(
+        query.order_by(Trip.started_at.desc(), Trip.id.desc()).offset(skip).limit(limit)
+    )
+    return list(result.scalars().all())
 
 
 async def create_trip(db: AsyncSession, car_id: int, data: TripCreate) -> Trip:

@@ -11,6 +11,7 @@ from app.models.user import User
 from app.schemas.trip import (
     TripCreate,
     TripFinish,
+    TripListFilter,
     TripPointBatchCreate,
     TripPointCreate,
 )
@@ -297,3 +298,126 @@ async def test_finish_rejects_finished_trip(monkeypatch):
         )
 
     assert exc_info.value.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_read_active_trip_returns_none_for_empty_state(monkeypatch):
+    async def fake_ensure_car_owner(db, current_user, car_id):
+        return None
+
+    async def fake_get_active_trip(db, car_id):
+        return None
+
+    monkeypatch.setattr(trips_route, "ensure_car_owner", fake_ensure_car_owner)
+    monkeypatch.setattr(trips_route, "get_active_trip", fake_get_active_trip)
+
+    result = await trips_route.read_active_trip(
+        car_id=3,
+        db=object(),
+        current_user=make_user(),
+    )
+
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_read_active_trip_returns_owned_active_trip(monkeypatch):
+    active_trip = make_trip()
+
+    async def fake_ensure_car_owner(db, current_user, car_id):
+        return None
+
+    async def fake_get_active_trip(db, car_id):
+        assert car_id == active_trip.car_id
+        return active_trip
+
+    monkeypatch.setattr(trips_route, "ensure_car_owner", fake_ensure_car_owner)
+    monkeypatch.setattr(trips_route, "get_active_trip", fake_get_active_trip)
+
+    result = await trips_route.read_active_trip(
+        car_id=active_trip.car_id,
+        db=object(),
+        current_user=make_user(),
+    )
+
+    assert result is active_trip
+    assert result.status == "active"
+
+
+@pytest.mark.asyncio
+async def test_read_trips_returns_summary_metrics(monkeypatch):
+    finished_trip = make_trip(ended=True)
+
+    async def fake_ensure_car_owner(db, current_user, car_id):
+        return None
+
+    async def fake_list_trips(db, car_id, state, skip, limit):
+        assert state == TripListFilter.FINISHED
+        assert skip == 0
+        assert limit == 100
+        return [finished_trip]
+
+    monkeypatch.setattr(trips_route, "ensure_car_owner", fake_ensure_car_owner)
+    monkeypatch.setattr(trips_route, "list_trips", fake_list_trips)
+
+    result = await trips_route.read_trips(
+        car_id=3,
+        state=TripListFilter.FINISHED,
+        skip=0,
+        limit=100,
+        db=object(),
+        current_user=make_user(),
+    )
+
+    assert result == [finished_trip]
+    assert result[0].distance_m == Decimal("1234.50")
+    assert result[0].average_speed_kmh == Decimal("2.47")
+    assert result[0].max_speed_kmh == Decimal("40.00")
+
+
+@pytest.mark.asyncio
+async def test_read_trip_detail_includes_points(monkeypatch):
+    trip = make_trip(ended=True)
+    points = [make_stored_point(1, trip.id, 0), make_stored_point(2, trip.id, 1)]
+
+    async def fake_get_owned_trip(db, current_user, trip_id):
+        return trip
+
+    async def fake_list_trip_points(db, trip_id):
+        assert trip_id == trip.id
+        return points
+
+    monkeypatch.setattr(trips_route, "get_owned_trip", fake_get_owned_trip)
+    monkeypatch.setattr(trips_route, "list_trip_points", fake_list_trip_points)
+
+    result = await trips_route.read_trip(
+        trip_id=trip.id,
+        include_points=True,
+        db=object(),
+        current_user=make_user(),
+    )
+
+    assert result.id == trip.id
+    assert result.status == "finished"
+    assert [point.id for point in result.points] == [1, 2]
+    assert [point.trip_id for point in result.points] == [trip.id, trip.id]
+
+
+@pytest.mark.asyncio
+async def test_read_trip_denies_access_to_other_users_trip(monkeypatch):
+    async def fake_get_trip_for_user(db, owner_id, trip_id):
+        assert owner_id == 7
+        assert trip_id == 11
+        return None
+
+    monkeypatch.setattr(trips_route, "get_trip_for_user", fake_get_trip_for_user)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await trips_route.read_trip(
+            trip_id=11,
+            include_points=True,
+            db=object(),
+            current_user=make_user(),
+        )
+
+    assert exc_info.value.status_code == 404
