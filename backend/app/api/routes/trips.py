@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -10,15 +10,19 @@ from app.crud.trips import (
     finish_trip,
     get_active_trip,
     get_trip_for_user,
+    list_trip_points,
+    list_trips,
 )
 from app.models.trip import Trip
 from app.models.user import User
 from app.schemas.trip import (
     TripCreate,
     TripFinish,
+    TripListFilter,
     TripPointBatchCreate,
     TripPointRead,
     TripRead,
+    TripWithPoints,
 )
 
 
@@ -44,6 +48,41 @@ async def start_trip(
             detail="Car already has an active trip",
         )
     return await create_trip(db, car_id, data or TripCreate())
+
+
+@router.get("/cars/{car_id}/trips/active", response_model=TripRead | None)
+async def read_active_trip(
+    car_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> TripRead | None:
+    await ensure_car_owner(db, current_user, car_id)
+    return await get_active_trip(db, car_id)
+
+
+@router.get("/cars/{car_id}/trips", response_model=list[TripRead])
+async def read_trips(
+    car_id: int,
+    state: TripListFilter = Query(default=TripListFilter.ALL),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[TripRead]:
+    await ensure_car_owner(db, current_user, car_id)
+    return await list_trips(db, car_id, state, skip, limit)
+
+
+@router.get("/trips/{trip_id}", response_model=TripWithPoints)
+async def read_trip(
+    trip_id: int,
+    include_points: bool = Query(default=True),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> TripWithPoints:
+    trip = await get_owned_trip(db, current_user, trip_id)
+    points = await list_trip_points(db, trip.id) if include_points else []
+    return trip_with_points(trip, points)
 
 
 @router.post(
@@ -99,3 +138,8 @@ def ensure_trip_active(trip: Trip) -> None:
             status_code=status.HTTP_409_CONFLICT,
             detail="Trip is already finished",
         )
+
+
+def trip_with_points(trip: Trip, points: list[TripPointRead]) -> TripWithPoints:
+    trip_data = TripRead.model_validate(trip).model_dump()
+    return TripWithPoints(**trip_data, points=points)

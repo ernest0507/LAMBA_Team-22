@@ -1,7 +1,14 @@
 from datetime import datetime
 from decimal import Decimal
+from enum import StrEnum
 
 from pydantic import BaseModel, ConfigDict, Field
+
+
+class TripListFilter(StrEnum):
+    ALL = "all"
+    ACTIVE = "active"
+    FINISHED = "finished"
 
 
 class TripPointBase(BaseModel):
