@@ -9,7 +9,7 @@ from app.core.database import get_db
 from app.core.security import create_access_token
 from app.crud.users import authenticate_user, create_user, get_user_by_email
 from app.models.user import User
-from app.schemas.auth import LoginRequest, RegisterRequest, TokenResponse
+from app.schemas.auth import LoginRequest, LogoutResponse, RegisterRequest, TokenResponse
 from app.schemas.user import UserRead
 
 
@@ -40,3 +40,8 @@ async def login(data: LoginRequest, db: AsyncSession = Depends(get_db)) -> Token
 @router.get("/me", response_model=UserRead)
 async def me(current_user: User = Depends(get_current_user)) -> User:
     return current_user
+
+
+@router.post("/logout", response_model=LogoutResponse)
+async def logout(_current_user: User = Depends(get_current_user)) -> LogoutResponse:
+    return LogoutResponse(message="Logged out")
