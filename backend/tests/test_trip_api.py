@@ -40,6 +40,14 @@ def make_trip(*, trip_id: int = 11, car_id: int = 3, ended: bool = False) -> Sim
     )
 
 
+def make_car(*, car_id: int = 3, owner_id: int = 7, current_mileage_km: int = 45000) -> SimpleNamespace:
+    return SimpleNamespace(
+        id=car_id,
+        owner_id=owner_id,
+        current_mileage_km=current_mileage_km,
+    )
+
+
 def make_point(minutes: int = 0) -> TripPointCreate:
     return TripPointCreate(
         latitude=Decimal("55.7512440"),
@@ -217,8 +225,8 @@ async def test_finish_active_trip_saves_calculated_metrics(monkeypatch):
     async def fake_get_owned_trip(db, current_user, trip_id):
         return trip
 
-    async def fake_finish_trip(db, trip_arg, ended_at):
-        calls.append((trip_arg.id, ended_at))
+    async def fake_finish_trip(db, trip_arg, ended_at, *, final_mileage_km=None, car=None):
+        calls.append((trip_arg.id, ended_at, final_mileage_km, car))
         return finished_trip
 
     monkeypatch.setattr(trips_route, "get_owned_trip", fake_get_owned_trip)
@@ -232,7 +240,73 @@ async def test_finish_active_trip_saves_calculated_metrics(monkeypatch):
     )
 
     assert result is finished_trip
-    assert calls == [(trip.id, requested_end)]
+    assert calls == [(trip.id, requested_end, None, None)]
+
+
+@pytest.mark.asyncio
+async def test_finish_active_trip_updates_car_mileage_when_final_mileage_submitted(monkeypatch):
+    trip = make_trip()
+    car = make_car(car_id=trip.car_id, current_mileage_km=45000)
+    finished_trip = make_trip(ended=True)
+    calls = []
+
+    async def fake_get_owned_trip(db, current_user, trip_id):
+        return trip
+
+    async def fake_get_car(db, owner_id, car_id):
+        calls.append(("car", owner_id, car_id))
+        return car
+
+    async def fake_finish_trip(db, trip_arg, ended_at, *, final_mileage_km=None, car=None):
+        calls.append(("finish", trip_arg.id, ended_at, final_mileage_km, car.id))
+        return finished_trip
+
+    monkeypatch.setattr(trips_route, "get_owned_trip", fake_get_owned_trip)
+    monkeypatch.setattr(trips_route, "get_car", fake_get_car)
+    monkeypatch.setattr(trips_route, "finish_trip", fake_finish_trip)
+
+    result = await trips_route.finish_active_trip(
+        trip_id=trip.id,
+        data=TripFinish(final_mileage_km=45210),
+        db=object(),
+        current_user=make_user(),
+    )
+
+    assert result is finished_trip
+    assert calls == [
+        ("car", 7, trip.car_id),
+        ("finish", trip.id, None, 45210, car.id),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_finish_active_trip_rejects_final_mileage_below_current(monkeypatch):
+    trip = make_trip()
+    car = make_car(car_id=trip.car_id, current_mileage_km=45000)
+
+    async def fake_get_owned_trip(db, current_user, trip_id):
+        return trip
+
+    async def fake_get_car(db, owner_id, car_id):
+        return car
+
+    async def fake_finish_trip(db, trip_arg, ended_at, *, final_mileage_km=None, car=None):
+        raise AssertionError("invalid final mileage must not finish the trip")
+
+    monkeypatch.setattr(trips_route, "get_owned_trip", fake_get_owned_trip)
+    monkeypatch.setattr(trips_route, "get_car", fake_get_car)
+    monkeypatch.setattr(trips_route, "finish_trip", fake_finish_trip)
+
+    with pytest.raises(HTTPException) as exc_info:
+        await trips_route.finish_active_trip(
+            trip_id=trip.id,
+            data=TripFinish(final_mileage_km=44999),
+            db=object(),
+            current_user=make_user(),
+        )
+
+    assert exc_info.value.status_code == 400
+    assert exc_info.value.detail == "Final mileage cannot be less than current mileage"
 
 
 @pytest.mark.asyncio
@@ -280,6 +354,48 @@ async def test_finish_trip_uses_metric_service(monkeypatch):
         "commit",
         ("refresh", trip.id),
     ]
+
+
+@pytest.mark.asyncio
+async def test_finish_trip_persists_final_mileage_on_car(monkeypatch):
+    trip = make_trip()
+    car = make_car(car_id=trip.car_id, current_mileage_km=45000)
+    points = [make_stored_point(1, trip.id, 0), make_stored_point(2, trip.id, 1)]
+    metrics = TripMetrics(
+        distance_m=Decimal("98.70"),
+        duration_seconds=60,
+        average_speed_kmh=Decimal("5.92"),
+        max_speed_kmh=Decimal("36.00"),
+    )
+    calls = []
+
+    class FakeDb:
+        async def commit(self):
+            calls.append("commit")
+
+        async def refresh(self, refreshed):
+            calls.append(("refresh", refreshed.id))
+
+    async def fake_list_trip_points(db, trip_id):
+        return points
+
+    def fake_build_trip_metrics(points_arg, *, started_at, ended_at):
+        return metrics
+
+    monkeypatch.setattr(trips_crud, "list_trip_points", fake_list_trip_points)
+    monkeypatch.setattr(trips_crud, "build_trip_metrics", fake_build_trip_metrics)
+
+    result = await trips_crud.finish_trip(
+        FakeDb(),
+        trip,
+        trip.started_at + timedelta(minutes=1),
+        final_mileage_km=45210,
+        car=car,
+    )
+
+    assert result is trip
+    assert car.current_mileage_km == 45210
+    assert calls == ["commit", ("refresh", trip.id), ("refresh", car.id)]
 
 
 @pytest.mark.asyncio
