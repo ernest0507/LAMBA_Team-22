@@ -29,6 +29,15 @@ class Settings:
     ai_model: str = getenv("AI_MODEL", "default")
     ai_request_timeout_seconds: float = float(getenv("AI_REQUEST_TIMEOUT_SECONDS", "30"))
 
+    proverkacheka_api_token: str | None = getenv("PROVERKACHEKA_API_TOKEN")
+    proverkacheka_api_url: str = getenv(
+        "PROVERKACHEKA_API_URL",
+        "https://proverkacheka.com/api/v1/check/get",
+    )
+    proverkacheka_request_timeout_seconds: float = float(
+        getenv("PROVERKACHEKA_REQUEST_TIMEOUT_SECONDS", "20")
+    )
+
     @property
     def sqlalchemy_database_uri(self) -> str:
         if self.database_url:
