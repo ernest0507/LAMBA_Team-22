@@ -13,6 +13,7 @@ from app.crud.trips import (
     list_trip_points,
     list_trips,
 )
+from app.models.car import Car
 from app.models.trip import Trip
 from app.models.user import User
 from app.schemas.trip import (
@@ -111,12 +112,20 @@ async def finish_active_trip(
     trip = await get_owned_trip(db, current_user, trip_id)
     ensure_trip_active(trip)
     ended_at = data.ended_at if data else None
+    final_mileage_km = data.final_mileage_km if data else None
     if ended_at is not None and ended_at < trip.started_at:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Trip end time cannot be before start time",
         )
-    return await finish_trip(db, trip, ended_at)
+    car = await get_finish_mileage_car(db, current_user, trip, final_mileage_km)
+    return await finish_trip(
+        db,
+        trip,
+        ended_at,
+        final_mileage_km=final_mileage_km,
+        car=car,
+    )
 
 
 async def ensure_car_owner(db: AsyncSession, current_user: User, car_id: int) -> None:
@@ -130,6 +139,25 @@ async def get_owned_trip(db: AsyncSession, current_user: User, trip_id: int) -> 
     if trip is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Trip not found")
     return trip
+
+
+async def get_finish_mileage_car(
+    db: AsyncSession,
+    current_user: User,
+    trip: Trip,
+    final_mileage_km: int | None,
+) -> Car | None:
+    if final_mileage_km is None:
+        return None
+    car = await get_car(db, current_user.id, trip.car_id)
+    if car is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Car not found")
+    if final_mileage_km < car.current_mileage_km:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Final mileage cannot be less than current mileage",
+        )
+    return car
 
 
 def ensure_trip_active(trip: Trip) -> None:

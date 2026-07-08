@@ -50,6 +50,7 @@ class TripCreate(BaseModel):
 
 class TripFinish(BaseModel):
     ended_at: datetime | None = None
+    final_mileage_km: int | None = Field(default=None, ge=0)
 
 
 class TripRead(TripBase):

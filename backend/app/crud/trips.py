@@ -84,7 +84,14 @@ async def list_trip_points(db: AsyncSession, trip_id: int) -> list[TripPoint]:
     return list(result.scalars().all())
 
 
-async def finish_trip(db: AsyncSession, trip: Trip, ended_at: datetime | None = None) -> Trip:
+async def finish_trip(
+    db: AsyncSession,
+    trip: Trip,
+    ended_at: datetime | None = None,
+    *,
+    final_mileage_km: int | None = None,
+    car: Car | None = None,
+) -> Trip:
     trip.ended_at = ended_at or datetime.now(timezone.utc)
     points = await list_trip_points(db, trip.id)
     metrics = build_trip_metrics(points, started_at=trip.started_at, ended_at=trip.ended_at)
@@ -92,6 +99,10 @@ async def finish_trip(db: AsyncSession, trip: Trip, ended_at: datetime | None = 
     trip.duration_seconds = metrics.duration_seconds
     trip.average_speed_kmh = metrics.average_speed_kmh
     trip.max_speed_kmh = metrics.max_speed_kmh
+    if car is not None and final_mileage_km is not None:
+        car.current_mileage_km = final_mileage_km
     await db.commit()
     await db.refresh(trip)
+    if car is not None:
+        await db.refresh(car)
     return trip
