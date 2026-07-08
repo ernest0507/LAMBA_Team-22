@@ -27,7 +27,6 @@ class TripRepository(
 
         return api.appendPoints(
             authorization = "Bearer $accessToken",
-            carId = carId,
             tripId = tripId,
             request = TripPointSync.toBatchRequest(points)
         )
@@ -41,13 +40,12 @@ class TripRepository(
     ): TripResponse {
         return api.finishTrip(
             authorization = "Bearer $accessToken",
-            carId = carId,
             tripId = tripId,
             request = TripFinishRequest(endedAt = endedAt)
         )
     }
 
-    suspend fun activeTrip(accessToken: String, carId: Int): TripResponse {
+    suspend fun activeTrip(accessToken: String, carId: Int): TripResponse? {
         return api.activeTrip(
             authorization = "Bearer $accessToken",
             carId = carId
@@ -68,7 +66,6 @@ class TripRepository(
     ): TripResponse {
         return api.tripDetails(
             authorization = "Bearer $accessToken",
-            carId = carId,
             tripId = tripId
         )
     }
