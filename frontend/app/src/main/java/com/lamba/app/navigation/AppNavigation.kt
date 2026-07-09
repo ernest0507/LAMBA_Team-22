@@ -51,6 +51,7 @@ import com.lamba.app.screens.history.RecordType
 import com.lamba.app.screens.history.RepairRecordFormData
 import com.lamba.app.screens.history.RepairRecordScreen
 import com.lamba.app.screens.home.HomeScreen
+import com.lamba.app.screens.profile.AppSettingsScreen
 import com.lamba.app.screens.profile.ProfileScreen
 import com.lamba.app.screens.profile.VehicleDataScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
@@ -374,12 +375,19 @@ fun AppNavigation() {
         composable(LambaRoute.Profile.path) {
             ProfileScreen(
                 onBackClick = { navController.popBackStack() },
-                onVehicleDataClick = { navController.navigate(LambaRoute.VehicleData.path) }
+                onVehicleDataClick = { navController.navigate(LambaRoute.VehicleData.path) },
+                onAppSettingsClick = { navController.navigate(LambaRoute.AppSettings.path) }
             )
         }
 
         composable(LambaRoute.VehicleData.path) {
             VehicleDataScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(LambaRoute.AppSettings.path) {
+            AppSettingsScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -560,6 +568,7 @@ private enum class LambaRoute(
     Documents("documents"),
     Profile("profile"),
     VehicleData("vehicle_data"),
+    AppSettings("app_settings"),
     RecordSuccess("record_success"),
     TripFinished("trip_finished")
 }
