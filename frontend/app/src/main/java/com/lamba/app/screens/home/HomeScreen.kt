@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.lerp
 import com.lamba.app.data.cars.CarResponse
 import com.lamba.app.ui.theme.LambaCanvas
 
-
 @Composable
 fun HomeScreen(
     car: CarResponse? = null,
@@ -30,6 +29,7 @@ fun HomeScreen(
     onOpenHistory: () -> Unit = {},
     onOpenTripHistory: () -> Unit = {},
     onOpenStatistics: () -> Unit = {},
+    onOpenQrClick: () -> Unit = {},
     onOpenAchievements: () -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenProfile: () -> Unit = {},
@@ -48,7 +48,6 @@ fun HomeScreen(
         fraction = chatExpandProgress
     )
     val dragDistancePx = with(LocalDensity.current) { 285.dp.toPx() }
-
 
     Box(
         modifier = Modifier
@@ -72,7 +71,6 @@ fun HomeScreen(
                 onTripHoldComplete = onTripHoldComplete
             )
 
-
             AiChatPanel(
                 messages = messages,
                 isSending = isAssistantSending,
@@ -82,7 +80,11 @@ fun HomeScreen(
                         .coerceIn(0f, 1f)
                 },
                 onDragEnd = {
-                    if (chatExpandProgress > 0.35f)  chatExpandProgress = 1f else chatExpandProgress = 0f
+                    if (chatExpandProgress > 0.35f) {
+                        chatExpandProgress = 1f
+                    } else {
+                        chatExpandProgress = 0f
+                    }
                 },
                 onSwipeUp = {
                     chatExpandProgress = 1f
@@ -122,6 +124,10 @@ fun HomeScreen(
                     isMenuOpen = false
                     onOpenStatistics()
                 },
+                onOpenQrClick = {
+                    isMenuOpen = false
+                    onOpenQrClick()
+                },
                 onAchievementsClick = {
                     isMenuOpen = false
                     onOpenAchievements()
@@ -137,26 +143,4 @@ fun HomeScreen(
             )
         }
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

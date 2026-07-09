@@ -37,14 +37,14 @@ class CarViewModel(
 
         viewModelScope.launch {
             _uiState.update {
-                it.copy(isLoading = true, errorMessage = null, cars = null)
+                it.copy(isLoading = true, errorMessage = null, cars = null, createdCar = null)
             }
 
             runCatching {
                 repository.getCars(accessToken)
             }.onSuccess { cars ->
                 _uiState.update {
-                    it.copy(isLoading = false, cars = cars)
+                    it.copy(isLoading = false, cars = cars, createdCar = null)
                 }
             }.onFailure { error ->
                 _uiState.update {

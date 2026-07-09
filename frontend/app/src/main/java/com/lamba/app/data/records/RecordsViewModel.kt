@@ -17,7 +17,9 @@ data class RecordsUiState(
     val errorMessage: String? = null,
     val timeline: List<TimelineItemResponse> = emptyList(),
     val createdRecord: MaintenanceRecordResponse? = null,
-    val recordPhotos: Map<Int, RecordPhotosUiState> = emptyMap()
+    val recordPhotos: Map<Int, RecordPhotosUiState> = emptyMap(),
+    val isScanningReceipt: Boolean = false,
+    val scannedReceipt: ReceiptResponse? = null
 )
 
 data class RecordPhotoImage(
@@ -222,6 +224,12 @@ class RecordsViewModel(
         }
     }
 
+    fun consumeScannedReceipt() {
+        _uiState.update {
+            it.copy(scannedReceipt = null)
+        }
+    }
+
     fun clearError() {
         _uiState.update {
             it.copy(errorMessage = null)
@@ -232,12 +240,73 @@ class RecordsViewModel(
         return when (this) {
             is HttpException -> when (code()) {
                 401 -> "Session expired. Sign in again."
-                404 -> "Car was not found. Create a digital twin first."
+                404 -> "Receipt scan endpoint or current car was not found."
                 422 -> "Check the expense data and try again."
                 else -> "Backend error: HTTP ${code()}."
             }
             is IOException -> "Cannot reach backend. Start the backend and check the base URL."
             else -> message ?: "Records request failed."
+        }
+    }
+
+    fun scanReceipt(accessToken: String?, carId: Int?, qrRaw: String) {
+        if (accessToken.isNullOrBlank()) {
+            _uiState.update {
+                it.copy(errorMessage = "Sign in before scanning receipts.")
+            }
+            return
+        }
+
+        if (carId == null) {
+            _uiState.update {
+                it.copy(errorMessage = "Create a digital twin before scanning receipts.")
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isScanningReceipt = true,
+                    isSaving = true,
+                    errorMessage = null,
+                    scannedReceipt = null,
+                    createdRecord = null
+                )
+            }
+
+            runCatching {
+                val receipt = repository.scanReceipt(
+                    accessToken = accessToken,
+                    carId = carId,
+                    qrRaw = qrRaw
+                )
+                val record = repository.createRecord(
+                    accessToken = accessToken,
+                    carId = carId,
+                    request = receipt.toRecordRequest(qrRaw)
+                )
+                receipt to record
+            }.onSuccess { (receipt, record) ->
+                _uiState.update {
+                    it.copy(
+                        isScanningReceipt = false,
+                        isSaving = false,
+                        scannedReceipt = receipt,
+                        timeline = it.timeline.withRecord(record),
+                        createdRecord = record,
+                        errorMessage = null
+                    )
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        isScanningReceipt = false,
+                        isSaving = false,
+                        errorMessage = error.toRecordsMessage()
+                    )
+                }
+            }
         }
     }
 }
@@ -257,8 +326,84 @@ private fun MaintenanceRecordResponse.toTimelineItem(): TimelineItemResponse {
         id = id,
         category = category,
         title = title,
+        description = description,
         occurredAt = occurredAt,
         mileageKm = mileageKm,
-        costAmount = costAmount
+        costAmount = costAmount,
+        vendor = vendor
     )
+}
+
+private fun ReceiptResponse.toRecordRequest(qrRaw: String): MaintenanceRecordCreateRequest {
+    val seller = sellerName?.trim().orEmpty()
+    val receiptDate = ticketDate?.take(10)
+    val receiptTime = ticketDate?.toReceiptTimeOrNull()
+    val fuelType = primaryFuelItemName()
+    val description = listOfNotNull(
+        "Receipt scanned from QR",
+        receiptDate?.let { "Receipt date: $it" },
+        receiptTime?.let { "Receipt time: $it" },
+        fuelType?.let { "Fuel type: $it" },
+        seller.takeIf { it.isNotBlank() }?.let { "Seller: $it" },
+        sellerInn?.takeIf { it.isNotBlank() }?.let { "Seller INN: $it" },
+        "Provider status: $status",
+        receiptItemsDescription().takeIf { it.isNotBlank() },
+        "QR: $qrRaw"
+    ).joinToString(separator = "\n")
+
+    return MaintenanceRecordCreateRequest(
+        category = "expense",
+        title = receiptTitle(fuelType = fuelType, seller = seller),
+        description = description,
+        occurredAt = receiptDate,
+        costAmount = totalAmount?.takeIf { it.isNotBlank() } ?: "0.00",
+        vendor = seller.takeIf { it.isNotBlank() }
+    )
+}
+
+private fun receiptTitle(fuelType: String?, seller: String): String {
+    return listOfNotNull(
+        fuelType?.takeIf { it.isNotBlank() },
+        seller.takeIf { it.isNotBlank() }
+    ).joinToString(separator = " - ").ifBlank { "Receipt expense" }
+}
+
+private fun ReceiptResponse.primaryFuelItemName(): String? {
+    return items.firstNotNullOfOrNull { item ->
+        item.name
+            ?.trim()
+            ?.takeIf { name -> name.isNotBlank() }
+            ?.takeIf { name -> name.isLikelyFuelName() }
+    } ?: items.firstOrNull()?.name?.trim()?.takeIf { it.isNotBlank() }
+}
+
+private fun String.isLikelyFuelName(): Boolean {
+    val normalized = uppercase()
+    return listOf("АИ", "AI", "БЕНЗ", "ДТ", "ДИЗ", "GAS", "FUEL").any { marker ->
+        normalized.contains(marker)
+    }
+}
+
+private fun String.toReceiptTimeOrNull(): String? {
+    val timePart = substringAfter('T', missingDelimiterValue = "")
+        .ifBlank { substringAfter(' ', missingDelimiterValue = "") }
+    if (timePart.length < 5) return null
+    return timePart.take(5)
+}
+
+private fun ReceiptResponse.receiptItemsDescription(): String {
+    if (items.isEmpty()) return ""
+
+    return items.joinToString(
+        separator = "\n",
+        prefix = "Items:\n"
+    ) { item ->
+        val parts = listOfNotNull(
+            item.name?.takeIf { it.isNotBlank() },
+            item.quantity?.takeIf { it.isNotBlank() }?.let { "qty: $it" },
+            item.priceAmount?.takeIf { it.isNotBlank() }?.let { "price: $it" },
+            item.totalAmount?.takeIf { it.isNotBlank() }?.let { "sum: $it" }
+        )
+        "- ${parts.joinToString(separator = ", ")}"
+    }
 }

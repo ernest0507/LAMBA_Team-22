@@ -10,19 +10,21 @@ import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,17 +37,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.lamba.app.common.LoadingOverlay
 import com.lamba.app.common.SuccessScreen
 import com.lamba.app.data.achievements.AchievementsViewModel
 import com.lamba.app.data.assistant.AssistantViewModel
@@ -55,13 +59,13 @@ import com.lamba.app.data.cars.CarViewModel
 import com.lamba.app.data.records.MaintenanceRecordCreateRequest
 import com.lamba.app.data.records.RecordsViewModel
 import com.lamba.app.data.statistics.StatisticsViewModel
-import com.lamba.app.screens.achievements.AchievementsScreen
+import com.lamba.app.data.trips.CollectedTripPoint
 import com.lamba.app.data.trips.TripRepository
 import com.lamba.app.data.trips.TripResponse
-import com.lamba.app.data.trips.CollectedTripPoint
 import com.lamba.app.data.trips.tracking.TripForegroundLocationService
 import com.lamba.app.data.trips.tracking.TripTrackingPoint
 import com.lamba.app.data.trips.tracking.TripTrackingStateStore
+import com.lamba.app.screens.achievements.AchievementsScreen
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
@@ -80,7 +84,6 @@ import com.lamba.app.screens.profile.ProfileScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
 import com.lamba.app.screens.trip.TripFinishedScreen
 import com.lamba.app.screens.trip.TripHistoryScreen
-import com.lamba.app.screens.trip.TripModeScreen
 import com.lamba.app.ui.theme.LambaCanvas
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
@@ -88,15 +91,15 @@ import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
 import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
+import java.io.IOException
+import java.time.Instant
+import java.time.LocalDate
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
-import java.io.IOException
-import java.time.Instant
-import java.time.OffsetDateTime
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 
 @Composable
 fun AppNavigation() {
@@ -119,7 +122,10 @@ fun AppNavigation() {
     val tripTrackingPoints by TripTrackingStateStore.points.collectAsState()
     val tripTrackingErrorMessage by TripTrackingStateStore.errorMessage.collectAsState()
     val tripRepository = remember { TripRepository() }
+    val scanner = remember { GmsBarcodeScanning.getClient(context) }
+
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
+    var scannedQrValue by remember { mutableStateOf<String?>(null) }
     val currentCarId = carState.currentCar?.id
     val isCheckingCars = authState.isAuthenticated && !carState.hasCompletedCarsCheck
     val routeErrorMessage = authState.errorMessage ?: carState.errorMessage
@@ -188,7 +194,8 @@ fun AppNavigation() {
                             "На сервере уже есть активная поездка, но приложение не смогло подключиться к ней. Проверьте интернет и попробуйте еще раз."
                     }
                 } else {
-                    locationErrorDialogMessage = "Не удалось начать поездку. Проверьте соединение с сервером."
+                    locationErrorDialogMessage =
+                        "Не удалось начать поездку. Проверьте соединение с сервером."
                 }
             }
         }
@@ -418,106 +425,164 @@ fun AppNavigation() {
         }
 
         composable(LambaRoute.Home.path) {
-            HomeScreen(
-                car = carState.currentCar,
-                messages = assistantState.messages,
-                isAssistantSending = assistantState.isSending,
-                onOpenAiChat = {},
-                onAddExpensesClick = { navController.navigate(LambaRoute.ChooseRecordType.path) },
-                onOpenHistory = { navController.navigate(LambaRoute.History.path) },
-                onOpenTripHistory = { navController.navigate(LambaRoute.TripHistory.path) },
-                onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
-                onOpenAchievements = { navController.navigate(LambaRoute.Achievements.path) },
-                onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
-                onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
-                onSendMessage = { message ->
-                    assistantViewModel.sendMessage(
-                        accessToken = authState.accessToken,
-                        carId = currentCarId,
-                        message = message
-                    )
-                },
-                isTripActive = isTripActive,
-                tripStartedAtMillis = tripStartedAtMillis,
-                tripDistanceKm = tripTrackingSnapshot.distanceMeters / 1000.0,
-                onTripHoldComplete = {
-                    val accessToken = authState.accessToken
-                    val carId = currentCarId
+            Box(modifier = Modifier.fillMaxSize()) {
+                HomeScreen(
+                    car = carState.currentCar,
+                    messages = assistantState.messages,
+                    isAssistantSending = assistantState.isSending,
+                    onOpenAiChat = {},
+                    onAddExpensesClick = { navController.navigate(LambaRoute.ChooseRecordType.path) },
+                    onOpenHistory = { navController.navigate(LambaRoute.History.path) },
+                    onOpenTripHistory = { navController.navigate(LambaRoute.TripHistory.path) },
+                    onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
+                    onOpenAchievements = { navController.navigate(LambaRoute.Achievements.path) },
+                    onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
+                    onOpenQrClick = qrClick@{
+                        if (currentCarId == null) {
+                            Toast.makeText(
+                                context,
+                                "Не нашел машину текущего аккаунта. Обновляю список машин.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            carViewModel.loadCars(authState.accessToken)
+                            return@qrClick
+                        }
 
-                    if (!accessToken.isNullOrBlank() && carId != null) {
-                        coroutineScope.launch {
-                            if (isTripActive) {
-                                val tripId = activeTripId ?: runCatching {
-                                    tripRepository.activeTrip(accessToken, carId)?.id
-                                }.getOrNull()
-
-                                if (tripId == null) {
-                                    locationErrorDialogMessage = "Не удалось завершить поездку: активная поездка не найдена на сервере."
-                                    context.stopTripTrackingService()
-                                    isTripActive = false
-                                    tripStartedAtMillis = null
-                                    TripTrackingStateStore.clear()
-                                    return@launch
+                        scanner.startScan()
+                            .addOnSuccessListener { barcode ->
+                                val qrValue = barcode.rawValue
+                                if (qrValue.isNullOrBlank()) {
+                                    Toast.makeText(
+                                        context,
+                                        "QR-код не содержит данных чека.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    return@addOnSuccessListener
                                 }
 
-                                val collectedPoints = TripTrackingStateStore.pointsSnapshot()
-                                    .map { it.toCollectedTripPoint() }
+                                scannedQrValue = qrValue
+                                Toast.makeText(
+                                    context,
+                                    "QR-код считан. Добавляю к машине #$currentCarId...",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                recordsViewModel.scanReceipt(
+                                    accessToken = authState.accessToken,
+                                    carId = currentCarId,
+                                    qrRaw = qrValue
+                                )
+                            }
+                            .addOnCanceledListener {
+                                Toast.makeText(
+                                    context,
+                                    "Сканирование отменено.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(
+                                    context,
+                                    "Не удалось открыть сканер QR.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                    },
+                    onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
+                    onSendMessage = { message ->
+                        assistantViewModel.sendMessage(
+                            accessToken = authState.accessToken,
+                            carId = currentCarId,
+                            message = message
+                        )
+                    },
+                    isTripActive = isTripActive,
+                    tripStartedAtMillis = tripStartedAtMillis,
+                    tripDistanceKm = tripTrackingSnapshot.distanceMeters / 1000.0,
+                    onTripHoldComplete = {
+                        val accessToken = authState.accessToken
+                        val carId = currentCarId
 
-                                if (collectedPoints.isEmpty()) {
-                                    locationErrorDialogMessage =
-                                        "Поездка не завершена: приложение еще не получило GPS-точки для отправки на сервер. Подождите несколько секунд на открытом месте и попробуйте завершить еще раз."
-                                    return@launch
-                                }
+                        if (!accessToken.isNullOrBlank() && carId != null) {
+                            coroutineScope.launch {
+                                if (isTripActive) {
+                                    val tripId = activeTripId ?: runCatching {
+                                        tripRepository.activeTrip(accessToken, carId)?.id
+                                    }.getOrNull()
 
-                                val pointsSyncResult = runCatching {
-                                    tripRepository.syncPoints(
-                                        accessToken = accessToken,
-                                        carId = carId,
-                                        tripId = tripId,
-                                        points = collectedPoints
-                                    )
-                                }
+                                    if (tripId == null) {
+                                        locationErrorDialogMessage =
+                                            "Не удалось завершить поездку: активная поездка не найдена на сервере."
+                                        context.stopTripTrackingService()
+                                        isTripActive = false
+                                        tripStartedAtMillis = null
+                                        TripTrackingStateStore.clear()
+                                        return@launch
+                                    }
 
-                                pointsSyncResult.onFailure { error ->
-                                    locationErrorDialogMessage =
-                                        "Поездка не завершена: GPS-точки не удалось отправить на сервер. ${error.toTripErrorMessage()}"
-                                    return@launch
-                                }
+                                    val collectedPoints = TripTrackingStateStore.pointsSnapshot()
+                                        .map { it.toCollectedTripPoint() }
 
-                                runCatching {
-                                    tripRepository.finishTrip(
-                                        accessToken = accessToken,
-                                        carId = carId,
-                                        tripId = tripId,
-                                        endedAt = Instant.now().toString()
-                                    )
-                                }.onSuccess { finishedTrip ->
-                                    updateFinishedTripStats(finishedTrip)
-                                    context.stopTripTrackingService()
-                                    isTripActive = false
-                                    activeTripId = null
-                                    tripStartedAtMillis = null
-                                    TripTrackingStateStore.clear()
-                                    navController.navigate(LambaRoute.TripFinished.path)
-                                }.onFailure { error ->
-                                    locationErrorDialogMessage =
-                                        "Не удалось завершить поездку. ${error.toTripErrorMessage()}"
-                                }
-                            } else {
-                                if (!context.hasTripLocationPermission()) {
-                                    requestTripPermissions()
-                                    return@launch
-                                }
+                                    if (collectedPoints.isEmpty()) {
+                                        locationErrorDialogMessage =
+                                            "Поездка не завершена: приложение еще не получило GPS-точки для отправки на сервер. Подождите несколько секунд на открытом месте и попробуйте завершить еще раз."
+                                        return@launch
+                                    }
 
-                                startTrip(accessToken, carId)
+                                    val pointsSyncResult = runCatching {
+                                        tripRepository.syncPoints(
+                                            accessToken = accessToken,
+                                            carId = carId,
+                                            tripId = tripId,
+                                            points = collectedPoints
+                                        )
+                                    }
+
+                                    pointsSyncResult.onFailure { error ->
+                                        locationErrorDialogMessage =
+                                            "Поездка не завершена: GPS-точки не удалось отправить на сервер. ${error.toTripErrorMessage()}"
+                                        return@launch
+                                    }
+
+                                    runCatching {
+                                        tripRepository.finishTrip(
+                                            accessToken = accessToken,
+                                            carId = carId,
+                                            tripId = tripId,
+                                            endedAt = Instant.now().toString()
+                                        )
+                                    }.onSuccess { finishedTrip ->
+                                        updateFinishedTripStats(finishedTrip)
+                                        context.stopTripTrackingService()
+                                        isTripActive = false
+                                        activeTripId = null
+                                        tripStartedAtMillis = null
+                                        TripTrackingStateStore.clear()
+                                        navController.navigate(LambaRoute.TripFinished.path)
+                                    }.onFailure { error ->
+                                        locationErrorDialogMessage =
+                                            "Не удалось завершить поездку. ${error.toTripErrorMessage()}"
+                                    }
+                                } else {
+                                    if (!context.hasTripLocationPermission()) {
+                                        requestTripPermissions()
+                                        return@launch
+                                    }
+
+                                    startTrip(accessToken, carId)
+                                }
                             }
                         }
                     }
+                )
+
+                if (recordsState.isScanningReceipt) {
+                    LoadingOverlay(
+                        title = "Обрабатываю чек",
+                        message = "Получаю данные по QR-коду и добавляю расход в историю."
+                    )
                 }
-            )
+            }
         }
-
-
 
         composable(LambaRoute.TripFinished.path) {
             TripFinishedScreen(
@@ -569,7 +634,6 @@ fun AppNavigation() {
                 onBackClick = { navController.popBackStack() }
             )
         }
-
 
         composable(LambaRoute.ChooseRecordType.path) {
             ChooseRecordTypeScreen(
@@ -700,6 +764,21 @@ fun AppNavigation() {
                     carViewModel.clearSession()
                     authViewModel.logout()
                     navController.openLoginAfterLogout()
+                }
+            )
+        }
+
+        composable(LambaRoute.QrSuccess.path) {
+            SuccessScreen(
+                title = "QR-код сканирован",
+                message = "Данные чека отправлены на обработку",
+                buttonText = "В главное меню",
+                onContinue = {
+                    navController.navigate(LambaRoute.Home.path) {
+                        popUpTo(LambaRoute.QrSuccess.path) {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
@@ -1024,5 +1103,7 @@ private enum class LambaRoute(
     Profile("profile"),
     RecordSuccess("record_success"),
     TripFinished("trip_finished"),
+    QrSuccess("qr_success"),
     TripHistory("trip_history")
 }
+```

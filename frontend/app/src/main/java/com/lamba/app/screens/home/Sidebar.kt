@@ -48,6 +48,7 @@ fun Sidebar(
     onHistoryClick: () -> Unit,
     onTripHistoryClick: () -> Unit,
     onStatisticsClick: () -> Unit,
+    onOpenQrClick: () -> Unit,
     onAchievementsClick: () -> Unit,
     onDocumentsClick: () -> Unit,
     onProfileClick: () -> Unit,
@@ -143,6 +144,12 @@ fun Sidebar(
                 title = "Статистика",
                 subtitle = "Расходы, пробег, категории",
                 onClick = onStatisticsClick
+            )
+
+            GarageMenuItem(
+                title = "Сканировать чек | QR-код",
+                subtitle = "Добавьте информацию о заправке через QR-код",
+                onClick = onOpenQrClick
             )
 
             GarageMenuItem(
