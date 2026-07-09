@@ -59,8 +59,8 @@ fun ProfileScreen(
         ),
         ProfileMenuItem(
             iconLabel = "У",
-            title = "Уведомления",
-            subtitle = "ТО, страховка, расходы",
+            title = "Напоминания",
+            subtitle = "ТО, страховка, обслуживание",
             onClick = onNotificationsClick
         ),
         ProfileMenuItem(
@@ -71,8 +71,8 @@ fun ProfileScreen(
         ),
         ProfileMenuItem(
             iconLabel = "?",
-            title = "Помощь",
-            subtitle = "FAQ и поддержка",
+            title = "О приложении",
+            subtitle = "Версия, поддержка, информация",
             onClick = onHelpClick
         )
     )
