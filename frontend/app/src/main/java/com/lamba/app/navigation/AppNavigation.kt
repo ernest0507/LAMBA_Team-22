@@ -47,6 +47,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.lamba.app.common.SuccessScreen
+import com.lamba.app.data.achievements.AchievementsViewModel
 import com.lamba.app.data.assistant.AssistantViewModel
 import com.lamba.app.data.auth.AuthViewModel
 import com.lamba.app.data.cars.CarDraft
@@ -54,6 +55,7 @@ import com.lamba.app.data.cars.CarViewModel
 import com.lamba.app.data.records.MaintenanceRecordCreateRequest
 import com.lamba.app.data.records.RecordsViewModel
 import com.lamba.app.data.statistics.StatisticsViewModel
+import com.lamba.app.screens.achievements.AchievementsScreen
 import com.lamba.app.data.trips.TripRepository
 import com.lamba.app.data.trips.TripResponse
 import com.lamba.app.data.trips.CollectedTripPoint
@@ -109,6 +111,8 @@ fun AppNavigation() {
     val recordsState by recordsViewModel.uiState.collectAsState()
     val statisticsViewModel: StatisticsViewModel = viewModel()
     val statisticsState by statisticsViewModel.uiState.collectAsState()
+    val achievementsViewModel: AchievementsViewModel = viewModel()
+    val achievementsState by achievementsViewModel.uiState.collectAsState()
     val assistantViewModel: AssistantViewModel = viewModel()
     val assistantState by assistantViewModel.uiState.collectAsState()
     val tripTrackingSnapshot by TripTrackingStateStore.snapshots.collectAsState()
@@ -423,6 +427,7 @@ fun AppNavigation() {
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },
                 onOpenTripHistory = { navController.navigate(LambaRoute.TripHistory.path) },
                 onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
+                onOpenAchievements = { navController.navigate(LambaRoute.Achievements.path) },
                 onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
                 onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
                 onSendMessage = { message ->
@@ -661,6 +666,22 @@ fun AppNavigation() {
                 errorMessage = statisticsState.errorMessage,
                 statistics = statisticsState.statistics,
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(LambaRoute.Achievements.path) {
+            LaunchedEffect(authState.accessToken, currentCarId) {
+                achievementsViewModel.loadAchievements(authState.accessToken, currentCarId)
+            }
+
+            AchievementsScreen(
+                isLoading = achievementsState.isLoading,
+                errorMessage = achievementsState.errorMessage,
+                achievements = achievementsState.achievements,
+                onBackClick = { navController.popBackStack() },
+                onUnlockClick = { achievementId ->
+                    achievementsViewModel.unlockAchievement(achievementId)
+                }
             )
         }
 
@@ -998,6 +1019,7 @@ private enum class LambaRoute(
     AddBreakdown("add_breakdown"),
     History("history"),
     Statistics("statistics"),
+    Achievements("achievements"),
     Documents("documents"),
     Profile("profile"),
     RecordSuccess("record_success"),
