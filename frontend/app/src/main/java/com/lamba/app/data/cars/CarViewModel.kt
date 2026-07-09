@@ -101,6 +101,10 @@ class CarViewModel(
         }
     }
 
+    fun clearSession() {
+        _uiState.value = CarUiState()
+    }
+
     private fun Throwable.toCarMessage(): String {
         return when (this) {
             is HttpException -> when (code()) {

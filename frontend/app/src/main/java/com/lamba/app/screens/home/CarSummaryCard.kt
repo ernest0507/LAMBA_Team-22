@@ -34,6 +34,7 @@ fun CarSummaryCard(
     onStartTripClick: () -> Unit = {},
     isTripActive: Boolean = false,
     tripStartedAtMillis: Long? = null,
+    tripDistanceKm: Double = 0.0,
     onTripHoldComplete: () -> Unit = {}
 ) {
     val vehicleColor = car?.color.toVehicleColor()
@@ -105,7 +106,8 @@ fun CarSummaryCard(
             onTripHoldComplete = onTripHoldComplete,
             modifier = Modifier.fillMaxWidth(),
             isTripActive = isTripActive,
-            tripStartedAtMillis = tripStartedAtMillis
+            tripStartedAtMillis = tripStartedAtMillis,
+            distanceKm = tripDistanceKm
         )
     }
 }
