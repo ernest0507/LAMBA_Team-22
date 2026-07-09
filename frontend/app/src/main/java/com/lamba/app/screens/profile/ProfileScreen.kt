@@ -48,7 +48,8 @@ fun ProfileScreen(
     onVehicleDataClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onAppSettingsClick: () -> Unit = {},
-    onHelpClick: () -> Unit = {}
+    onHelpClick: () -> Unit = {},
+    onSignOutClick: () -> Unit = {}
 ) {
     val menuItems = listOf(
         ProfileMenuItem(
@@ -74,6 +75,12 @@ fun ProfileScreen(
             title = "Помощь",
             subtitle = "FAQ и поддержка",
             onClick = onHelpClick
+        ),
+        ProfileMenuItem(
+            iconLabel = "!",
+            title = "Sign out",
+            subtitle = "End the current session",
+            onClick = onSignOutClick
         )
     )
 

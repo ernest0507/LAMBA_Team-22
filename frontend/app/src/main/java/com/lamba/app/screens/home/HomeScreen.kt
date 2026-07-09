@@ -28,6 +28,7 @@ fun HomeScreen(
     onOpenAiChat: () -> Unit = {},
     onAddExpensesClick: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
+    onOpenTripHistory: () -> Unit = {},
     onOpenStatistics: () -> Unit = {},
     onOpenAchievements: () -> Unit = {},
     onOpenDocuments: () -> Unit = {},
@@ -36,6 +37,7 @@ fun HomeScreen(
     onStartTripClick: () -> Unit = {},
     isTripActive: Boolean = false,
     tripStartedAtMillis: Long? = null,
+    tripDistanceKm: Double = 0.0,
     onTripHoldComplete: () -> Unit = {}
 ) {
     var isMenuOpen by remember { mutableStateOf(false) }
@@ -66,6 +68,7 @@ fun HomeScreen(
                 onStartTripClick = onStartTripClick,
                 isTripActive = isTripActive,
                 tripStartedAtMillis = tripStartedAtMillis,
+                tripDistanceKm = tripDistanceKm,
                 onTripHoldComplete = onTripHoldComplete
             )
 
@@ -110,6 +113,10 @@ fun HomeScreen(
                 onHistoryClick = {
                     isMenuOpen = false
                     onOpenHistory()
+                },
+                onTripHistoryClick = {
+                    isMenuOpen = false
+                    onOpenTripHistory()
                 },
                 onStatisticsClick = {
                     isMenuOpen = false

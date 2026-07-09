@@ -22,21 +22,57 @@ class TripSessionTracker(
         return snapshot(startedAtMillis)
     }
 
-    fun addPoint(point: TripTrackingPoint): TripTrackingSnapshot {
+    fun addPoint(point: TripTrackingPoint): TripTrackingUpdate {
         if (startedAtMillis == null) {
             startedAtMillis = point.recordedAtMillis
         }
 
-        val previousPoint = points.lastOrNull()
-        if (previousPoint != null) {
-            distanceMeters += distanceBetweenMeters(previousPoint, point)
+        if (!point.hasAcceptableAccuracy()) {
+            return TripTrackingUpdate(
+                snapshot = snapshot(point.recordedAtMillis),
+                acceptedPoint = null
+            )
         }
 
-        points += point
-        val currentSpeed = point.speedMetersPerSecond ?: speedBetween(previousPoint, point)
-        maxSpeedMetersPerSecond = maxOf(maxSpeedMetersPerSecond, currentSpeed)
+        val previousPoint = points.lastOrNull()
+        var currentSpeed = point.speedMetersPerSecond ?: speedBetween(previousPoint, point)
+        var shouldAcceptPoint = previousPoint == null
+        if (previousPoint != null) {
+            val segmentDistanceMeters = distanceBetweenMeters(previousPoint, point)
+            val elapsedSeconds =
+                (point.recordedAtMillis - previousPoint.recordedAtMillis).toDouble() /
+                    MILLIS_PER_SECOND
+            val segmentSpeedMetersPerSecond = if (elapsedSeconds > 0.0) {
+                segmentDistanceMeters / elapsedSeconds
+            } else {
+                0.0
+            }
 
-        return snapshot(point.recordedAtMillis)
+            val minUsefulMovementMeters = maxOf(
+                MIN_MOVEMENT_METERS,
+                ((point.accuracyMeters ?: 0f) + (previousPoint.accuracyMeters ?: 0f)).toDouble()
+            )
+
+            if (
+                segmentDistanceMeters >= minUsefulMovementMeters &&
+                segmentSpeedMetersPerSecond <= MAX_SEGMENT_SPEED_METERS_PER_SECOND
+            ) {
+                distanceMeters += segmentDistanceMeters
+                shouldAcceptPoint = true
+            } else {
+                currentSpeed = 0f
+            }
+        }
+
+        if (shouldAcceptPoint) {
+            points += point
+            maxSpeedMetersPerSecond = maxOf(maxSpeedMetersPerSecond, currentSpeed)
+        }
+
+        return TripTrackingUpdate(
+            snapshot = snapshot(point.recordedAtMillis),
+            acceptedPoint = point.takeIf { shouldAcceptPoint }
+        )
     }
 
     fun stop(stoppedAtMillis: Long = nowMillis()): TripTrackingSnapshot {
@@ -110,11 +146,19 @@ class TripSessionTracker(
         return EARTH_RADIUS_METERS * centralAngle
     }
 
+    private fun TripTrackingPoint.hasAcceptableAccuracy(): Boolean {
+        val accuracy = accuracyMeters ?: return true
+        return accuracy <= MAX_ACCEPTABLE_ACCURACY_METERS
+    }
+
     private companion object {
         private const val EARTH_RADIUS_METERS = 6_371_000.0
         private const val MILLIS_PER_SECOND = 1_000L
         private const val SECONDS_PER_HOUR = 3_600.0
         private const val METERS_PER_KILOMETER = 1_000.0
         private const val METERS_PER_SECOND_TO_KMH = 3.6
+        private const val MIN_MOVEMENT_METERS = 8.0
+        private const val MAX_ACCEPTABLE_ACCURACY_METERS = 25f
+        private const val MAX_SEGMENT_SPEED_METERS_PER_SECOND = 70.0
     }
 }

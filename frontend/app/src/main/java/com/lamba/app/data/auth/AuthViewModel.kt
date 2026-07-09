@@ -46,6 +46,10 @@ class AuthViewModel(
         _uiState.update { it.copy(errorMessage = null) }
     }
 
+    fun logout() {
+        _uiState.value = AuthUiState()
+    }
+
     private suspend fun authenticate(loginCall: suspend () -> TokenResponse) {
         _uiState.update {
             it.copy(isLoading = true, errorMessage = null)

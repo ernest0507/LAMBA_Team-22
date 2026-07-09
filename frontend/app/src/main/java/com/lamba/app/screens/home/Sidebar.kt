@@ -46,6 +46,7 @@ fun Sidebar(
     onClose: () -> Unit,
     onAddExpensesClick: () -> Unit,
     onHistoryClick: () -> Unit,
+    onTripHistoryClick: () -> Unit,
     onStatisticsClick: () -> Unit,
     onAchievementsClick: () -> Unit,
     onDocumentsClick: () -> Unit,
@@ -130,6 +131,12 @@ fun Sidebar(
                 title = "История",
                 subtitle = "События, обслуживание, расходы",
                 onClick = onHistoryClick
+            )
+
+            GarageMenuItem(
+                title = "Поездки",
+                subtitle = "Дата, расстояние, время и скорость",
+                onClick = onTripHistoryClick
             )
 
             GarageMenuItem(
