@@ -116,7 +116,7 @@ fun TripFinishedScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                TripResultRow("Расстояние", "$distanceKm км" )
+                TripResultRow("Расстояние", "${distanceKm.formatDistanceKm()} км")
                 TripResultRow("Время в пути", "${durationMillis.formatTripDuration()}")
                 TripResultRow("Средняя скорость", "$averageSpeedKmH км/ч")
             }
@@ -190,5 +190,8 @@ private fun Long.formatTripDuration(): String {
     return "%02d:%02d:%02d".format(hours, minutes, seconds)
 }
 
+private fun Double.formatDistanceKm(): String {
+    return "%.3f".format(this)
+}
 
 

@@ -109,6 +109,19 @@ class RecordsRepository(
             carId = carId
         )
     }
+
+    suspend fun scanReceipt(
+        accessToken: String,
+        carId: Int,
+        qrRaw: String
+    ): ReceiptResponse {
+        return api.scanReceipt(
+            authorization = "Bearer $accessToken",
+            carId = carId,
+            request = ReceiptScanRequest(qrraw = qrRaw)
+        )
+    }
+
 }
 
 private fun List<String>.toPhotoParts(contentResolver: ContentResolver): List<MultipartBody.Part> {

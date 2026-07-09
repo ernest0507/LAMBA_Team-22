@@ -159,13 +159,6 @@ fun HistoryScreen(
                     )
                 }
             }
-
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-                InsightCard(
-                    text = "LAMBA AI: расходы на обслуживание выше обычного из-за планового ТО. Следующая крупная трата ожидается только через 1 800 км."
-                )
-            }
         }
     }
 
@@ -247,6 +240,15 @@ private fun HistoryEventCard(
                     }
                     item.occurredAt?.let {
                         HistoryDetailRow(label = "Дата", value = it)
+                    }
+                    item.receiptTime?.let {
+                        HistoryDetailRow(label = "Время", value = it)
+                    }
+                    item.fuelType?.let {
+                        HistoryDetailRow(label = "Топливо", value = it)
+                    }
+                    item.vendor?.let {
+                        HistoryDetailRow(label = "Продавец", value = it)
                     }
 
                     HistoryPhotosSection(
@@ -514,7 +516,10 @@ private data class HistoryItem(
     val amount: String,
     val category: String? = null,
     val mileageKm: Int? = null,
-    val occurredAt: String? = null
+    val occurredAt: String? = null,
+    val receiptTime: String? = null,
+    val fuelType: String? = null,
+    val vendor: String? = null
 )
 
 private fun rememberHistorySections(records: List<TimelineItemResponse>): List<HistorySection> {
@@ -531,7 +536,10 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
                         amount = record.costAmount.formatAmount(),
                         category = record.category,
                         mileageKm = record.mileageKm,
-                        occurredAt = record.occurredAt
+                        occurredAt = record.occurredAt,
+                        receiptTime = record.description.extractReceiptField("Receipt time"),
+                        fuelType = record.description.extractReceiptField("Fuel type"),
+                        vendor = record.vendor
                     )
                 }
             )
@@ -541,8 +549,20 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
 private fun TimelineItemResponse.subtitleText(): String {
     return listOfNotNull(
         category.toRecordTypeName().takeIf { it != "-" },
+        description.extractReceiptField("Receipt time"),
+        description.extractReceiptField("Fuel type"),
         mileageKm?.let { "$it км" }
     ).joinToString(" | ")
+}
+
+private fun String?.extractReceiptField(label: String): String? {
+    if (isNullOrBlank()) return null
+    val prefix = "$label:"
+    return lineSequence()
+        .firstOrNull { it.startsWith(prefix) }
+        ?.removePrefix(prefix)
+        ?.trim()
+        ?.takeIf { it.isNotBlank() }
 }
 
 private fun String.formatAmount(): String {

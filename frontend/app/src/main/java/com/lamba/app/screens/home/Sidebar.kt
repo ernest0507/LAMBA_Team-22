@@ -47,7 +47,7 @@ fun Sidebar(
     onAddExpensesClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onStatisticsClick: () -> Unit,
-    onDocumentsClick: () -> Unit,
+    onOpenQrClick: () -> Unit,
     onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -138,9 +138,9 @@ fun Sidebar(
             )
 
             GarageMenuItem(
-                title = "Документы",
-                subtitle = "СТС, страховка, чеки",
-                onClick = onDocumentsClick
+                title = "Сканировать чек | QR-код",
+                subtitle = "Добавьте информацию о заправке через QR-код",
+                onClick = onOpenQrClick
             )
 
             GarageMenuItem(

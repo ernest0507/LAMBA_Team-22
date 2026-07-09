@@ -29,7 +29,7 @@ fun HomeScreen(
     onAddExpensesClick: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
     onOpenStatistics: () -> Unit = {},
-    onOpenDocuments: () -> Unit = {},
+    onOpenQrClick: () -> Unit = {},
     onOpenProfile: () -> Unit = {},
     onSendMessage: (String) -> Unit = {},
     onStartTripClick: () -> Unit = {},
@@ -114,9 +114,9 @@ fun HomeScreen(
                     isMenuOpen = false
                     onOpenStatistics()
                 },
-                onDocumentsClick = {
+                onOpenQrClick = {
                     isMenuOpen = false
-                    onOpenDocuments()
+                    onOpenQrClick()
                 },
                 onProfileClick = {
                     isMenuOpen = false

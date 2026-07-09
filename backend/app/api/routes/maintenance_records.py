@@ -218,9 +218,11 @@ async def read_timeline(
             id=record.id,
             category=record.category,
             title=record.title,
+            description=record.description,
             occurred_at=record.occurred_at,
             mileage_km=record.mileage_km,
             cost_amount=record.cost_amount,
+            vendor=record.vendor,
         )
         for record in records
     ]

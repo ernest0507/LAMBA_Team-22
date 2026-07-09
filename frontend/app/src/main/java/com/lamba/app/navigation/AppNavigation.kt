@@ -1,6 +1,7 @@
 package com.lamba.app.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,10 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import android.widget.Toast
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.lamba.app.common.LoadingOverlay
 import com.lamba.app.common.SuccessScreen
 import com.lamba.app.data.assistant.AssistantViewModel
 import com.lamba.app.data.auth.AuthViewModel
@@ -52,15 +56,14 @@ import com.lamba.app.screens.history.RepairRecordFormData
 import com.lamba.app.screens.history.RepairRecordScreen
 import com.lamba.app.screens.home.HomeScreen
 import com.lamba.app.screens.profile.ProfileScreen
+import com.lamba.app.screens.qr.QrScannerScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
 import com.lamba.app.screens.trip.TripFinishedScreen
-import com.lamba.app.screens.trip.TripModeScreen
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaRadius
-import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+
+
+import components.BackButton
 import components.BackButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -81,12 +84,20 @@ fun AppNavigation() {
     val assistantViewModel: AssistantViewModel = viewModel()
     val assistantState by assistantViewModel.uiState.collectAsState()
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
-    val currentCarId = carState.currentCar?.id
+    val currentUserId = authState.currentUser?.id
+    val currentCar = carState.currentCar?.takeIf { car ->
+        currentUserId != null && car.ownerId == currentUserId
+    }
+    val currentCarId = currentCar?.id
     val isCheckingCars = authState.isAuthenticated && !carState.hasCompletedCarsCheck
     val routeErrorMessage = authState.errorMessage ?: carState.errorMessage
     var isTripActive by remember { mutableStateOf(false) }
     var tripStartedAtMillis by remember { mutableStateOf<Long?>(null) }
     var finishedTripDurationMillis by remember { mutableStateOf(0L) }
+    val scanner = remember {
+        GmsBarcodeScanning.getClient(context)
+    }
+    var scannedQrValue by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(authState.accessToken) {
         if (authState.isAuthenticated) {
@@ -119,10 +130,21 @@ fun AppNavigation() {
         }
     }
 
+    LaunchedEffect(recordsState.errorMessage) {
+        recordsState.errorMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
     LaunchedEffect(recordsState.createdRecord?.id) {
         val createdRecord = recordsState.createdRecord
         if (createdRecord != null) {
             recordsViewModel.loadTimeline(authState.accessToken, createdRecord.carId)
+            Toast.makeText(
+                context,
+                "Запись добавлена в историю: #${createdRecord.id}",
+                Toast.LENGTH_LONG
+            ).show()
             recordsViewModel.consumeCreatedRecord()
             navController.navigate(LambaRoute.RecordSuccess.path)
         }
@@ -208,42 +230,100 @@ fun AppNavigation() {
         }
 
         composable(LambaRoute.Home.path) {
-            HomeScreen(
-                car = carState.currentCar,
-                messages = assistantState.messages,
-                isAssistantSending = assistantState.isSending,
-                onOpenAiChat = {},
-                onAddExpensesClick = { navController.navigate(LambaRoute.ChooseRecordType.path) },
-                onOpenHistory = { navController.navigate(LambaRoute.History.path) },
-                onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
-                onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
-                onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
-                onSendMessage = { message ->
-                    assistantViewModel.sendMessage(
-                        accessToken = authState.accessToken,
-                        carId = currentCarId,
-                        message = message
-                    )
-                },
-                isTripActive = isTripActive,
-                tripStartedAtMillis = tripStartedAtMillis,
-                onTripHoldComplete = {
-                    if (isTripActive) {
-                        val startedAt = tripStartedAtMillis
+            Box(modifier = Modifier.fillMaxSize()) {
+                HomeScreen(
+                    car = currentCar,
+                    messages = assistantState.messages,
+                    isAssistantSending = assistantState.isSending,
+                    onOpenAiChat = {},
+                    onAddExpensesClick = { navController.navigate(LambaRoute.ChooseRecordType.path) },
+                    onOpenHistory = { navController.navigate(LambaRoute.History.path) },
+                    onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
+                    onOpenQrClick = qrClick@{
+                        if (currentCarId == null) {
+                            Toast.makeText(
+                                context,
+                                "Не нашел машину текущего аккаунта. Обновляю список машин.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            carViewModel.loadCars(authState.accessToken)
+                            return@qrClick
+                        }
 
-                        finishedTripDurationMillis = if (startedAt != null) {
-                            System.currentTimeMillis() - startedAt
-                        } else { 0L }
+                        scanner.startScan()
+                            .addOnSuccessListener { barcode ->
+                                val qrValue = barcode.rawValue
+                                if (qrValue.isNullOrBlank()) {
+                                    Toast.makeText(
+                                        context,
+                                        "QR-код не содержит данных чека.",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                    return@addOnSuccessListener
+                                }
 
-                        isTripActive = false
-                        tripStartedAtMillis = null
-                        navController.navigate(LambaRoute.TripFinished.path)
-                    } else {
-                        isTripActive = true
-                        tripStartedAtMillis = System.currentTimeMillis()
+                                scannedQrValue = qrValue
+                                Toast.makeText(
+                                    context,
+                                    "QR-код считан. Добавляю к машине #$currentCarId...",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                recordsViewModel.scanReceipt(
+                                    accessToken = authState.accessToken,
+                                    carId = currentCarId,
+                                    qrRaw = qrValue
+                                )
+                            }
+                            .addOnCanceledListener {
+                                Toast.makeText(
+                                    context,
+                                    "Сканирование отменено.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(
+                                    context,
+                                    "Не удалось открыть сканер QR.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                    },
+                    onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
+                    onSendMessage = { message ->
+                        assistantViewModel.sendMessage(
+                            accessToken = authState.accessToken,
+                            carId = currentCarId,
+                            message = message
+                        )
+                    },
+                    isTripActive = isTripActive,
+                    tripStartedAtMillis = tripStartedAtMillis,
+                    onTripHoldComplete = {
+                        if (isTripActive) {
+                            val startedAt = tripStartedAtMillis
+
+                            finishedTripDurationMillis = if (startedAt != null) {
+                                System.currentTimeMillis() - startedAt
+                            } else { 0L }
+
+                            isTripActive = false
+                            tripStartedAtMillis = null
+                            navController.navigate(LambaRoute.TripFinished.path)
+                        } else {
+                            isTripActive = true
+                            tripStartedAtMillis = System.currentTimeMillis()
+                        }
                     }
+                )
+
+                if (recordsState.isScanningReceipt) {
+                    LoadingOverlay(
+                        title = "Обрабатываю чек",
+                        message = "Получаю данные по QR-коду и добавляю расход в историю."
+                    )
                 }
-            )
+            }
         }
 
 
@@ -364,11 +444,6 @@ fun AppNavigation() {
             )
         }
 
-        composable(LambaRoute.Documents.path) {
-            DocumentsScreen(
-                onBackClick = { navController.popBackStack() }
-            )
-        }
 
         composable(LambaRoute.Profile.path) {
             ProfileScreen(
@@ -376,16 +451,33 @@ fun AppNavigation() {
             )
         }
 
+
+        composable(LambaRoute.QrSuccess.path) {
+            SuccessScreen(
+                title = "QR-код сканирован",
+                message = "Данные чека отправлены на обработку",
+                buttonText = "В главное меню",
+                onContinue = {
+                    navController.navigate(LambaRoute.Home.path) {
+                        popUpTo(LambaRoute.QrSuccess.path) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
         composable(LambaRoute.RecordSuccess.path) {
             SuccessScreen(
                 title = "Запись добавлена.",
                 message = "Данные успешно сохранены",
                 buttonText = "Перейти к истории",
                 onContinue = {
+                    recordsViewModel.loadTimeline(authState.accessToken, currentCarId)
                     navController.navigate(LambaRoute.History.path) {
-                        popUpTo(LambaRoute.ChooseRecordType.path) {
-                            inclusive = true
+                        popUpTo(LambaRoute.Home.path) {
+                            inclusive = false
                         }
+                        launchSingleTop = true
                     }
                 }
             )
@@ -478,62 +570,7 @@ private fun String.toRecordCostAmount(): String {
     return trim().ifBlank { "0.00" }
 }
 
-@Composable
-private fun DocumentsScreen(
-    onBackClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(LambaCanvas)
-                .padding(
-                    PaddingValues(
-                        start = LambaSpacing.ScreenHorizontal,
-                        top = LambaSpacing.ScreenTop,
-                        end = LambaSpacing.ScreenHorizontal,
-                        bottom = LambaSpacing.ScreenBottom
-                    )
-                ),
-            verticalArrangement = Arrangement.spacedBy(LambaSpacing.CardPadding)
-        ) {
-            BackButton(onClick = onBackClick)
 
-            Text(
-                text = "Документы",
-                style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(LambaRadius.Large),
-                colors = CardDefaults.cardColors(containerColor = LambaSurface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(LambaSpacing.CardPadding),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "СТС, страховка и чеки",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = LambaInk,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Экран готов для подключения хранилища документов.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = LambaInkMuted
-                    )
-                }
-            }
-        }
-    }
-}
 
 private enum class LambaRoute(
     val path: String
@@ -552,5 +589,6 @@ private enum class LambaRoute(
     Documents("documents"),
     Profile("profile"),
     RecordSuccess("record_success"),
-    TripFinished("trip_finished")
+    TripFinished("trip_finished"),
+    QrSuccess("qr_success")
 }
