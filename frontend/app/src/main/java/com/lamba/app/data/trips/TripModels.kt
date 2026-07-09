@@ -31,6 +31,7 @@ data class TripResponse(
     val id: Int,
     @SerializedName("car_id")
     val carId: Int,
+    val status: String = "",
     @SerializedName("started_at")
     val startedAt: String,
     @SerializedName("ended_at")

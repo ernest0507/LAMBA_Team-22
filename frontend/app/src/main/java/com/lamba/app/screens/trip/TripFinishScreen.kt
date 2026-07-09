@@ -117,8 +117,8 @@ fun TripFinishedScreen(
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 TripResultRow("Расстояние", "${distanceKm.formatDistanceKm()} км")
-                TripResultRow("Время в пути", "${durationMillis.formatTripDuration()}")
-                TripResultRow("Средняя скорость", "$averageSpeedKmH км/ч")
+                TripResultRow("Время в пути", durationMillis.formatTripDuration())
+                TripResultRow("Средняя скорость", "${averageSpeedKmH.formatSpeedKmH()} км/ч")
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -131,7 +131,6 @@ fun TripFinishedScreen(
         }
     }
 }
-
 
 @Composable
 private fun TripResultRow(
@@ -151,9 +150,9 @@ private fun TripResultRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
-               modifier = Modifier
-                   .size(34.dp)
-                   .background(LambaAccentSoft, CircleShape),
+                modifier = Modifier
+                    .size(34.dp)
+                    .background(LambaAccentSoft, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Box(
@@ -162,6 +161,7 @@ private fun TripResultRow(
                         .background(LambaAccentStrong, CircleShape)
                 )
             }
+
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
@@ -194,4 +194,6 @@ private fun Double.formatDistanceKm(): String {
     return "%.3f".format(this)
 }
 
-
+private fun Double.formatSpeedKmH(): String {
+    return "%.1f".format(this)
+}

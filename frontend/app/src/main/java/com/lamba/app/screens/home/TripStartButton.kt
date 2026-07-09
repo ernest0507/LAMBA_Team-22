@@ -53,6 +53,7 @@ import kotlinx.coroutines.launch
 fun TripStartButton(
     isTripActive: Boolean,
     tripStartedAtMillis: Long? = null,
+    distanceKm: Double = 0.0,
     modifier: Modifier = Modifier,
     onTripHoldComplete: () -> Unit = {}
 ) {
@@ -78,7 +79,7 @@ fun TripStartButton(
         "Начать поездку"
     }
     val subtitleText = if (isTripActive) {
-        "${elapsedMillis.formatTripDuration()} | 0.0 км"
+        "${elapsedMillis.formatTripDuration()} | ${"%.3f".format(distanceKm)} км"
     } else {
         "Удерживайте 3 сек"
     }
