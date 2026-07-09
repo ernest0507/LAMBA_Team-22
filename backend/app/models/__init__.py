@@ -4,6 +4,7 @@ from app.models.maintenance_record import MaintenanceRecord
 from app.models.maintenance_record_photo import MaintenanceRecordPhoto
 from app.models.trip import Trip, TripPoint
 from app.models.user import User
+from app.models.user_achievement import UserAchievement
 
 __all__ = [
     "AssistantChat",
@@ -14,4 +15,5 @@ __all__ = [
     "Trip",
     "TripPoint",
     "User",
+    "UserAchievement",
 ]
