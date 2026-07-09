@@ -47,6 +47,7 @@ fun Sidebar(
     onAddExpensesClick: () -> Unit,
     onHistoryClick: () -> Unit,
     onStatisticsClick: () -> Unit,
+    onAchievementsClick: () -> Unit,
     onDocumentsClick: () -> Unit,
     onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -135,6 +136,12 @@ fun Sidebar(
                 title = "Статистика",
                 subtitle = "Расходы, пробег, категории",
                 onClick = onStatisticsClick
+            )
+
+            GarageMenuItem(
+                title = "Достижения",
+                subtitle = "Награды и достижения",
+                onClick = onAchievementsClick
             )
 
             GarageMenuItem(

@@ -29,6 +29,7 @@ fun HomeScreen(
     onAddExpensesClick: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
     onOpenStatistics: () -> Unit = {},
+    onOpenAchievements: () -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenProfile: () -> Unit = {},
     onSendMessage: (String) -> Unit = {},
@@ -113,6 +114,10 @@ fun HomeScreen(
                 onStatisticsClick = {
                     isMenuOpen = false
                     onOpenStatistics()
+                },
+                onAchievementsClick = {
+                    isMenuOpen = false
+                    onOpenAchievements()
                 },
                 onDocumentsClick = {
                     isMenuOpen = false
