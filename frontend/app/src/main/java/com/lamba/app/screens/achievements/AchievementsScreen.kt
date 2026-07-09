@@ -1,6 +1,7 @@
 package com.lamba.app.screens.achievements
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,8 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +27,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,19 +40,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lamba.app.data.achievements.AchievementResponse
+import com.lamba.app.data.achievements.CategoryTitles
 import com.lamba.app.ui.theme.LambaAccent
+import com.lamba.app.ui.theme.LambaAccentStrong
 import com.lamba.app.ui.theme.LambaCanvas
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
 import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
 
 private val LockedCardBg = Color(0xFFE1E8E6)
-private val LockedCardText = Color(0xFF9AABAB)
+private val LockedCardIconBg = Color(0xFFD0D9D6)
+private val LockedIconColor = Color(0xFF9AABAB)
 private val UnlockedAccent = LambaAccent
+
+private val CategoryOrder = listOf("statistics", "road", "repair")
+
+private val ManuallyUnlockableCategories = setOf("road", "repair")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,8 +66,21 @@ fun AchievementsScreen(
     isLoading: Boolean = false,
     errorMessage: String? = null,
     achievements: List<AchievementResponse> = emptyList(),
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onUnlockClick: (Int) -> Unit = {}
 ) {
+    val sections = remember(achievements) {
+        achievements
+            .groupBy { it.category }
+            .let { grouped ->
+                CategoryOrder.map { key ->
+                    CategoryTitles.getValue(key) to grouped[key].orEmpty()
+                }
+            }
+    }
+
+    val hasAnyItems = remember(sections) { sections.any { it.second.isNotEmpty() } }
+
     Scaffold(
         containerColor = LambaCanvas,
         topBar = {
@@ -107,35 +132,40 @@ fun AchievementsScreen(
                 }
             }
 
-            if (!isLoading && errorMessage.isNullOrBlank() && achievements.isEmpty()) {
+            if (!isLoading && errorMessage.isNullOrBlank() && !hasAnyItems) {
                 item {
                     StatusCard(text = "Пока нет достижений.")
                 }
             }
 
-            if (achievements.isNotEmpty()) {
+            sections.forEach { (title, items) ->
                 item {
                     Text(
-                        text = "Ваши достижения",
+                        text = title,
                         style = MaterialTheme.typography.labelLarge,
                         color = LambaInkMuted,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                     )
                 }
 
-                itemsIndexed(achievements.chunked(2)) { _, pair ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        pair.forEach { achievement ->
-                            AchievementCard(
-                                achievement = achievement,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        if (pair.size == 1) {
-                            Spacer(modifier = Modifier.weight(1f))
+                items.chunked(2).forEach { pair ->
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            pair.forEach { achievement ->
+                                AchievementCard(
+                                    achievement = achievement,
+                                    canUnlock = achievement.category in ManuallyUnlockableCategories && !achievement.unlocked,
+                                    onUnlockClick = { onUnlockClick(achievement.id) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            if (pair.size == 1) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
                         }
                     }
                 }
@@ -147,9 +177,12 @@ fun AchievementsScreen(
 @Composable
 private fun AchievementCard(
     achievement: AchievementResponse,
+    canUnlock: Boolean = false,
+    onUnlockClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val unlocked = achievement.unlocked
+    var showUnlock by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier,
@@ -162,6 +195,10 @@ private fun AchievementCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .then(
+                    if (canUnlock) Modifier.clickable { showUnlock = !showUnlock }
+                    else Modifier
+                )
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -172,7 +209,7 @@ private fun AchievementCard(
                     .clip(RoundedCornerShape(LambaRadius.Medium))
                     .background(
                         if (unlocked) UnlockedAccent.copy(alpha = 0.12f)
-                        else LockedCardText.copy(alpha = 0.2f)
+                        else LockedCardIconBg
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -187,7 +224,7 @@ private fun AchievementCard(
                     Text(
                         text = "?",
                         style = MaterialTheme.typography.headlineLarge,
-                        color = LockedCardText,
+                        color = LockedIconColor,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -196,25 +233,40 @@ private fun AchievementCard(
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = if (unlocked) achievement.name else "???",
+                text = achievement.name,
                 style = MaterialTheme.typography.titleSmall,
-                color = if (unlocked) LambaInk else LockedCardText,
+                color = if (unlocked) LambaInk else LockedIconColor,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 textAlign = TextAlign.Center
             )
 
-            if (unlocked && achievement.description.isNotBlank()) {
+            if (achievement.description.isNotBlank()) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = achievement.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = LambaInkMuted,
+                    color = if (unlocked) LambaInkMuted else LockedIconColor,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center
                 )
+            }
+
+            if (canUnlock && showUnlock) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = onUnlockClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(LambaRadius.Small),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = LambaAccentStrong,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(text = "Выполнить", style = MaterialTheme.typography.labelLarge)
+                }
             }
         }
     }

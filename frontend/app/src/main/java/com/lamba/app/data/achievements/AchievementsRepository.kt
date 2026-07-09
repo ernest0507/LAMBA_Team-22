@@ -9,4 +9,12 @@ class AchievementsRepository(
             carId = carId
         )
     }
+
+    suspend fun unlockAchievement(accessToken: String, carId: Int, achievementId: Int): AchievementResponse {
+        return api.unlockAchievement(
+            authorization = "Bearer $accessToken",
+            carId = carId,
+            achievementId = achievementId
+        )
+    }
 }

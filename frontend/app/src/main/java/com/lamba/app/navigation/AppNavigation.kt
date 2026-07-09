@@ -378,7 +378,10 @@ fun AppNavigation() {
                 isLoading = achievementsState.isLoading,
                 errorMessage = achievementsState.errorMessage,
                 achievements = achievementsState.achievements,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onUnlockClick = { achievementId ->
+                    achievementsViewModel.unlockAchievement(achievementId)
+                }
             )
         }
 
