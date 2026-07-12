@@ -58,17 +58,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
-import com.lamba.app.ui.theme.LambaAccent
-import com.lamba.app.ui.theme.LambaAccentSoft
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
 import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
 import com.lamba.app.ui.theme.LambaSurface
-import com.lamba.app.ui.theme.LambaSurfaceSoft
 import com.lamba.app.ui.theme.LambaVehicleBlue
 import com.lamba.app.ui.theme.LambaVehicleGreen
 import com.lamba.app.ui.theme.LambaVehicleRed
@@ -95,6 +88,7 @@ fun VehicleDataScreen(
 
     val isSaveEnabled = currentVehicleData != savedVehicleData
     val bodyColor = currentVehicleData.colorLabel.toVehicleColor()
+    val colorScheme = MaterialTheme.colorScheme
 
     LaunchedEffect(isSuccessVisible) {
         if (isSuccessVisible) {
@@ -105,7 +99,7 @@ fun VehicleDataScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -347,7 +341,7 @@ private fun VehicleDataHeader(
         Text(
             text = "Данные автомобиля",
             style = MaterialTheme.typography.titleLarge,
-            color = LambaInk,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -363,11 +357,13 @@ private fun VehicleHeroCard(
     condition: String,
     bodyColor: Color
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurfaceSoft),
-        border = BorderStroke(1.dp, LambaOutlineSoft),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -382,13 +378,13 @@ private fun VehicleHeroCard(
                 Text(
                     text = model,
                     style = MaterialTheme.typography.titleLarge,
-                    color = LambaInk,
+                    color = colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = bodyType,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
             }
 
@@ -396,7 +392,7 @@ private fun VehicleHeroCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(LambaRadius.Medium))
-                    .background(LambaAccentSoft.copy(alpha = 0.45f))
+                    .background(colorScheme.primaryContainer.copy(alpha = 0.45f))
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
@@ -413,7 +409,7 @@ private fun VehicleHeroCard(
                 Text(
                     text = "$mileage · $year",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
 
                 Box(modifier = Modifier.weight(1f))
@@ -421,13 +417,13 @@ private fun VehicleHeroCard(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(LambaRadius.Pill))
-                        .background(LambaAccentSoft)
+                        .background(colorScheme.primaryContainer)
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
                     Text(
                         text = "Состояние $condition",
                         style = MaterialTheme.typography.bodySmall,
-                        color = LambaAccentStrong,
+                        color = colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -448,13 +444,15 @@ private fun ManualVehicleFieldCard(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     singleLine: Boolean = true
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onStartEditing),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
-        border = BorderStroke(1.dp, LambaOutlineSoft),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -473,7 +471,7 @@ private fun ManualVehicleFieldCard(
                 Text(
                     text = label,
                     style = MaterialTheme.typography.labelSmall,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
 
                 if (isEditing) {
@@ -484,17 +482,17 @@ private fun ManualVehicleFieldCard(
                         singleLine = singleLine,
                         keyboardOptions = keyboardOptions,
                         textStyle = MaterialTheme.typography.bodyLarge.copy(
-                            color = LambaInk,
+                            color = colorScheme.onSurface,
                             fontWeight = FontWeight.SemiBold
                         ),
                         colors = TextFieldDefaults.colors(
-                            focusedTextColor = LambaInk,
-                            unfocusedTextColor = LambaInk,
+                            focusedTextColor = colorScheme.onSurface,
+                            unfocusedTextColor = colorScheme.onSurface,
                             focusedContainerColor = Color.Transparent,
                             unfocusedContainerColor = Color.Transparent,
                             disabledContainerColor = Color.Transparent,
                             errorContainerColor = Color.Transparent,
-                            cursorColor = LambaAccentStrong,
+                            cursorColor = colorScheme.onPrimaryContainer,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             disabledIndicatorColor = Color.Transparent,
@@ -505,7 +503,7 @@ private fun ManualVehicleFieldCard(
                     Text(
                         text = value,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = LambaInk,
+                        color = colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -517,7 +515,7 @@ private fun ManualVehicleFieldCard(
                 Icon(
                     imageVector = if (isEditing) Icons.Filled.Check else Icons.Filled.Edit,
                     contentDescription = if (isEditing) "Завершить редактирование" else "Редактировать поле",
-                    tint = if (isEditing) LambaAccentStrong else LambaInkMuted
+                    tint = if (isEditing) colorScheme.onPrimaryContainer else colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -534,6 +532,8 @@ private fun DropdownVehicleFieldCard(
     onExpandedChange: (Boolean) -> Unit,
     onOptionSelected: (String) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -542,8 +542,8 @@ private fun DropdownVehicleFieldCard(
                 .fillMaxWidth()
                 .clickable { onExpandedChange(!expanded) },
             shape = RoundedCornerShape(LambaRadius.Large),
-            colors = CardDefaults.cardColors(containerColor = LambaSurface),
-            border = BorderStroke(1.dp, LambaOutlineSoft),
+            colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+            border = BorderStroke(1.dp, colorScheme.outlineVariant),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Row(
@@ -562,12 +562,12 @@ private fun DropdownVehicleFieldCard(
                     Text(
                         text = label,
                         style = MaterialTheme.typography.labelSmall,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = value,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = LambaInk,
+                        color = colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
@@ -575,7 +575,7 @@ private fun DropdownVehicleFieldCard(
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
                     contentDescription = "Открыть список",
-                    tint = LambaAccentStrong,
+                    tint = colorScheme.onPrimaryContainer,
                     modifier = Modifier.padding(top = 6.dp)
                 )
             }
@@ -586,7 +586,7 @@ private fun DropdownVehicleFieldCard(
             onDismissRequest = { onExpandedChange(false) },
             modifier = Modifier
                 .fillMaxWidth(0.92f)
-                .background(LambaSurface)
+                .background(colorScheme.surface)
         ) {
             options.forEach { option ->
                 DropdownMenuItem(
@@ -594,7 +594,7 @@ private fun DropdownVehicleFieldCard(
                         Text(
                             text = option,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = LambaInk
+                            color = colorScheme.onSurface
                         )
                     },
                     onClick = {
@@ -610,28 +610,32 @@ private fun DropdownVehicleFieldCard(
 private fun FieldLeadingIcon(
     icon: ImageVector
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .size(44.dp)
             .clip(RoundedCornerShape(LambaRadius.Medium))
-            .background(LambaAccentSoft),
+            .background(colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = LambaAccentStrong
+            tint = colorScheme.onPrimaryContainer
         )
     }
 }
 
 @Composable
 private fun SuccessMessageCard() {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Medium),
-        colors = CardDefaults.cardColors(containerColor = LambaAccentSoft),
-        border = BorderStroke(1.dp, LambaAccent.copy(alpha = 0.32f)),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.primaryContainer),
+        border = BorderStroke(1.dp, colorScheme.primary.copy(alpha = 0.32f)),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -645,20 +649,20 @@ private fun SuccessMessageCard() {
                 modifier = Modifier
                     .size(28.dp)
                     .clip(RoundedCornerShape(LambaRadius.Pill))
-                    .background(LambaAccentStrong.copy(alpha = 0.14f)),
+                    .background(colorScheme.onPrimaryContainer.copy(alpha = 0.14f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
-                    tint = LambaAccentStrong
+                    tint = colorScheme.onPrimaryContainer
                 )
             }
 
             Text(
                 text = "Данные автомобиля обновлены",
                 style = MaterialTheme.typography.bodyMedium,
-                color = LambaAccentStrong,
+                color = colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.SemiBold
             )
         }

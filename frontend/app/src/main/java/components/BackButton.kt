@@ -10,19 +10,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccentStrong
 import com.lamba.app.ui.theme.LambaRadius
-import com.lamba.app.ui.theme.LambaSurface
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import com.lamba.app.ui.theme.LambaOutlineSoft
-import com.lamba.app.ui.theme.LambaSpacing
 
 
 @Composable
@@ -30,17 +25,19 @@ fun BackButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Button(
         onClick = onClick,
         modifier = modifier.height(44.dp),
         shape = RoundedCornerShape(LambaRadius.Medium),
         border = BorderStroke(
             width = 1.dp,
-            color = LambaOutlineSoft
+            color = colorScheme.outlineVariant
         ),
         colors = ButtonDefaults.buttonColors(
-            containerColor = LambaSurface,
-            contentColor = LambaAccentStrong
+            containerColor = colorScheme.surface,
+            contentColor = colorScheme.onPrimaryContainer
         ),
         contentPadding = PaddingValues(
             horizontal = 14.dp,

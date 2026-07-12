@@ -15,12 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccent
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
 
 @Composable
@@ -31,13 +26,14 @@ fun ContinueButton(
     enabled: Boolean = true
 ) {
     val shape = RoundedCornerShape(LambaRadius.Medium)
+    val colorScheme = MaterialTheme.colorScheme
     val backgroundBrush = if (enabled) {
         Brush.horizontalGradient(
-            colors = listOf(LambaAccent, LambaAccentStrong)
+            colors = listOf(colorScheme.primary, colorScheme.onPrimaryContainer)
         )
     } else {
         Brush.horizontalGradient(
-            colors = listOf(LambaOutlineSoft, LambaOutlineSoft)
+            colors = listOf(colorScheme.outlineVariant, colorScheme.outlineVariant)
         )
     }
 
@@ -48,8 +44,8 @@ fun ContinueButton(
             .shadow(
                 elevation = 12.dp,
                 shape = shape,
-                ambientColor = LambaAccent.copy(alpha = 0.16f),
-                spotColor = LambaAccentStrong.copy(alpha = 0.12f)
+                ambientColor = colorScheme.primary.copy(alpha = 0.16f),
+                spotColor = colorScheme.onPrimaryContainer.copy(alpha = 0.12f)
             )
             .clip(shape)
             .background(backgroundBrush)
@@ -60,10 +56,10 @@ fun ContinueButton(
             modifier = Modifier.fillMaxSize(),
             shape = shape,
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = Color.White,
-                disabledContainerColor = Color.Transparent,
-                disabledContentColor = LambaInkMuted
+                containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                contentColor = colorScheme.onPrimary,
+                disabledContainerColor = androidx.compose.ui.graphics.Color.Transparent,
+                disabledContentColor = colorScheme.onSurfaceVariant
             )
         ) {
             Text(

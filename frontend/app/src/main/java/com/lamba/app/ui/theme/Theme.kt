@@ -5,7 +5,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val LambaColorScheme = lightColorScheme(
+private val LambaLightColorScheme = lightColorScheme(
     primary = LambaAccent,
     onPrimary = Color.White,
     primaryContainer = LambaAccentSoft,
@@ -30,10 +30,18 @@ private val LambaColorScheme = lightColorScheme(
 
 @Composable
 fun LAMBA_MVPv0Theme(
+    darkTheme: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val colorScheme = if (darkTheme) {
+        // TODO: connect DarkColorScheme in the next theme step.
+        LambaLightColorScheme
+    } else {
+        LambaLightColorScheme
+    }
+
     MaterialTheme(
-        colorScheme = LambaColorScheme,
+        colorScheme = colorScheme,
         typography = LambaTypography,
         content = content
     )

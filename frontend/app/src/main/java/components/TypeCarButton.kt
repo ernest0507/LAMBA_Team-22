@@ -12,12 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccentSoft
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
-import com.lamba.app.ui.theme.LambaSurface
 
 
 @Composable
@@ -27,6 +22,8 @@ fun TypeCarButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Button(
         onClick = onClick,
         modifier = modifier
@@ -34,11 +31,11 @@ fun TypeCarButton(
         shape = RoundedCornerShape(LambaRadius.Small),
         border = BorderStroke(
             width = 1.dp,
-            color = if (selected) LambaAccentStrong else LambaOutlineSoft
+            color = if (selected) colorScheme.onPrimaryContainer else colorScheme.outlineVariant
         ),
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected) LambaAccentSoft.copy(alpha = 0.28f) else LambaSurface,
-            contentColor = if (selected) LambaAccentStrong else LambaInk
+            containerColor = if (selected) colorScheme.primaryContainer.copy(alpha = 0.28f) else colorScheme.surface,
+            contentColor = if (selected) colorScheme.onPrimaryContainer else colorScheme.onSurface
         ),
         contentPadding = PaddingValues(horizontal = 16.dp)
     ) {

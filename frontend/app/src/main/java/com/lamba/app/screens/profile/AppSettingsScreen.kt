@@ -55,17 +55,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
-import com.lamba.app.ui.theme.LambaAccent
-import com.lamba.app.ui.theme.LambaAccentSoft
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaError
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
 import kotlinx.coroutines.launch
 
@@ -77,6 +68,7 @@ private const val ThemeDark = "Тёмная"
 fun AppSettingsScreen(
     onBackClick: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     var selectedTheme by rememberSaveable { mutableStateOf(ThemeLight) }
     var useCarDataForAi by rememberSaveable { mutableStateOf(true) }
     var usePersonalizedAnswers by rememberSaveable { mutableStateOf(true) }
@@ -91,7 +83,7 @@ fun AppSettingsScreen(
     if (isThemeSheetVisible) {
         ModalBottomSheet(
             onDismissRequest = { isThemeSheetVisible = false },
-            containerColor = LambaSurface,
+            containerColor = colorScheme.surface,
             tonalElevation = 0.dp,
             shape = RoundedCornerShape(topStart = LambaRadius.Large, topEnd = LambaRadius.Large)
         ) {
@@ -109,7 +101,7 @@ fun AppSettingsScreen(
             message = "Будут удалены локальные настройки приложения.",
             confirmText = "Продолжить",
             dismissText = "Отмена",
-            confirmColor = LambaAccentStrong,
+            confirmColor = colorScheme.onPrimaryContainer,
             onDismiss = { showResetStepOneDialog = false },
             onConfirm = {
                 showResetStepOneDialog = false
@@ -124,7 +116,7 @@ fun AppSettingsScreen(
             message = "Это действие нельзя отменить.",
             confirmText = "Сбросить",
             dismissText = "Отмена",
-            confirmColor = LambaError,
+            confirmColor = colorScheme.error,
             onDismiss = { showResetStepTwoDialog = false },
             onConfirm = {
                 showResetStepTwoDialog = false
@@ -141,7 +133,7 @@ fun AppSettingsScreen(
             message = "После выхода потребуется снова выполнить вход.",
             confirmText = "Выйти",
             dismissText = "Отмена",
-            confirmColor = LambaError,
+            confirmColor = colorScheme.error,
             onDismiss = { showLogoutDialog = false },
             onConfirm = {
                 showLogoutDialog = false
@@ -153,14 +145,14 @@ fun AppSettingsScreen(
     }
 
     Scaffold(
-        containerColor = LambaCanvas,
+        containerColor = colorScheme.background,
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         }
     ) { innerPadding ->
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = LambaCanvas
+            color = colorScheme.background
         ) {
             LazyColumn(
                 modifier = Modifier
@@ -182,7 +174,7 @@ fun AppSettingsScreen(
                     Text(
                         text = "Настройте внешний вид приложения и параметры конфиденциальности.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -277,7 +269,7 @@ private fun SettingsHeader(
         Text(
             text = "Настройки приложения",
             style = MaterialTheme.typography.titleLarge,
-            color = LambaInk,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -291,7 +283,7 @@ private fun SettingsSectionTitle(
     Text(
         text = text,
         style = MaterialTheme.typography.titleMedium,
-        color = LambaInk,
+        color = MaterialTheme.colorScheme.onBackground,
         fontWeight = FontWeight.SemiBold
     )
 }
@@ -303,14 +295,16 @@ private fun ClickableSettingsCard(
     description: String,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(LambaRadius.Large))
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
-        border = BorderStroke(1.dp, LambaOutlineSoft),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -329,13 +323,13 @@ private fun ClickableSettingsCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = LambaInk,
+                    color = colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -350,11 +344,13 @@ private fun PrivacyToggleCard(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
-        border = BorderStroke(1.dp, LambaOutlineSoft),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -373,13 +369,13 @@ private fun PrivacyToggleCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = LambaInk,
+                    color = colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
             }
 
@@ -387,10 +383,10 @@ private fun PrivacyToggleCard(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.White,
-                    checkedTrackColor = LambaAccent,
-                    uncheckedThumbColor = Color.White,
-                    uncheckedTrackColor = LambaOutlineSoft
+                    checkedThumbColor = colorScheme.onPrimary,
+                    checkedTrackColor = colorScheme.primary,
+                    uncheckedThumbColor = colorScheme.surface,
+                    uncheckedTrackColor = colorScheme.outlineVariant
                 )
             )
         }
@@ -401,17 +397,19 @@ private fun PrivacyToggleCard(
 private fun SettingsIcon(
     icon: ImageVector
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .size(44.dp)
             .clip(RoundedCornerShape(LambaRadius.Medium))
-            .background(LambaAccentSoft),
+            .background(colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = LambaAccentStrong
+            tint = colorScheme.onPrimaryContainer
         )
     }
 }
@@ -422,6 +420,8 @@ private fun ThemeSelectionSheet(
     onThemeSelected: (String) -> Unit,
     onCancel: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -432,7 +432,7 @@ private fun ThemeSelectionSheet(
         Text(
             text = "Выберите тему",
             style = MaterialTheme.typography.titleMedium,
-            color = LambaInk,
+            color = colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
 
@@ -443,7 +443,7 @@ private fun ThemeSelectionSheet(
         )
 
         HorizontalDivider(
-            color = LambaOutlineSoft,
+            color = colorScheme.outlineVariant,
             thickness = 1.dp
         )
 
@@ -460,7 +460,7 @@ private fun ThemeSelectionSheet(
             Text(
                 text = "Отмена",
                 style = MaterialTheme.typography.bodyLarge,
-                color = LambaAccentStrong,
+                color = colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -473,6 +473,8 @@ private fun ThemeOptionRow(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -490,7 +492,7 @@ private fun ThemeOptionRow(
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
-            color = LambaInk
+            color = colorScheme.onSurface
         )
     }
 }
@@ -505,15 +507,17 @@ private fun ConfirmationDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = LambaSurface,
+        containerColor = colorScheme.surface,
         shape = RoundedCornerShape(LambaRadius.Large),
         title = {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = LambaInk,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
         },
@@ -521,7 +525,7 @@ private fun ConfirmationDialog(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
         },
         dismissButton = {
@@ -529,7 +533,7 @@ private fun ConfirmationDialog(
                 Text(
                     text = dismissText,
                     style = MaterialTheme.typography.bodyLarge,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
             }
         },
