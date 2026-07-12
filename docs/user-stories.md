@@ -10,8 +10,8 @@
 | US-12 | Start and finish trip mode with refueling and mileage update | Must Have | [#175](https://github.com/ernest0507/LAMBA_Team-22/issues/175) | Active | Done | [Sprint 5 - MVP v3](https://github.com/ernest0507/LAMBA_Team-22/milestone/4) |
 | US-05 | Uploading PDF documents | Should Have | [#35](https://github.com/ernest0507/LAMBA_Team-22/issues/35) | Removed | To Do | — |
 | US-06 | Analyzing data by AI | Should Have | [#36](https://github.com/ernest0507/LAMBA_Team-22/issues/36) | Removed | To Do | — |
-| US-13 | Create refueling record from fuel receipt QR code | Should Have | [#176](https://github.com/ernest0507/LAMBA_Team-22/issues/176) | Active | Done | [Sprint 5 - MVP v3](https://github.com/ernest0507/LAMBA_Team-22/milestone/4) |
-| US-07 | Digital twin customizing | Could Have | [#37](https://github.com/ernest0507/LAMBA_Team-22/issues/37) | Active | Done | [Sprint 5 - MVP v3](https://github.com/ernest0507/LAMBA_Team-22/milestone/4) |
+| US-13 | Create refueling record from fuel receipt QR code | Should Have | [#176](https://github.com/ernest0507/LAMBA_Team-22/issues/176) | Active | Done | [Sprint 4 - MVP v3](https://github.com/ernest0507/LAMBA_Team-22/milestone/4) |
+| US-07 | Digital twin customizing | Could Have | [#37](https://github.com/ernest0507/LAMBA_Team-22/issues/37) | Active | Done | [Sprint 4 - MVP v3](https://github.com/ernest0507/LAMBA_Team-22/milestone/4) |
 | US-08 | Several owners of the car | Could Have | [#38](https://github.com/ernest0507/LAMBA_Team-22/issues/38) | Removed | To Do | — |
 | US-09 | Automatically recognize text from images | Could Have | [#39](https://github.com/ernest0507/LAMBA_Team-22/issues/39) | Removed | To Do | — |
 | US-10 | Voice chat with AI-agent | Could Have | [#40](https://github.com/ernest0507/LAMBA_Team-22/issues/40) | Removed | To Do | — |
