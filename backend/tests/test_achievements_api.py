@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from types import SimpleNamespace
 
 import pytest
@@ -8,6 +8,7 @@ from app.api.routes import achievements
 from app.crud.achievements import unlock_user_achievement
 from app.main import app
 from app.models.user import User
+from app.services.achievements import evaluate_statistics_achievement_keys
 
 
 def make_user(user_id: int = 7) -> User:
@@ -20,6 +21,26 @@ def make_unlocked(key: str, user_id: int = 7) -> SimpleNamespace:
         user_id=user_id,
         achievement_key=key,
         unlocked_at=datetime(2026, 7, 10, 12, 0, tzinfo=timezone.utc),
+    )
+
+
+def make_record(
+    occurred_at: date,
+    *,
+    category: str = "other",
+    title: str | None = None,
+    description: str | None = None,
+    vendor: str | None = None,
+    mileage_km: int | None = None,
+) -> SimpleNamespace:
+    return SimpleNamespace(
+        occurred_at=occurred_at,
+        created_at=datetime.combine(occurred_at, datetime.min.time(), tzinfo=timezone.utc),
+        category=category,
+        title=title,
+        description=description,
+        vendor=vendor,
+        mileage_km=mileage_km,
     )
 
 
@@ -141,12 +162,16 @@ async def test_read_car_achievements_matches_android_contract(monkeypatch):
     async def fake_list_user_achievements(db, user_id):
         return [make_unlocked("snow_king", user_id)]
 
+    async def fake_list_records(db, car_id, skip, limit):
+        return []
+
     monkeypatch.setattr(achievements, "get_car", fake_get_car)
     monkeypatch.setattr(
         achievements,
         "list_user_achievements",
         fake_list_user_achievements,
     )
+    monkeypatch.setattr(achievements, "list_records", fake_list_records)
 
     result = await achievements.read_car_achievements(
         car_id=42,
@@ -160,6 +185,144 @@ async def test_read_car_achievements_matches_android_contract(monkeypatch):
     assert by_id[9].category == "road"
     assert by_id[9].unlocked is True
     assert by_id[10].unlocked is False
+
+
+def test_art_object_unlocks_for_unchanged_mileage_after_one_month():
+    records = [
+        make_record(date(2026, 1, 1), mileage_km=42_000),
+        make_record(date(2026, 2, 1), mileage_km=42_000),
+    ]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "art_object" in result
+
+
+def test_desperate_unlocks_when_latest_maintenance_is_over_one_year_old():
+    records = [make_record(date(2025, 7, 1), category="maintenance")]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "desperate" in result
+
+
+def test_perfect_luck_unlocks_after_six_months_without_repairs():
+    records = [make_record(date(2025, 12, 1), category="inspection")]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "perfect_luck" in result
+
+
+def test_recent_repair_keeps_perfect_luck_locked():
+    records = [
+        make_record(date(2025, 12, 1), category="inspection"),
+        make_record(date(2026, 5, 1), category="repair"),
+    ]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "perfect_luck" not in result
+
+
+def test_perpetual_motion_unlocks_after_eighteen_months_without_oil_change():
+    records = [make_record(date(2024, 12, 1), category="inspection")]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "perpetual_motion" in result
+
+
+def test_recent_oil_change_keeps_perpetual_motion_locked():
+    records = [
+        make_record(date(2024, 12, 1), category="inspection"),
+        make_record(date(2026, 1, 1), category="maintenance", title="Замена масла"),
+    ]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "perpetual_motion" not in result
+
+
+def test_small_time_trucker_unlocks_above_45000_km_in_one_year():
+    records = [
+        make_record(date(2025, 8, 1), mileage_km=10_000),
+        make_record(date(2026, 7, 1), mileage_km=55_001),
+    ]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "small_time_trucker" in result
+
+
+def test_gas_station_regular_unlocks_after_more_than_70_refuelings():
+    records = [
+        make_record(date(2026, 1, 1) + timedelta(days=index), title="Заправка")
+        for index in range(71)
+    ]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "gas_station_regular" in result
+
+
+def test_70_refuelings_are_not_enough_and_fuel_eater_stays_locked():
+    records = [
+        make_record(date(2026, 1, 1) + timedelta(days=index), title="Заправка")
+        for index in range(70)
+    ]
+
+    result = evaluate_statistics_achievement_keys(records, today=date(2026, 7, 12))
+
+    assert "gas_station_regular" not in result
+    assert "fuel_eater" not in result
+
+
+@pytest.mark.asyncio
+async def test_read_car_achievements_persists_only_new_automatic_unlocks(monkeypatch):
+    calls = []
+
+    async def fake_get_car(db, owner_id, car_id):
+        return SimpleNamespace(id=car_id, owner_id=owner_id)
+
+    async def fake_list_user_achievements(db, user_id):
+        return [make_unlocked("art_object", user_id)]
+
+    async def fake_list_records(db, car_id, skip, limit):
+        return []
+
+    async def fake_unlock_user_achievement(db, user_id, achievement_key):
+        calls.append((user_id, achievement_key))
+        return make_unlocked(achievement_key, user_id)
+
+    monkeypatch.setattr(achievements, "get_car", fake_get_car)
+    monkeypatch.setattr(
+        achievements,
+        "list_user_achievements",
+        fake_list_user_achievements,
+    )
+    monkeypatch.setattr(achievements, "list_records", fake_list_records)
+    monkeypatch.setattr(
+        achievements,
+        "evaluate_statistics_achievement_keys",
+        lambda records: {"art_object", "desperate"},
+    )
+    monkeypatch.setattr(
+        achievements,
+        "unlock_user_achievement",
+        fake_unlock_user_achievement,
+    )
+
+    result = await achievements.read_car_achievements(
+        car_id=42,
+        db=object(),
+        current_user=make_user(),
+    )
+
+    by_id = {achievement.id: achievement for achievement in result}
+    assert calls == [(7, "desperate")]
+    assert by_id[2].unlocked is True
+    assert by_id[3].unlocked is True
 
 
 @pytest.mark.asyncio
