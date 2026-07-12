@@ -6,6 +6,7 @@ from app.api.routes import achievements, assistant, auth, cars, maintenance_reco
 api_router = APIRouter()
 api_router.include_router(auth.router)
 api_router.include_router(achievements.router)
+api_router.include_router(achievements.car_router)
 api_router.include_router(cars.router)
 api_router.include_router(maintenance_records.router)
 api_router.include_router(receipts.router)
