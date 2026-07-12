@@ -1,66 +1,86 @@
-# LAMBA_Team-22
+# LAMBA
 
-## Assignment 3
-for part 1
-- [Current user-story index](./docs/user-stories.md)
-- [Historical Week 2 user stories](./reports/week2/user-stories.md)
+LAMBA is an Android application for car owners. It provides a digital vehicle profile, car-related history and expenses, statistics, an AI assistant, trip tracking, receipt QR scanning, and achievements.
 
-## Assignment 2 Reports
+## Week 6 trial release
 
-- [Week 2 Submission Index](./reports/week2/README.md)
-- [MVP v0 Report and Smoke Check](./reports/week2/mvp-v0-report.md)
+- **GitHub Release:** [v0.3.1 - Week 6 Trial Release](https://github.com/ernest0507/LAMBA_Team-22/releases/tag/v0.3.1)
+- **APK:** [Download from Google Drive](https://drive.google.com/file/d/1GJE0OONoq9pnoVfVhQG0RGEbBOTZllVh/view?usp=drive_link)
+- **Sprint 4 milestone:** [Sprint 4 - MVP v3](https://github.com/ernest0507/LAMBA_Team-22/milestone/4)
+- **Week 6 report:** [reports/week6/README.md](reports/week6/README.md)
+- **Hosted documentation:** [LAMBA Documentation](https://ernest0507.github.io/LAMBA_Team-22/)
 
-## Backend
+The Week 6 build is a trial / handover-candidate release. Final customer-side transition is planned after Sprint 5 in Week 7.
 
-- [Backend local setup and authentication API](./backend/README.md)
+## Install the APK
 
-## Android and Backend Integration
+1. Download the APK from the Google Drive link above.
+2. Open it on an Android device or Android emulator.
+3. If Android blocks the installation, allow installation from the browser or file manager used to open the APK.
+4. Install and launch the application.
+5. Create a new account through the registration flow.
 
-The Android emulator uses `http://10.0.2.2:8000/` to reach the backend running
-on the host machine. Start the backend before testing registration or login
-from the Android app.
+No fixed test credentials are required for the Week 6 trial build.
 
+## Main product flows
 
-## Local setup instructions:
+- registration and sign-in;
+- digital vehicle profile creation;
+- expense, maintenance, repair, and history records;
+- AI assistant interaction;
+- statistics;
+- trip mode and trip history;
+- receipt QR scanning;
+- achievements;
+- logout support.
 
-### Reqirements 
-- [Git](https://git-scm.com/downloads)
-- [Android Studio](https://developer.android.com/studio)
-- Android SDK 36
-- An Android emulator (provided in the Android Studio) or physical device supported Android 8.0 or later
+## Run from source
 
-### 1. Clone the repository 
-Open terminal and paste: 
-``` 
+### Requirements
+
+- Git;
+- Android Studio;
+- Android SDK 36;
+- Android 8.0 or later on a physical device or emulator;
+- Python and Docker for local backend work.
+
+### Clone
+
+```bash
 git clone https://github.com/ernest0507/LAMBA_Team-22.git
+cd LAMBA_Team-22
 ```
-or in another way just download the ZIP archive and extract project into the local repository
 
-### 2. Open project in the Android Studio
+### Android
 
-1. Open Android Studio
-2. Select **Open** on the welcome screen
-3. Select the root `LAMBA_MVPv0` directory
-4. Click **Open**
-5. For the first time the Android Studio may ask whether trust to the project, choose **Trust Project**
+1. Open the repository in Android Studio.
+2. Sync Gradle files.
+3. Start an Android emulator or connect a physical Android device.
+4. Build and run the `app` configuration.
 
-### 3. Synchronize the Gradle project
-1. Open **File > Sync Project with Gradle Files**
+When using a locally running backend from the Android emulator, use `http://10.0.2.2:8000/` as the host address.
 
-### 4. Build the project
-1. Click on button **Assemble 'app' Run Configuration** or use hot key CTRL + F9
+### Backend
 
-### 5. Create an emulator
-1. Click on the button **Device Manager** (usually on the right toolbar)
-2. Click on **+** and select **Create a virtual device**
-3. Select the appropriate virtual device and click **Next > Finish**
+See [backend/README.md](backend/README.md) for environment configuration, PostgreSQL/Alembic setup, API startup, and verification instructions.
 
-## 6. Run an emulator
-1. Click on the button **Running device** (usually on the right toolbar)
-2. Click on **+** or use hot key CTRL+SHIFT+T
-3. Choose the added device
-4. Wait for connection, for the first time it may take up to 2 minutes
+## Documentation
 
-## 7. Run the project
-1. Click **Run app** or use hot key SHIFT+F10
+- [Customer handover](docs/customer-handover.md)
+- [Roadmap](docs/roadmap.md)
+- [Architecture](docs/architecture/README.md)
+- [Testing](docs/testing.md)
+- [Quality requirements](docs/quality-requirements.md)
+- [Quality requirement tests](docs/quality-requirement-tests.md)
+- [User Acceptance Tests](docs/user-acceptance-tests.md)
+- [Development process](docs/development-process.md)
+- [Definition of Done](docs/definition-of-done.md)
+- [CHANGELOG](CHANGELOG.md)
+- [Hosted documentation](https://ernest0507.github.io/LAMBA_Team-22/)
 
+## Contribution and AI-agent guidance
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [AGENTS.md](AGENTS.md)
+
+Do not commit real credentials, API keys, private recording links, or private access instructions.

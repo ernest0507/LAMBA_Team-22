@@ -147,7 +147,7 @@ Follow-up feedback:
 **Dates:** 06.07.2026 – 12.07.2026  
 **Status:** Completed  
 **Sprint size:** 61 Story Points  
-**Trial release:** `v0.4.0` — pending publication
+**Trial release:** [v0.3.1 - Week 6 Trial Release](https://github.com/ernest0507/LAMBA_Team-22/releases/tag/v0.3.1)
 
 ### Sprint Goal
 
