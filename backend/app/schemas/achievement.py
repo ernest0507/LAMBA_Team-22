@@ -17,3 +17,13 @@ class AchievementRead(BaseModel):
     unlock_type: AchievementUnlockType
     is_unlocked: bool
     unlocked_at: datetime | None = None
+
+
+class CarAchievementRead(BaseModel):
+    id: int
+    name: str
+    description: str
+    category: str
+    image_url: str | None = None
+    unlocked: bool
+    unlocked_at: datetime | None = None
