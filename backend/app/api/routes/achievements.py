@@ -5,12 +5,14 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.crud.achievements import list_user_achievements, unlock_user_achievement
 from app.crud.cars import get_car
+from app.crud.maintenance_records import list_records
 from app.models.user import User
 from app.models.user_achievement import UserAchievement
 from app.schemas.achievement import AchievementRead, AchievementUnlockType, CarAchievementRead
 from app.services.achievements import (
     ACHIEVEMENTS,
     AchievementDefinition,
+    evaluate_statistics_achievement_keys,
     get_achievement_definition,
     get_achievement_definition_by_id,
 )
@@ -64,6 +66,14 @@ async def read_car_achievements(
     await require_owned_car(db, current_user.id, car_id)
     unlocked = await list_user_achievements(db, current_user.id)
     unlocked_by_key = {item.achievement_key: item for item in unlocked}
+    records = await list_records(db, car_id, 0, 500)
+    automatic_keys = evaluate_statistics_achievement_keys(records)
+    for achievement_key in sorted(automatic_keys - unlocked_by_key.keys()):
+        unlocked_by_key[achievement_key] = await unlock_user_achievement(
+            db,
+            current_user.id,
+            achievement_key,
+        )
     return [
         achievement_to_car_read(achievement, unlocked_by_key.get(achievement.key))
         for achievement in ACHIEVEMENTS

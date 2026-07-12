@@ -1,5 +1,9 @@
+from collections import defaultdict
 from dataclasses import dataclass
+from datetime import date, datetime, timedelta
+from typing import Iterable
 
+from app.models.maintenance_record import MaintenanceRecord
 from app.schemas.achievement import AchievementUnlockType
 
 
@@ -186,3 +190,130 @@ def get_achievement_definition(key: str) -> AchievementDefinition | None:
 
 def get_achievement_definition_by_id(achievement_id: int) -> AchievementDefinition | None:
     return ACHIEVEMENTS_BY_ID.get(achievement_id)
+
+
+def evaluate_statistics_achievement_keys(
+    records: Iterable[MaintenanceRecord],
+    today: date | None = None,
+) -> set[str]:
+    evaluation_date = today or date.today()
+    dated_records = [
+        (record, record_date)
+        for record in records
+        if (record_date := _record_date(record)) <= evaluation_date
+    ]
+    if not dated_records:
+        return set()
+
+    unlocked: set[str] = set()
+    record_dates = [record_date for _, record_date in dated_records]
+    history_start = min(record_dates)
+    six_months_ago = _subtract_months(evaluation_date, 6)
+    twelve_months_ago = _subtract_months(evaluation_date, 12)
+    eighteen_months_ago = _subtract_months(evaluation_date, 18)
+
+    if _has_unchanged_mileage_for_month(dated_records):
+        unlocked.add("art_object")
+
+    maintenance_dates = [
+        record_date
+        for record, record_date in dated_records
+        if _category(record) == "maintenance"
+    ]
+    if maintenance_dates and max(maintenance_dates) < twelve_months_ago:
+        unlocked.add("desperate")
+
+    recent_repairs = [
+        record
+        for record, record_date in dated_records
+        if record_date >= six_months_ago and _category(record) == "repair"
+    ]
+    if history_start <= six_months_ago and not recent_repairs:
+        unlocked.add("perfect_luck")
+
+    recent_oil_changes = [
+        record
+        for record, record_date in dated_records
+        if record_date >= eighteen_months_ago and _is_oil_change(record)
+    ]
+    if history_start <= eighteen_months_ago and not recent_oil_changes:
+        unlocked.add("perpetual_motion")
+
+    year_mileage_records = sorted(
+        (
+            (record_date, record.mileage_km)
+            for record, record_date in dated_records
+            if record_date >= twelve_months_ago and record.mileage_km is not None
+        ),
+        key=lambda item: item[0],
+    )
+    if (
+        len(year_mileage_records) >= 2
+        and year_mileage_records[-1][1] - year_mileage_records[0][1] > 45_000
+    ):
+        unlocked.add("small_time_trucker")
+
+    refueling_count = sum(
+        1
+        for record, record_date in dated_records
+        if record_date >= twelve_months_ago and _is_refueling(record)
+    )
+    if refueling_count > 70:
+        unlocked.add("gas_station_regular")
+
+    return unlocked
+
+
+def _has_unchanged_mileage_for_month(
+    dated_records: list[tuple[MaintenanceRecord, date]],
+) -> bool:
+    dates_by_mileage: dict[int, list[date]] = defaultdict(list)
+    for record, record_date in dated_records:
+        if record.mileage_km is not None:
+            dates_by_mileage[record.mileage_km].append(record_date)
+
+    return any(
+        max(record_dates) - min(record_dates) >= timedelta(days=30)
+        for record_dates in dates_by_mileage.values()
+        if len(record_dates) >= 2
+    )
+
+
+def _category(record: MaintenanceRecord) -> str | None:
+    category = record.category
+    return str(category) if category is not None else None
+
+
+def _record_text(record: MaintenanceRecord) -> str:
+    return " ".join(
+        str(value).lower()
+        for value in (record.category, record.title, record.description, record.vendor)
+        if value
+    )
+
+
+def _is_oil_change(record: MaintenanceRecord) -> bool:
+    text = _record_text(record)
+    return any(token in text for token in ("oil change", "engine oil", "замена масла", "масло"))
+
+
+def _is_refueling(record: MaintenanceRecord) -> bool:
+    text = _record_text(record)
+    return any(token in text for token in ("fuel", "gas", "petrol", "бенз", "заправ"))
+
+
+def _record_date(record: MaintenanceRecord) -> date:
+    if record.occurred_at is not None:
+        return record.occurred_at
+    if isinstance(record.created_at, datetime):
+        return record.created_at.date()
+    return record.created_at
+
+
+def _subtract_months(value: date, months: int) -> date:
+    month_index = value.year * 12 + value.month - 1 - months
+    year, zero_based_month = divmod(month_index, 12)
+    month = zero_based_month + 1
+    next_month = date(year + (month == 12), month % 12 + 1, 1)
+    last_day = (next_month - timedelta(days=1)).day
+    return date(year, month, min(value.day, last_day))
