@@ -4,6 +4,26 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [Unreleased]
 
+## [v0.3.1] - 2026-07-12
+
+This release maps to the Assignment 6 final course increment, MVP v3.
+
+### Added
+
+- Added receipt QR-code scanning flow between Android and backend, including the scanner screen, receipt scan API integration, parsed receipt data handling, and history display support. Closes #251; Related #176
+- Added the Achievements screen on Android with category sections, icons, and locked/unlocked achievement cards. Closes #238
+- Added backend achievement APIs and persistence for manual user achievements. Closes #250
+- Added trip backend integration and trip history flow in the Android application. Closes #242
+
+### Changed
+
+- Improved vehicle setup dropdown fields for mark and model selection. Closes #247
+- Updated achievements so road and repair achievements are visible as cards and can support manual unlock behavior. Related #238; Related #250
+
+### Fixed
+
+- Fixed manual achievement persistence so unlocked manual achievements remain saved for the user. Closes #254
+
 ## [v0.3.0] - 2026-07-05
 
 ### Added
