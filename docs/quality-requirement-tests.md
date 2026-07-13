@@ -112,3 +112,17 @@
 **Expected measurable result:** Receipt QR scan tests pass: the backend accepts owned-car raw QR and QR image inputs, forwards valid QR data to the provider layer without modification, rejects unsupported files and unowned cars, maps missing provider configuration and provider error codes to controlled HTTP responses, and normalizes successful provider receipt payloads into the API receipt response.
 
 **Evidence link:** [Latest protected default-branch Backend tests CI run](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml?query=branch%3Amain) showing the job result and test output.
+
+## QRT-009: Trip distance tracking integrity
+
+**Linked quality requirement:** [QR-009](quality-requirements.md#qr-009-trip-distance-tracking-integrity)
+
+**Verification method:** Automated backend unit and API tests for trip metric calculation, trip endpoint behavior, ownership checks, and mileage persistence.
+
+**Test data, setup, or environment:** Standard backend test environment. The tests use representative valid trip location points, invalid coordinate values, low-accuracy GPS points, unrealistic location jumps, out-of-order points, empty and single-point trips, active and finished trip states, owned and inaccessible cars or trips, and final mileage values. The tests verify trip distance calculation and API behavior without requiring a real mobile device GPS session.
+
+**Automated command or CI check:** `pytest tests/test_trip_metrics.py tests/test_trip_api.py`
+
+**Expected measurable result:** Trip tracking tests pass: distance, duration, average speed, and max speed are calculated consistently from valid submitted points; invalid coordinates, low-accuracy points, and unrealistic jumps are ignored; points are processed chronologically; empty and single-point trips return safe zero metrics; trip operations enforce ownership and active/finished state rules; finishing a trip saves calculated metrics and persists valid final mileage; and invalid final mileage below the current vehicle mileage is rejected with a controlled HTTP 400 response.
+
+**Evidence link:** [Latest protected default-branch Backend tests CI run](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml?query=branch%3Amain) showing the job result and test output.
