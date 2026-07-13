@@ -76,6 +76,7 @@ fun CarSummaryCard(
         CarImage(
             bodyColor = vehicleColor,
             bodyType = car?.bodyType,
+            colorKey = car?.color,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
