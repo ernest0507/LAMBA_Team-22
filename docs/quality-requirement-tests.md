@@ -97,3 +97,18 @@
 **Expected measurable result:** A valid image upload returns photo metadata and a retrievable API URL, a non-image upload is rejected with HTTP 415, and uploads that would exceed three total photos for one record are rejected with HTTP 400.
 
 **Evidence link:** [Latest protected default-branch Backend tests CI run](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml?query=branch%3Amain) showing the job result and test output.
+
+
+## QRT-008: Receipt QR scan backend handling
+
+**Linked quality requirement:** [QR-008](quality-requirements.md#qr-008-receipt-qr-scan-reliability-and-access-control)
+
+**Verification method:** Automated backend unit tests with mocked car ownership lookup, mocked receipt QR provider behavior, and provider-response normalization checks.
+
+**Test data, setup, or environment:** Standard backend test environment. The tests use valid raw receipt QR payloads, in-memory QR image uploads, unsupported file uploads, fake owned and unowned car lookups, simulated missing provider configuration, simulated provider error codes, and representative successful Proverkacheka receipt payloads. No real receipt provider credentials or network calls are used.
+
+**Automated command or CI check:** `pytest tests/test_receipts_api.py tests/test_proverkacheka_service.py`
+
+**Expected measurable result:** Receipt QR scan tests pass: the backend accepts owned-car raw QR and QR image inputs, forwards valid QR data to the provider layer without modification, rejects unsupported files and unowned cars, maps missing provider configuration and provider error codes to controlled HTTP responses, and normalizes successful provider receipt payloads into the API receipt response.
+
+**Evidence link:** [Latest protected default-branch Backend tests CI run](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml?query=branch%3Amain) showing the job result and test output.
