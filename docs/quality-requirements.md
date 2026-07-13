@@ -109,3 +109,16 @@ recommendations if the backend accepted them without validation.
 **Linked quality requirement tests:** [QRT-008](quality-requirement-tests.md#qrt-008-receipt-qr-scan-backend-handling)
 
 **Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md)
+
+
+## QR-009: Trip distance tracking integrity
+
+**ISO/IEC 25010 sub-characteristic:** Integrity
+
+**Scenario:** When an authenticated user records a vehicle trip under the backend runtime environment, the backend shall calculate trip distance from submitted location points consistently, reject invalid trip data with controlled responses, and persist completed trip metrics without losing or corrupting the recorded distance.
+
+**Why this matters:** Trip mode is used to track kilometers driven by a vehicle. Incorrect distance calculation or corrupted trip metrics would make the digital twin mileage, trip history, and future maintenance planning unreliable.
+
+**Linked quality requirement tests:** [QRT-009](quality-requirement-tests.md#qrt-009-trip-distance-tracking-integrity)
+
+**Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md), [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
