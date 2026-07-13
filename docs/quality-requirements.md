@@ -104,7 +104,7 @@ recommendations if the backend accepted them without validation.
 
 **Scenario:** When an authenticated user scans a receipt QR code for a vehicle under the backend runtime environment, the backend shall process valid QR inputs only for vehicles owned by that user, reject unsupported qr-codes or unowned vehicles with controlled HTTP responses, and handle receipt-provider configuration or provider errors without exposing unhandled failures.
 
-**Why this matters:** Receipt QR scanning depends on user-owned vehicle data and an external receipt provider. The backend must keep the scan flow reliable, prevent users from scanning receipts for vehicles they do not own, and return predictable errors when input or provider behavior is invalid.
+**Why this matters:** Receipt QR scanning depends on vehicle-specific data and an external receipt provider. Although the Android application normally shows only the current user's vehicles, the backend API must still protect direct requests with arbitrary vehicle IDs and return predictable errors when input or provider behavior is invalid.
 
 **Linked quality requirement tests:** [QRT-008](quality-requirement-tests.md#qrt-008-receipt-qr-scan-backend-handling)
 
