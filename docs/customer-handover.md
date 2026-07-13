@@ -2,7 +2,7 @@
 
 **Project:** LAMBA  
 **Document status:** Week 6 transition-readiness version  
-**Last updated:** after the Week 6 customer trial and transition-readiness discussion
+**Last updated:** after publication of the Week 6 trial release and APK
 
 This document describes the current customer handover state of the LAMBA project. It is intended for the customer, teaching assistants, and future maintainers who need to understand what is currently available, what still remains with the team, how the product can be accessed, and what must be completed before the final transition.
 
@@ -31,9 +31,9 @@ The product currently consists of:
 | Final target handover level | Deployed or operated on customer side. |
 | Full product transfer | Planned for Week 7 after Sprint 5. |
 | Customer confirmation status | Accepted as a direction, with follow-up items before final transition. |
-| Week 6 release | Planned as `v0.4.0`. |
+| Week 6 release | Published as [`v0.3.1 - Week 6 Trial Release`](https://github.com/ernest0507/LAMBA_Team-22/releases/tag/v0.3.1). |
 | Final MVP v3 release | Planned for Week 7 after Sprint 5. |
-| APK access | APK should be stored in Google Drive and linked from the GitHub Release. |
+| APK access | Available through [Google Drive](https://drive.google.com/file/d/1GJE0OONoq9pnoVfVhQG0RGEbBOTZllVh/view?usp=drive_link) and linked from the GitHub Release. |
 | Source-code handover | Customer expects a complete source-code archive in Google Drive. Because development is still in progress, archive preparation is deferred to Week 7. |
 | Backend operation | Final backend operation is expected on the customer side. |
 | Test accounts | Customer requested prepared test accounts with example data. Because development is still in progress, preparation is deferred to Week 7. Credentials must be shared privately if accounts are created. |
@@ -50,7 +50,7 @@ Because active development is still continuing, the complete source-code archive
 | Area | Week 6 state |
 |---|---|
 | Public repository access | The repository is publicly inspectable through GitHub. |
-| Trial application access | The Week 6 APK is expected to be distributed through Google Drive and linked from the `v0.4.0` GitHub Release. |
+| Trial application access | The Week 6 APK is available through [Google Drive](https://drive.google.com/file/d/1GJE0OONoq9pnoVfVhQG0RGEbBOTZllVh/view?usp=drive_link) and linked from the [`v0.3.1` GitHub Release](https://github.com/ernest0507/LAMBA_Team-22/releases/tag/v0.3.1). |
 | Customer-facing documentation | Maintained documentation is available in the repository and hosted documentation site. |
 | Handover guidance | This document describes current handover status, access, setup, deployment, verification, limitations, and support needs. |
 | Customer feedback | Week 6 feedback was collected and should be converted into Sprint 5 follow-up work. |
@@ -88,7 +88,7 @@ The following items should be completed or confirmed during Week 7:
 | Public repository visibility | Publicly inspectable through GitHub. |
 | Source-code handover | Customer expects a full project archive in Google Drive, including backend and frontend. This is deferred to Week 7 because active development is still continuing. |
 | APK storage | Google Drive, linked from the relevant GitHub Release. |
-| Week 6 release | Planned as `v0.4.0`. |
+| Week 6 release | Published as [`v0.3.1 - Week 6 Trial Release`](https://github.com/ernest0507/LAMBA_Team-22/releases/tag/v0.3.1). |
 | Backend service | Current trial operation may remain team-side, but final operation is expected customer-side. |
 | Customer server access | Customer does not need access to the team's current server. |
 | Backend secrets | For customer-side operation, secrets should be stored on the customer side. |
@@ -119,32 +119,26 @@ The hosted documentation should also be exportable as PDF for customer-side stor
 
 ### 6.1 Week 6 trial release
 
-The Week 6 trial release is planned as:
+The Week 6 trial / handover-candidate release has been published:
 
-```text
-v0.4.0
-```
+- **Release:** [`v0.3.1 - Week 6 Trial Release`](https://github.com/ernest0507/LAMBA_Team-22/releases/tag/v0.3.1)
+- **APK:** [Google Drive product access artifact](https://drive.google.com/file/d/1GJE0OONoq9pnoVfVhQG0RGEbBOTZllVh/view?usp=drive_link)
+- **Release date:** 12.07.2026
+- **Milestone:** [Sprint 4 - MVP v3](https://github.com/ernest0507/LAMBA_Team-22/milestone/4)
 
-The APK should be stored in Google Drive with link-based access and linked from the GitHub Release.
-
-After the release is published, update this section with:
-
-- `v0.4.0` GitHub Release link;
-- Google Drive APK link;
-- release date;
-- any access notes.
+This is the Week 6 trial release. It is not the final Week 7 customer-side transition.
 
 ### 6.2 APK installation
 
-1. Open the `v0.4.0` GitHub Release when it is published.
-2. Open the Google Drive APK link from the release notes.
-3. Download the APK.
-4. Open the APK on an Android device or emulator.
-5. If Android blocks installation from unknown sources, allow installation for the browser or file manager used to open the APK.
-6. Install the application.
-7. Launch LAMBA.
-8. Register or sign in.
-9. Add or select a car and test the available product flows.
+1. Open the [Google Drive APK link](https://drive.google.com/file/d/1GJE0OONoq9pnoVfVhQG0RGEbBOTZllVh/view?usp=drive_link).
+2. Download the APK.
+3. Open the APK on an Android device or Android emulator.
+4. If Android blocks installation from unknown sources, allow installation for the browser or file manager used to open the APK.
+5. Install and launch LAMBA.
+6. Register a new account or sign in.
+7. Add or select a car and test the available product flows.
+
+No fixed test credentials are required for the Week 6 trial build.
 
 ### 6.3 Test accounts
 
@@ -336,7 +330,7 @@ Current known limitations:
 
 - Week 6 is not the final transfer.
 - Final MVP v3 is planned for Week 7.
-- The `v0.4.0` release link and APK link must be added after publication.
+- The Week 6 trial release and APK are available through [`v0.3.1`](https://github.com/ernest0507/LAMBA_Team-22/releases/tag/v0.3.1) and [Google Drive](https://drive.google.com/file/d/1GJE0OONoq9pnoVfVhQG0RGEbBOTZllVh/view?usp=drive_link).
 - Full source-code archive is expected but intentionally deferred to Week 7 because active development is still continuing.
 - Customer-side backend deployment is expected but not completed in Week 6.
 - Test accounts with example data are requested but intentionally deferred to Week 7 because active development is still continuing.
@@ -363,7 +357,7 @@ Support still required before final transition:
 
 - decide whether prepared test accounts are still needed after Sprint 5 and create them privately if needed;
 - prepare the full source-code archive after Sprint 5 scope is finalized;
-- publish or update the APK access link;
+- keep the APK access link current for the final Week 7 release;
 - improve backend deployment instructions;
 - fix or document known product limitations;
 - confirm final transition status with the customer in Week 7.
