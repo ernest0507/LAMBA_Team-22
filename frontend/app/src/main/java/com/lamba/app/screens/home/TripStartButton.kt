@@ -40,11 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccentSoft
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaError
 import com.lamba.app.ui.theme.LambaRadius
-import com.lamba.app.ui.theme.LambaSurface
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -57,6 +53,7 @@ fun TripStartButton(
     modifier: Modifier = Modifier,
     onTripHoldComplete: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val holdProgress = remember { Animatable(0f) }
     val holdDurationMillis = 3000
     var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -84,14 +81,14 @@ fun TripStartButton(
         "Удерживайте 3 сек"
     }
     val circleColor = if (isTripActive) {
-        LambaAccentSoft
+        colorScheme.primaryContainer
     } else {
-        LambaAccentStrong
+        colorScheme.onPrimaryContainer
     }
     val iconColor = if (isTripActive) {
-        LambaAccentStrong
+        colorScheme.onPrimaryContainer
     } else {
-        Color.White
+        colorScheme.onPrimary
     }
     val icon = if (isTripActive) {
         Icons.Filled.FiberManualRecord
@@ -143,7 +140,7 @@ fun TripStartButton(
                 }
             },
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -153,9 +150,9 @@ fun TripStartButton(
                     .fillMaxWidth(holdProgress.value)
                     .background(
                         color = if (isTripActive) {
-                            LambaError.copy(alpha = 0.16f)
+                            colorScheme.error.copy(alpha = 0.16f)
                         } else {
-                            LambaAccentSoft
+                            colorScheme.primaryContainer
                         }
                     )
             )
@@ -187,13 +184,13 @@ fun TripStartButton(
                     Text(
                         text = buttonText,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = LambaAccentStrong,
+                        color = colorScheme.onPrimaryContainer,
                         modifier = Modifier.padding(start = 16.dp)
                     )
                     Text(
                         text = subtitleText,
                         style = MaterialTheme.typography.bodySmall,
-                        color = LambaAccentStrong.copy(alpha = 0.8f),
+                        color = colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                         modifier = Modifier.padding(start = 16.dp)
                     )
                 }
@@ -203,7 +200,7 @@ fun TripStartButton(
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowRight,
                     contentDescription = null,
-                    tint = LambaAccentStrong
+                    tint = colorScheme.onPrimaryContainer
                 )
             }
         }

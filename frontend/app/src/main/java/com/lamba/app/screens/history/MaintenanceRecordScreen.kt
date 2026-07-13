@@ -47,19 +47,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.lamba.app.common.LoadingOverlay
-import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutlineSoft
-import com.lamba.app.ui.theme.LambaError
-import com.lamba.app.ui.theme.LambaRadius
-import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -68,11 +61,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.TextButton
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import com.lamba.app.common.LoadingOverlay
+import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
+import com.lamba.app.ui.theme.LambaRadius
+import com.lamba.app.ui.theme.LambaSpacing
 import components.BackButton
 import components.ContinueButton
 import components.LambaTextField
@@ -215,14 +207,16 @@ internal fun RecordFormScreen(
     errorMessage: String? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            containerColor = LambaCanvas,
+            containerColor = colorScheme.background,
             bottomBar = {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(LambaCanvas)
+                        .background(colorScheme.background)
                         .navigationBarsPadding()
                         .padding(
                             start = LambaSpacing.ScreenHorizontal,
@@ -242,7 +236,7 @@ internal fun RecordFormScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(LambaCanvas)
+                    .background(colorScheme.background)
                     .verticalScroll(rememberScrollState())
                     .padding(innerPadding)
                     .padding(
@@ -260,13 +254,13 @@ internal fun RecordFormScreen(
                 Text(
                     text = "Новая запись",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = LambaInk
+                    color = colorScheme.onBackground
                 )
 
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
 
                 if (!errorMessage.isNullOrBlank()) {
@@ -279,7 +273,7 @@ internal fun RecordFormScreen(
 
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = LambaSurface,
+                    color = colorScheme.surface,
                     shape = RoundedCornerShape(LambaRadius.Large)
                 ) {
                     Column(
@@ -311,6 +305,7 @@ internal fun RecordDropdownField(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val fieldShape = RoundedCornerShape(LambaRadius.Medium)
+    val colorScheme = MaterialTheme.colorScheme
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -318,7 +313,7 @@ internal fun RecordDropdownField(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = LambaInkMuted
+            color = colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(LambaSpacing.Step))
@@ -339,23 +334,23 @@ internal fun RecordDropdownField(
                     .fillMaxWidth()
                     .heightIn(min = RecordFieldMinHeight)
                     .clip(fieldShape)
-                    .background(LambaSurface, fieldShape)
+                    .background(colorScheme.surface, fieldShape)
                     .border(
                         width = 1.dp,
-                        color = LambaOutlineSoft,
+                        color = colorScheme.outlineVariant,
                         shape = fieldShape
                     ),
                 placeholder = {
                     Text(
                         text = placeholder,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                 },
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = LambaInk),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = colorScheme.onSurface),
                 shape = fieldShape,
                 colors = recordFieldColors()
             )
@@ -363,7 +358,7 @@ internal fun RecordDropdownField(
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                containerColor = LambaSurface,
+                containerColor = colorScheme.surface,
                 shape = RoundedCornerShape(LambaRadius.Medium)
             ) {
                 options.forEach { option ->
@@ -372,7 +367,7 @@ internal fun RecordDropdownField(
                             Text(
                                 text = option,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = LambaInk
+                                color = colorScheme.onSurface
                             )
                         },
                         onClick = {
@@ -396,6 +391,7 @@ internal fun RecordDateField(
     onDateSelected: (Long?) -> Unit
 ) {
     var isDialogVisible by remember { mutableStateOf(false) }
+    val colorScheme = MaterialTheme.colorScheme
 
     if (isDialogVisible) {
         val datePickerState = rememberDatePickerState(
@@ -434,7 +430,7 @@ internal fun RecordDateField(
             Icon(
                 imageVector = Icons.Filled.CalendarMonth,
                 contentDescription = null,
-                tint = LambaInkMuted
+                tint = colorScheme.onSurfaceVariant
             )
         }
     )
@@ -449,6 +445,7 @@ internal fun RecordSelectableField(
     trailingContent: @Composable (() -> Unit)? = null
 ) {
     val fieldShape = RoundedCornerShape(LambaRadius.Medium)
+    val colorScheme = MaterialTheme.colorScheme
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -456,7 +453,7 @@ internal fun RecordSelectableField(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = LambaInkMuted
+            color = colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(LambaSpacing.Step))
@@ -466,10 +463,10 @@ internal fun RecordSelectableField(
                 .fillMaxWidth()
                 .heightIn(min = RecordFieldMinHeight)
                 .clip(fieldShape)
-                .background(LambaSurface, fieldShape)
+                .background(colorScheme.surface, fieldShape)
                 .border(
                     width = 1.dp,
-                    color = LambaOutlineSoft,
+                    color = colorScheme.outlineVariant,
                     shape = fieldShape
                 )
                 .clickable(onClick = onClick)
@@ -483,7 +480,7 @@ internal fun RecordSelectableField(
                 Text(
                     text = value.ifBlank { placeholder },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (value.isBlank()) LambaInkMuted else LambaInk,
+                    color = if (value.isBlank()) colorScheme.onSurfaceVariant else colorScheme.onSurface,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -495,20 +492,22 @@ internal fun RecordSelectableField(
 
 @Composable
 internal fun recordFieldColors() = TextFieldDefaults.colors(
-    focusedTextColor = LambaInk,
-    unfocusedTextColor = LambaInk,
-    focusedContainerColor = LambaSurface,
-    unfocusedContainerColor = LambaSurface,
-    disabledContainerColor = LambaSurface,
-    errorContainerColor = LambaSurface,
-    focusedLeadingIconColor = LambaInkMuted,
-    unfocusedLeadingIconColor = LambaInkMuted,
-    focusedTrailingIconColor = LambaInkMuted,
-    unfocusedTrailingIconColor = LambaInkMuted,
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    focusedContainerColor = MaterialTheme.colorScheme.surface,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+    disabledContainerColor = MaterialTheme.colorScheme.surface,
+    errorContainerColor = MaterialTheme.colorScheme.surface,
+    focusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    focusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
     focusedIndicatorColor = Color.Transparent,
     unfocusedIndicatorColor = Color.Transparent,
     disabledIndicatorColor = Color.Transparent,
-    errorIndicatorColor = Color.Transparent
+    errorIndicatorColor = Color.Transparent,
+    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
 )
 
 internal val RecordFieldMinHeight = LambaSpacing.Step * 7
@@ -527,6 +526,7 @@ internal fun RecordImageField(
     imageUris: List<String>,
     onImageUrisChanged: (List<String>) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents()
@@ -558,12 +558,12 @@ internal fun RecordImageField(
             Text(
                 text = "Фото",
                 style = MaterialTheme.typography.labelSmall,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
             Text(
                 text = "${imageUris.size}/3",
                 style = MaterialTheme.typography.labelSmall,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
         }
 
@@ -581,8 +581,8 @@ internal fun RecordImageField(
                             modifier = Modifier
                                 .size(100.dp)
                                 .clip(fieldShape)
-                                .background(LambaSurface, fieldShape)
-                                .border(1.dp, LambaOutlineSoft, fieldShape)
+                                .background(colorScheme.surface, fieldShape)
+                                .border(1.dp, colorScheme.outlineVariant, fieldShape)
                         ) {
                             Image(
                                 bitmap = bitmap,
@@ -624,8 +624,8 @@ internal fun RecordImageField(
                     .fillMaxWidth()
                     .heightIn(min = RecordFieldMinHeight)
                     .clip(fieldShape)
-                    .background(LambaSurface, fieldShape)
-                    .border(1.dp, LambaOutlineSoft, fieldShape)
+                    .background(colorScheme.surface, fieldShape)
+                    .border(1.dp, colorScheme.outlineVariant, fieldShape)
                     .clickable { launcher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
@@ -636,12 +636,12 @@ internal fun RecordImageField(
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = null,
-                        tint = LambaInkMuted
+                        tint = colorScheme.onSurfaceVariant
                     )
                     Text(
                         text = "Добавить фото",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                 }
             }

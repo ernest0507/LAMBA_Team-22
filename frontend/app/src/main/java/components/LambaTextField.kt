@@ -21,14 +21,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
-import com.lamba.app.ui.theme.LambaError
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutline
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 
 
 @Composable
@@ -48,9 +42,10 @@ fun LambaTextField(
     trailingContent: @Composable (() -> Unit)? = null
 ) {
     val fieldShape = RoundedCornerShape(LambaRadius.Medium)
+    val colorScheme = MaterialTheme.colorScheme
     val borderColor = when {
-        isError -> LambaError.copy(alpha = 0.7f)
-        else -> LambaOutlineSoft
+        isError -> colorScheme.error.copy(alpha = 0.7f)
+        else -> colorScheme.outlineVariant
     }
 
     Column(
@@ -59,7 +54,7 @@ fun LambaTextField(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = LambaInkMuted
+            color = colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(LambaSpacing.Step))
@@ -71,7 +66,7 @@ fun LambaTextField(
                 .fillMaxWidth()
                 .heightIn(min = minHeight)
                 .clip(fieldShape)
-                .background(LambaSurface, fieldShape)
+                .background(colorScheme.surface, fieldShape)
                 .border(
                     width = 1.dp,
                     color = borderColor,
@@ -81,7 +76,7 @@ fun LambaTextField(
                 Text(
                     text = placeholder,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
             },
             isError = isError,
@@ -90,19 +85,19 @@ fun LambaTextField(
             visualTransformation = visualTransformation,
             leadingIcon = leadingContent,
             trailingIcon = trailingContent,
-            textStyle = MaterialTheme.typography.bodyMedium.copy( color = LambaInk ),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = colorScheme.onSurface),
             shape = fieldShape,
             colors = TextFieldDefaults.colors(
-                focusedTextColor = LambaInk,
-                unfocusedTextColor = LambaInk,
-                focusedContainerColor = LambaSurface,
-                unfocusedContainerColor = LambaSurface,
-                disabledContainerColor = LambaSurface,
-                errorContainerColor = LambaSurface,
-                focusedLeadingIconColor = LambaInkMuted,
-                unfocusedLeadingIconColor = LambaInkMuted,
-                focusedTrailingIconColor = LambaInkMuted,
-                unfocusedTrailingIconColor = LambaInkMuted,
+                focusedTextColor = colorScheme.onSurface,
+                unfocusedTextColor = colorScheme.onSurface,
+                focusedContainerColor = colorScheme.surface,
+                unfocusedContainerColor = colorScheme.surface,
+                disabledContainerColor = colorScheme.surface,
+                errorContainerColor = colorScheme.surface,
+                focusedLeadingIconColor = colorScheme.onSurfaceVariant,
+                unfocusedLeadingIconColor = colorScheme.onSurfaceVariant,
+                focusedTrailingIconColor = colorScheme.onSurfaceVariant,
+                unfocusedTrailingIconColor = colorScheme.onSurfaceVariant,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
@@ -113,7 +108,7 @@ fun LambaTextField(
             Text(
                 text = errorMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = LambaError,
+                color = colorScheme.error,
                 modifier = Modifier.padding(top = LambaSpacing.Step / 2)
             )
         }

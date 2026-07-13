@@ -20,18 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaSurface
 
 @Composable
 fun GreetingScreen() {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(LambaCanvas)
+            .background(colorScheme.background)
     )
     {
         Column (
@@ -47,7 +44,7 @@ fun GreetingScreen() {
                 modifier = Modifier
                     .size(96.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(LambaAccentStrong),
+                    .background(colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {}
             Spacer(modifier = Modifier.height(36.dp))
@@ -55,7 +52,7 @@ fun GreetingScreen() {
             Text(
                 text = "Добро пожаловать в\nLAMBA",
                 style = MaterialTheme.typography.headlineLarge,
-                color = LambaInk,
+                color = colorScheme.onBackground,
                 textAlign = TextAlign.Center,
             )
 
@@ -64,7 +61,7 @@ fun GreetingScreen() {
             Text(
                 text = "Цифровых двойников пока нет",
                 style = MaterialTheme.typography.bodyMedium,
-                color = LambaInkMuted,
+                color = colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
@@ -73,7 +70,7 @@ fun GreetingScreen() {
             Text(
                 text = "Создайте профиль автомобиля, чтобы отслеживать обслуживание, расходы и рекомендации AI",
                 style = MaterialTheme.typography.bodyMedium,
-                color = LambaInkMuted,
+                color = colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
@@ -85,8 +82,8 @@ fun GreetingScreen() {
                     .height(64.dp),
                 shape = RoundedCornerShape(18.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = LambaAccentStrong,
-                    contentColor = LambaSurface
+                    containerColor = colorScheme.primary,
+                    contentColor = colorScheme.onPrimary
                 )
             ) {
                 Text(

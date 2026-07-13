@@ -73,16 +73,10 @@ import com.lamba.app.data.statistics.StatisticsMetricResponse
 import com.lamba.app.data.statistics.StatisticsPeriodResponse
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaAccent
-import com.lamba.app.ui.theme.LambaAccentSoft
 import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSignal
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
-import com.lamba.app.ui.theme.LambaSurfaceSoft
 import components.BackButton
 import kotlin.math.max
 
@@ -369,6 +363,7 @@ fun StatisticsScreen(
     statistics: CarStatisticsResponse? = null,
     onBackClick: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     var selectedPeriod by rememberSaveable { mutableStateOf(StatisticsPeriod.MONTH) }
     var selectedMonthIndex by rememberSaveable { mutableStateOf(0) }
     var selectedHalfYearIndex by rememberSaveable { mutableStateOf(0) }
@@ -405,19 +400,19 @@ fun StatisticsScreen(
     }
 
     Scaffold(
-        containerColor = LambaCanvas,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = LambaCanvas,
-                    titleContentColor = LambaInk,
-                    navigationIconContentColor = LambaInk
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground,
+                    navigationIconContentColor = colorScheme.onBackground
                 ),
                 title = {
                     Text(
                         text = "Статистика",
                         style = MaterialTheme.typography.titleLarge,
-                        color = LambaInk,
+                        color = colorScheme.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -634,12 +629,14 @@ private fun String.toMoneyText(): String {
 @Composable
 private fun StatisticsStatusCard(
     text: String,
-    color: Color = LambaInkMuted
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Text(
@@ -657,9 +654,11 @@ private fun PeriodTabs(
     onPeriodSelected: (StatisticsPeriod) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = LambaSurfaceSoft,
+        color = colorScheme.surfaceVariant,
         shape = RoundedCornerShape(LambaRadius.Pill)
     ) {
         Row(
@@ -675,7 +674,7 @@ private fun PeriodTabs(
                     modifier = Modifier
                         .weight(1f)
                         .clip(RoundedCornerShape(LambaRadius.Pill))
-                        .background(if (selected) LambaAccent else Color.Transparent)
+                        .background(if (selected) colorScheme.primary else Color.Transparent)
                         .clickable { onPeriodSelected(period) }
                         .padding(horizontal = 10.dp, vertical = 12.dp),
                     contentAlignment = Alignment.Center
@@ -683,7 +682,7 @@ private fun PeriodTabs(
                     Text(
                         text = period.title,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (selected) Color.White else LambaInkMuted,
+                        color = if (selected) colorScheme.onPrimary else colorScheme.onSurfaceVariant,
                         fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
                         textAlign = TextAlign.Center,
                         maxLines = 1
@@ -703,6 +702,8 @@ private fun PeriodSelectorRow(
     onNextClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -721,7 +722,7 @@ private fun PeriodSelectorRow(
             Text(
                 text = periodTitle,
                 style = MaterialTheme.typography.headlineMedium,
-                color = LambaInk,
+                color = colorScheme.onBackground,
                 textAlign = TextAlign.Center,
                 maxLines = 1
             )
@@ -740,10 +741,12 @@ private fun MetricCard(
     metric: MetricData,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = modifier.heightIn(min = 132.dp),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -756,13 +759,13 @@ private fun MetricCard(
                 modifier = Modifier
                     .size(34.dp)
                     .clip(RoundedCornerShape(LambaRadius.Medium))
-                    .background(LambaAccentSoft),
+                    .background(colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = metric.iconType.toImageVector(),
                     contentDescription = metric.title,
-                    tint = LambaAccentStrong,
+                    tint = colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -770,14 +773,14 @@ private fun MetricCard(
             Text(
                 text = metric.title,
                 style = MaterialTheme.typography.bodySmall,
-                color = LambaInkMuted,
+                color = colorScheme.onSurfaceVariant,
                 maxLines = 2
             )
 
             Text(
                 text = metric.value,
                 style = MaterialTheme.typography.titleMedium,
-                color = LambaInk,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2
             )
@@ -785,13 +788,13 @@ private fun MetricCard(
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(LambaRadius.Pill))
-                    .background(LambaAccentSoft.copy(alpha = 0.8f))
+                    .background(colorScheme.primaryContainer.copy(alpha = 0.8f))
                     .padding(horizontal = 8.dp, vertical = 6.dp)
             ) {
                 Text(
                     text = metric.delta,
                     style = MaterialTheme.typography.bodySmall,
-                    color = LambaAccentStrong,
+                    color = colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Medium,
                     maxLines = 2
                 )
@@ -806,10 +809,12 @@ private fun ExpenseDynamicsCard(
     chartStyle: DynamicsChartStyle,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -821,7 +826,7 @@ private fun ExpenseDynamicsCard(
             Text(
                 text = "Динамика расходов",
                 style = MaterialTheme.typography.titleMedium,
-                color = LambaInk,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
 
@@ -839,6 +844,7 @@ private fun BarChart(
     points: List<ChartPoint>,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val maxValue = points.maxOfOrNull { it.value }?.toFloat() ?: 1f
 
     Row(
@@ -860,7 +866,7 @@ private fun BarChart(
                 Text(
                     text = "${point.value}k",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isSelected) LambaAccentStrong else LambaInkMuted,
+                    color = if (isSelected) colorScheme.secondary else colorScheme.onSurfaceVariant,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                 )
 
@@ -899,7 +905,7 @@ private fun BarChart(
                 Text(
                     text = point.label,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isSelected) LambaInk else LambaInkMuted,
+                    color = if (isSelected) colorScheme.onSurface else colorScheme.onSurfaceVariant,
                     fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
                     textAlign = TextAlign.Center
                 )
@@ -913,6 +919,7 @@ private fun LineChart(
     points: List<ChartPoint>,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val maxValue = points.maxOfOrNull { it.value }?.toFloat() ?: 1f
     val minValue = points.minOfOrNull { it.value }?.toFloat() ?: 0f
     var selectedPointIndex by remember(points) { mutableStateOf(points.lastIndex) }
@@ -963,7 +970,7 @@ private fun LineChart(
             repeat(3) { index ->
                 val y = topPadding + ((size.height - topPadding - bottomPadding) / 2f) * index
                 drawLine(
-                    color = LambaAccent.copy(alpha = 0.12f),
+                    color = colorScheme.outlineVariant.copy(alpha = 0.6f),
                     start = Offset(10.dp.toPx(), y),
                     end = Offset(size.width - 10.dp.toPx(), y),
                     strokeWidth = 1.dp.toPx()
@@ -1020,7 +1027,7 @@ private fun LineChart(
                 )
 
                 drawCircle(
-                    color = LambaSurface,
+                    color = colorScheme.surface,
                     radius = if (isSelected) 3.dp.toPx() else 2.dp.toPx(),
                     center = offset
                 )
@@ -1061,7 +1068,7 @@ private fun LineChart(
                     Text(
                         text = point.label,
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isSelected) LambaAccentStrong else LambaInkMuted,
+                        color = if (isSelected) colorScheme.secondary else colorScheme.onSurfaceVariant,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                     )
                 }
@@ -1077,10 +1084,12 @@ private fun CategoryBreakdownCard(
     categories: List<CategoryData>,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
@@ -1092,7 +1101,7 @@ private fun CategoryBreakdownCard(
             Text(
                 text = "Категории расходов",
                 style = MaterialTheme.typography.titleMedium,
-                color = LambaInk,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
 
@@ -1100,7 +1109,7 @@ private fun CategoryBreakdownCard(
                 Text(
                     text = "Нет расходов за этот период.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
                 return@Column
             }
@@ -1165,6 +1174,8 @@ private fun DonutChart(
     categories: List<CategoryData>,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Box(
         modifier = modifier.size(126.dp),
         contentAlignment = Alignment.Center
@@ -1207,14 +1218,14 @@ private fun DonutChart(
             Text(
                 text = totalValue,
                 style = MaterialTheme.typography.bodyMedium,
-                color = LambaInk,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = totalLabel,
                 style = MaterialTheme.typography.bodySmall,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
         }
     }
@@ -1224,6 +1235,8 @@ private fun DonutChart(
 private fun CategoryLegendRow(
     category: CategoryData
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -1248,7 +1261,7 @@ private fun CategoryLegendRow(
                 Text(
                     text = category.title,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInk,
+                    color = colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
@@ -1262,7 +1275,7 @@ private fun CategoryLegendRow(
             Text(
                 text = category.amount,
                 style = MaterialTheme.typography.bodySmall,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
         }
     }
@@ -1274,9 +1287,11 @@ private fun PeriodChevronButton(
     enabled: Boolean,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Surface(
         shape = RoundedCornerShape(LambaRadius.Pill),
-        color = if (enabled) LambaSurface else LambaSurfaceSoft,
+        color = if (enabled) colorScheme.surface else colorScheme.surfaceVariant,
         tonalElevation = 0.dp,
         shadowElevation = 0.dp
     ) {
@@ -1288,7 +1303,7 @@ private fun PeriodChevronButton(
             Text(
                 text = chevron,
                 style = MaterialTheme.typography.titleMedium,
-                color = if (enabled) LambaAccentStrong else LambaInkMuted
+                color = if (enabled) colorScheme.secondary else colorScheme.onSurfaceVariant
             )
         }
     }
@@ -1331,7 +1346,7 @@ private fun calculateLineChartOffsets(
 @Composable
 private fun StatisticsScreenPreview() {
     LAMBA_MVPv0Theme {
-        Surface(color = LambaCanvas) {
+        Surface(color = MaterialTheme.colorScheme.background) {
             StatisticsScreen()
         }
     }

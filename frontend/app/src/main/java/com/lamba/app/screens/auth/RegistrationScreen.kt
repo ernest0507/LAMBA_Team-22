@@ -36,7 +36,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,13 +47,7 @@ import com.lamba.app.common.LoadingOverlay
 import components.ContinueButton
 import components.LambaTextField as SharedLambaTextField
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
-import com.lamba.app.ui.theme.LambaAccent
-import com.lamba.app.ui.theme.LambaAccentSoft
-import com.lamba.app.ui.theme.LambaCanvas
 import com.lamba.app.ui.theme.LambaError
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutline
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
 
@@ -65,6 +58,7 @@ fun RegistrationScreen(
     onCreateAccountClick: (name: String, email: String, password: String) -> Unit = { _, _, _ -> },
     onLoginClick: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     var name by rememberSaveable { mutableStateOf("") }
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -85,7 +79,7 @@ fun RegistrationScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             RegistrationBackgroundDecoration()
@@ -104,7 +98,7 @@ fun RegistrationScreen(
                 Text(
                     text = "Создать аккаунт",
                     style = MaterialTheme.typography.headlineLarge,
-                    color = LambaInk
+                    color = colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(LambaSpacing.Step))
@@ -112,7 +106,7 @@ fun RegistrationScreen(
                 Text(
                     text = "Сохраните гараж, документы и историю автомобиля.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
@@ -255,6 +249,8 @@ fun RegistrationScreen(
 
 @Composable
 private fun RegistrationBrandHeader() {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -262,7 +258,7 @@ private fun RegistrationBrandHeader() {
         Text(
             text = "LAMBA",
             style = MaterialTheme.typography.titleMedium,
-            color = LambaInk,
+            color = colorScheme.onBackground,
             fontWeight = FontWeight.Bold
         )
 
@@ -272,7 +268,7 @@ private fun RegistrationBrandHeader() {
             modifier = Modifier
                 .size(32.dp)
                 .background(
-                    color = LambaAccentSoft.copy(alpha = 0.85f),
+                    color = colorScheme.primaryContainer.copy(alpha = 0.85f),
                     shape = RoundedCornerShape(LambaRadius.Medium)
                 ),
             contentAlignment = Alignment.Center
@@ -284,31 +280,33 @@ private fun RegistrationBrandHeader() {
 
 @Composable
 private fun RegistrationAccentSpark() {
+    val colorScheme = MaterialTheme.colorScheme
+
     Canvas(modifier = Modifier.size(15.dp)) {
         val center = Offset(size.width / 2f, size.height / 2f)
         val longRadius = size.minDimension * 0.38f
         val shortRadius = size.minDimension * 0.20f
 
         drawLine(
-            color = LambaAccent,
+            color = colorScheme.primary,
             start = Offset(center.x, center.y - longRadius),
             end = Offset(center.x, center.y + longRadius),
             strokeWidth = 1.6.dp.toPx()
         )
         drawLine(
-            color = LambaAccent,
+            color = colorScheme.primary,
             start = Offset(center.x - longRadius, center.y),
             end = Offset(center.x + longRadius, center.y),
             strokeWidth = 1.6.dp.toPx()
         )
         drawLine(
-            color = LambaAccent,
+            color = colorScheme.primary,
             start = Offset(center.x - shortRadius, center.y - shortRadius),
             end = Offset(center.x + shortRadius, center.y + shortRadius),
             strokeWidth = 1.2.dp.toPx()
         )
         drawLine(
-            color = LambaAccent,
+            color = colorScheme.primary,
             start = Offset(center.x - shortRadius, center.y + shortRadius),
             end = Offset(center.x + shortRadius, center.y - shortRadius),
             strokeWidth = 1.2.dp.toPx()
@@ -324,7 +322,7 @@ private fun RegistrationFieldIcon(
     Icon(
         imageVector = imageVector,
         contentDescription = contentDescription,
-        tint = LambaInkMuted
+        tint = MaterialTheme.colorScheme.onSurfaceVariant
     )
 }
 
@@ -374,7 +372,7 @@ private fun RegistrationPasswordField(
                     } else {
                         "Показать пароль"
                     },
-                    tint = LambaInkMuted
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -387,6 +385,8 @@ private fun RegistrationFooterAction(
     action: String,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -397,13 +397,13 @@ private fun RegistrationFooterAction(
         Text(
             text = prompt,
             style = MaterialTheme.typography.bodyMedium,
-            color = LambaInkMuted
+            color = colorScheme.onSurfaceVariant
         )
 
         Text(
             text = " $action",
             style = MaterialTheme.typography.bodyMedium,
-            color = LambaAccent,
+            color = colorScheme.primary,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.clickable(onClick = onClick)
         )
@@ -420,14 +420,16 @@ private fun isPasswordValid(password: String): Boolean {
 
 @Composable
 private fun RegistrationBackgroundDecoration() {
+    val colorScheme = MaterialTheme.colorScheme
+
     Canvas(modifier = Modifier.fillMaxSize()) {
         drawCircle(
-            color = LambaAccentSoft.copy(alpha = 0.42f),
+            color = colorScheme.primaryContainer.copy(alpha = 0.42f),
             radius = size.minDimension * 0.23f,
             center = Offset(size.width * 0.94f, size.height * 0.08f)
         )
         drawCircle(
-            color = LambaOutline.copy(alpha = 0.18f),
+            color = colorScheme.outlineVariant.copy(alpha = 0.24f),
             radius = size.minDimension * 0.15f,
             center = Offset(size.width * 0.10f, size.height * 0.97f)
         )

@@ -1,6 +1,5 @@
 package com.lamba.app.screens.trip
 
-import android.view.Surface
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,24 +14,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaError
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaRadius
-import com.lamba.app.ui.theme.LambaSpacing
-import components.BackButton
-import kotlinx.coroutines.delay
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import com.lamba.app.ui.theme.LambaRadius
+import com.lamba.app.ui.theme.LambaSpacing
+import components.BackButton
 import kotlinx.coroutines.delay
 
 @Composable
@@ -41,6 +30,7 @@ fun TripModeScreen(
     onCollapseClick: () -> Unit,
     onFinishTripClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(startedAtMillis) {
         while (startedAtMillis != null) {
@@ -57,12 +47,12 @@ fun TripModeScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(LambaCanvas)
+                .background(colorScheme.background)
                 .padding(
                     PaddingValues(
                         start = LambaSpacing.ScreenHorizontal,
@@ -78,13 +68,13 @@ fun TripModeScreen(
             Text(
                 text = "Режим поездки",
                 style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
+                color = colorScheme.onBackground
             )
 
             Text(
                 text = timerText,
                 style = MaterialTheme.typography.headlineLarge,
-                color = LambaInk
+                color = colorScheme.onBackground
             )
 
 
@@ -92,8 +82,8 @@ fun TripModeScreen(
                 onClick = onFinishTripClick,
                 shape = RoundedCornerShape(LambaRadius.Medium),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = LambaError,
-                    contentColor = Color.White
+                    containerColor = colorScheme.error,
+                    contentColor = colorScheme.onError
                 )
             ) {
                 Text(

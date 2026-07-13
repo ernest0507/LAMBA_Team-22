@@ -33,12 +33,8 @@ import androidx.compose.ui.unit.dp
 import com.lamba.app.ui.theme.LambaAccent
 import com.lamba.app.ui.theme.LambaAccentSoft
 import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 import components.ContinueButton
 
 @Composable
@@ -49,14 +45,16 @@ fun TripFinishedScreen(
     fuelConsumptionL: Double,
     onDoneClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(LambaCanvas)
+                .background(colorScheme.background)
                 .padding(
                     PaddingValues(
                         start = LambaSpacing.ScreenHorizontal,
@@ -72,7 +70,7 @@ fun TripFinishedScreen(
             Text(
                 text = "Поездка завершена",
                 style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
+                color = colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -80,7 +78,7 @@ fun TripFinishedScreen(
             Text(
                 text = "Отличная поездка",
                 style = MaterialTheme.typography.titleMedium,
-                color = LambaAccentStrong
+                color = colorScheme.secondary
             )
 
             Spacer(modifier = Modifier.height(36.dp))
@@ -105,7 +103,7 @@ fun TripFinishedScreen(
                 Icon(
                     imageVector = Icons.Filled.Check,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = colorScheme.onPrimary,
                     modifier = Modifier.size(52.dp)
                 )
             }
@@ -137,10 +135,12 @@ private fun TripResultRow(
     label: String,
     value: String
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -165,7 +165,7 @@ private fun TripResultRow(
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
-                color = LambaInkMuted,
+                color = colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .padding(start = 14.dp)
                     .weight(1f)
@@ -174,7 +174,7 @@ private fun TripResultRow(
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleMedium,
-                color = LambaInk,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
         }

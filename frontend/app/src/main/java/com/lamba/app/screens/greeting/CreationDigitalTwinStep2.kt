@@ -24,14 +24,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaSpacing
-import components.BackButton
 import com.lamba.app.ui.theme.LambaRadius
+import com.lamba.app.ui.theme.LambaSpacing
 import com.lamba.app.ui.theme.LambaSpacing.ScreenHorizontal
-import com.lamba.app.ui.theme.LambaSurface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +37,7 @@ import com.lamba.app.ui.theme.LambaVehicleGraphite
 import com.lamba.app.ui.theme.LambaVehicleGreen
 import com.lamba.app.ui.theme.LambaVehicleRed
 import com.lamba.app.ui.theme.LambaVehicleSilver
+import components.BackButton
 import components.CarImage
 import components.ContinueButton
 import components.TypeCarButton
@@ -53,6 +49,7 @@ fun CreationDigitalTwinStep2(
     carErrorMessage: String? = null,
     onCreateTwin: (color: String, bodyType: String) -> Unit = { _, _ -> }
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     var selectedBodyType by remember { mutableStateOf("Седан") }
 
     val carColors = listOf(
@@ -77,7 +74,7 @@ fun CreationDigitalTwinStep2(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(LambaCanvas)
+            .background(colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -94,6 +91,7 @@ fun CreationDigitalTwinStep2(
             Text(
                 text = "Настройте автомобиль",
                 style = MaterialTheme.typography.titleLarge,
+                color = colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
@@ -102,6 +100,7 @@ fun CreationDigitalTwinStep2(
             Text(
                 text = "Шаг 2 из 2",
                 style = MaterialTheme.typography.bodySmall,
+                color = colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(LambaSpacing.Step))
@@ -116,7 +115,7 @@ fun CreationDigitalTwinStep2(
                         .weight(1f)
                         .height(4.dp)
                         .clip(RoundedCornerShape(LambaRadius.Pill))
-                        .background(LambaAccentStrong)
+                        .background(colorScheme.primary)
                 )
 
                 Box(
@@ -124,7 +123,7 @@ fun CreationDigitalTwinStep2(
                         .weight(1f)
                         .height(4.dp)
                         .clip(RoundedCornerShape(LambaRadius.Pill))
-                        .background(LambaAccentStrong)
+                        .background(colorScheme.primary)
                 )
             }
 
@@ -135,7 +134,7 @@ fun CreationDigitalTwinStep2(
                     .fillMaxWidth()
                     .height(180.dp)
                     .clip(RoundedCornerShape(LambaRadius.Large))
-                    .background(LambaSurface),
+                    .background(colorScheme.surface),
                 contentAlignment = Alignment.Center
             ) {
                 CarImage(
@@ -150,7 +149,7 @@ fun CreationDigitalTwinStep2(
             Text(
                 text = "Цвет автомобиля",
                 style = MaterialTheme.typography.labelMedium,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(LambaSpacing.Step))
@@ -166,7 +165,7 @@ fun CreationDigitalTwinStep2(
                             .background(colorOption.color)
                             .border(
                                 width = if (selectedColor == colorOption) 3.dp else 0.dp,
-                                color = if (selectedColor == colorOption) LambaAccentStrong else Color.Transparent,
+                                color = if (selectedColor == colorOption) colorScheme.primary else Color.Transparent,
                                 shape = RoundedCornerShape(LambaRadius.Pill)
                             )
                             .clickable{
@@ -181,7 +180,7 @@ fun CreationDigitalTwinStep2(
             Text(
                 text = "Тип кузова",
                 style = MaterialTheme.typography.labelMedium,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(LambaSpacing.Step))

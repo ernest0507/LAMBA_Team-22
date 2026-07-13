@@ -29,13 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaError
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +48,7 @@ fun AutocompleteField(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val fieldShape = RoundedCornerShape(LambaRadius.Medium)
+    val colorScheme = MaterialTheme.colorScheme
 
     val filtered = remember(value, suggestions) {
         if (value.isBlank()) suggestions + otherLabel
@@ -64,7 +60,7 @@ fun AutocompleteField(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = LambaInkMuted
+            color = colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(LambaSpacing.Step))
@@ -84,30 +80,30 @@ fun AutocompleteField(
                     .fillMaxWidth()
                     .heightIn(min = minHeight)
                     .clip(fieldShape)
-                    .background(LambaSurface, fieldShape)
+                    .background(colorScheme.surface, fieldShape)
                     .border(
                         width = 1.dp,
-                        color = if (isError) LambaError.copy(alpha = 0.7f) else LambaOutlineSoft,
+                        color = if (isError) colorScheme.error.copy(alpha = 0.7f) else colorScheme.outlineVariant,
                         shape = fieldShape
                     ),
                 placeholder = {
                     Text(
                         text = placeholder,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                 },
                 isError = isError,
                 singleLine = true,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(color = LambaInk),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(color = colorScheme.onSurface),
                 shape = fieldShape,
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = LambaInk,
-                    unfocusedTextColor = LambaInk,
-                    focusedContainerColor = LambaSurface,
-                    unfocusedContainerColor = LambaSurface,
-                    disabledContainerColor = LambaSurface,
-                    errorContainerColor = LambaSurface,
+                    focusedTextColor = colorScheme.onSurface,
+                    unfocusedTextColor = colorScheme.onSurface,
+                    focusedContainerColor = colorScheme.surface,
+                    unfocusedContainerColor = colorScheme.surface,
+                    disabledContainerColor = colorScheme.surface,
+                    errorContainerColor = colorScheme.surface,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent,
@@ -118,7 +114,7 @@ fun AutocompleteField(
             ExposedDropdownMenu(
                 expanded = expanded && filtered.isNotEmpty(),
                 onDismissRequest = { expanded = false },
-                containerColor = LambaSurface,
+                containerColor = colorScheme.surface,
                 shape = RoundedCornerShape(LambaRadius.Medium)
             ) {
                 filtered.forEach { option ->
@@ -131,7 +127,7 @@ fun AutocompleteField(
                             Text(
                                 text = option,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = LambaInkMuted
+                                color = colorScheme.onSurfaceVariant
                             )
                         }
                     } else {
@@ -140,7 +136,7 @@ fun AutocompleteField(
                                 Text(
                                     text = option,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = LambaInk
+                                    color = colorScheme.onSurface
                                 )
                             },
                             onClick = {
@@ -157,7 +153,7 @@ fun AutocompleteField(
             Text(
                 text = errorMessage,
                 style = MaterialTheme.typography.bodySmall,
-                color = LambaError,
+                color = colorScheme.error,
                 modifier = Modifier.padding(top = LambaSpacing.Step / 2)
             )
         }

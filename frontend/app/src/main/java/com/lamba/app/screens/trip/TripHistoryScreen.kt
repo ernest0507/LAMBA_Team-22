@@ -27,14 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.lamba.app.data.trips.TripResponse
-import com.lamba.app.ui.theme.LambaAccentSoft
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -48,14 +42,16 @@ fun TripHistoryScreen(
     trips: List<TripResponse> = emptyList(),
     onBackClick: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(LambaCanvas)
+                .background(colorScheme.background)
                 .padding(
                     PaddingValues(
                         start = LambaSpacing.ScreenHorizontal,
@@ -72,7 +68,7 @@ fun TripHistoryScreen(
             Text(
                 text = "История поездок",
                 style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
+                color = colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(6.dp))
@@ -80,7 +76,7 @@ fun TripHistoryScreen(
             Text(
                 text = "Дата, расстояние, время в пути и средняя скорость",
                 style = MaterialTheme.typography.bodyMedium,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -100,7 +96,7 @@ fun TripHistoryScreen(
                         item {
                             TripHistoryStatusCard(
                                 text = errorMessage,
-                                color = Color(0xFFB3261E)
+                                color = colorScheme.error
                             )
                         }
                     }
@@ -126,10 +122,12 @@ fun TripHistoryScreen(
 private fun TripHistoryCard(
     trip: TripResponse
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Column(
@@ -144,13 +142,13 @@ private fun TripHistoryCard(
                     Text(
                         text = trip.startedAt.formatTripDate(),
                         style = MaterialTheme.typography.titleMedium,
-                        color = LambaInk,
+                        color = colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = trip.status.toTripStatusLabel(),
                         style = MaterialTheme.typography.bodySmall,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -188,21 +186,26 @@ private fun TripMetric(
     value: String,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Column(
         modifier = modifier
-            .background(LambaAccentSoft.copy(alpha = 0.28f), RoundedCornerShape(LambaRadius.Medium))
+            .background(
+                colorScheme.primaryContainer.copy(alpha = 0.42f),
+                RoundedCornerShape(LambaRadius.Medium)
+            )
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = LambaInkMuted
+            color = colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = value,
             style = MaterialTheme.typography.titleSmall,
-            color = LambaInk,
+            color = colorScheme.onSurface,
             fontWeight = FontWeight.SemiBold
         )
     }
@@ -212,7 +215,8 @@ private fun TripMetric(
 private fun TripStatusDot(
     isFinished: Boolean
 ) {
-    val color = if (isFinished) LambaAccentStrong else Color(0xFFDC2626)
+    val colorScheme = MaterialTheme.colorScheme
+    val color = if (isFinished) colorScheme.primary else colorScheme.error
     Surface(
         modifier = Modifier.size(34.dp),
         color = color.copy(alpha = 0.12f),
@@ -231,18 +235,25 @@ private fun TripStatusDot(
 @Composable
 private fun TripHistoryStatusCard(
     text: String,
-    color: Color = LambaInkMuted
+    color: Color = Color.Unspecified
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val resolvedColor = if (color == Color.Unspecified) {
+        colorScheme.onSurfaceVariant
+    } else {
+        color
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
-            color = color,
+            color = resolvedColor,
             modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp)
         )
     }
