@@ -8,6 +8,11 @@ data class TripTrackingPoint(
     val recordedAtMillis: Long
 )
 
+data class TripTrackingUpdate(
+    val snapshot: TripTrackingSnapshot,
+    val acceptedPoint: TripTrackingPoint?
+)
+
 data class TripTrackingSnapshot(
     val isTracking: Boolean,
     val startedAtMillis: Long?,

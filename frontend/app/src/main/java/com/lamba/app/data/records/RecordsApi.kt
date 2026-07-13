@@ -47,4 +47,12 @@ interface RecordsApi {
         @Header("Authorization") authorization: String,
         @Path("car_id") carId: Int
     ): List<TimelineItemResponse>
+
+
+    @POST("api/v1/cars/{car_id}/receipts/scan")
+    suspend fun scanReceipt(
+        @Header("Authorization") authorization: String,
+        @Path("car_id") carId: Int,
+        @Body request: ReceiptScanRequest
+    ): ReceiptResponse
 }

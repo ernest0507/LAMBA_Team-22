@@ -23,6 +23,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.lamba.app.MainActivity
 import com.lamba.app.R
 import kotlin.math.roundToInt
@@ -70,21 +71,43 @@ class TripForegroundLocationService : Service() {
         }
 
         if (!hasLocationPermission()) {
-            TripTrackingStateStore.clear()
+            TripTrackingStateStore.updateError("Нужна точная геолокация для расчета расстояния поездки.")
             stopSelf()
             return
         }
 
         val initialSnapshot = tracker.start()
         isTracking = true
+        TripTrackingStateStore.clearPoints()
         TripTrackingStateStore.update(initialSnapshot)
         startForegroundWithLocationType(buildNotification(initialSnapshot))
+
+        val currentLocationToken = CancellationTokenSource()
+        fusedLocationClient.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            currentLocationToken.token
+        ).addOnSuccessListener { location ->
+            if (location != null) {
+                handleLocation(location)
+            } else {
+                TripTrackingStateStore.updateError("Не удалось получить текущую GPS-точку. Проверьте, что геолокация включена.")
+            }
+        }.addOnFailureListener {
+            TripTrackingStateStore.updateError("Ошибка геолокации: ${it.localizedMessage ?: "GPS недоступен"}")
+        }
+
+        fusedLocationClient.locationAvailability.addOnSuccessListener { availability ->
+            if (!availability.isLocationAvailable) {
+                TripTrackingStateStore.updateError("Геолокация сейчас недоступна. Включите GPS и выйдите на открытое место.")
+            }
+        }
 
         val request = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
             LOCATION_INTERVAL_MILLIS
         )
             .setMinUpdateIntervalMillis(FASTEST_LOCATION_INTERVAL_MILLIS)
+            .setMinUpdateDistanceMeters(MIN_UPDATE_DISTANCE_METERS)
             .setWaitForAccurateLocation(false)
             .build()
 
@@ -92,7 +115,9 @@ class TripForegroundLocationService : Service() {
             request,
             locationCallback,
             Looper.getMainLooper()
-        )
+        ).addOnFailureListener {
+            TripTrackingStateStore.updateError("Не удалось запустить отслеживание геолокации: ${it.localizedMessage ?: "GPS недоступен"}")
+        }
     }
 
     private fun stopTracking() {
@@ -111,22 +136,20 @@ class TripForegroundLocationService : Service() {
     }
 
     private fun handleLocation(location: Location) {
-        val snapshot = tracker.addPoint(location.toTripTrackingPoint())
-        TripTrackingStateStore.update(snapshot)
-        notificationManager.notify(NOTIFICATION_ID, buildNotification(snapshot))
+        val point = location.toTripTrackingPoint()
+        val update = tracker.addPoint(point)
+        if (update.acceptedPoint != null) {
+            TripTrackingStateStore.appendPoint(update.acceptedPoint)
+        }
+        TripTrackingStateStore.update(update.snapshot)
+        notificationManager.notify(NOTIFICATION_ID, buildNotification(update.snapshot))
     }
 
     private fun hasLocationPermission(): Boolean {
-        val hasFineLocation = ContextCompat.checkSelfPermission(
+        return ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-        val hasCoarseLocation = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        return hasFineLocation || hasCoarseLocation
     }
 
     private fun startForegroundWithLocationType(notification: Notification) {
@@ -217,8 +240,9 @@ class TripForegroundLocationService : Service() {
         private const val CHANNEL_DESCRIPTION = "Shows active trip tracking status"
         private const val NOTIFICATION_ID = 230
         private const val NOTIFICATION_TITLE = "Trip tracking active"
-        private const val LOCATION_INTERVAL_MILLIS = 5_000L
-        private const val FASTEST_LOCATION_INTERVAL_MILLIS = 2_000L
+        private const val LOCATION_INTERVAL_MILLIS = 1_000L
+        private const val FASTEST_LOCATION_INTERVAL_MILLIS = 500L
+        private const val MIN_UPDATE_DISTANCE_METERS = 1f
         private const val METERS_PER_KILOMETER = 1_000.0
         private const val SECONDS_PER_MINUTE = 60L
         private const val SECONDS_PER_HOUR = 3_600L

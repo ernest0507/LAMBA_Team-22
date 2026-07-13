@@ -51,25 +51,23 @@ import com.lamba.app.screens.history.RecordType
 import com.lamba.app.screens.history.RepairRecordFormData
 import com.lamba.app.screens.history.RepairRecordScreen
 import com.lamba.app.screens.home.HomeScreen
-import com.lamba.app.screens.profile.AppSettingsScreen
 import com.lamba.app.screens.profile.ProfileScreen
-import com.lamba.app.screens.profile.VehicleDataScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
 import com.lamba.app.screens.trip.TripFinishedScreen
 import com.lamba.app.screens.trip.TripModeScreen
-import com.lamba.app.ui.theme.AppTheme
+import com.lamba.app.ui.theme.LambaCanvas
+import com.lamba.app.ui.theme.LambaInk
+import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
+import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 @Composable
-fun AppNavigation(
-    currentTheme: AppTheme,
-    onThemeSelected: (AppTheme) -> Unit
-) {
+fun AppNavigation() {
     val navController = rememberNavController()
     val context = LocalContext.current
     val authViewModel: AuthViewModel = viewModel()
@@ -374,22 +372,6 @@ fun AppNavigation(
 
         composable(LambaRoute.Profile.path) {
             ProfileScreen(
-                onBackClick = { navController.popBackStack() },
-                onVehicleDataClick = { navController.navigate(LambaRoute.VehicleData.path) },
-                onAppSettingsClick = { navController.navigate(LambaRoute.AppSettings.path) }
-            )
-        }
-
-        composable(LambaRoute.VehicleData.path) {
-            VehicleDataScreen(
-                onBackClick = { navController.popBackStack() }
-            )
-        }
-
-        composable(LambaRoute.AppSettings.path) {
-            AppSettingsScreen(
-                currentTheme = currentTheme,
-                onThemeSelected = onThemeSelected,
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -500,16 +482,14 @@ private fun String.toRecordCostAmount(): String {
 private fun DocumentsScreen(
     onBackClick: () -> Unit
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = colorScheme.background
+        color = LambaCanvas
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(colorScheme.background)
+                .background(LambaCanvas)
                 .padding(
                     PaddingValues(
                         start = LambaSpacing.ScreenHorizontal,
@@ -525,13 +505,13 @@ private fun DocumentsScreen(
             Text(
                 text = "Документы",
                 style = MaterialTheme.typography.titleLarge,
-                color = colorScheme.onBackground
+                color = LambaInk
             )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(LambaRadius.Large),
-                colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = LambaSurface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(
@@ -541,13 +521,13 @@ private fun DocumentsScreen(
                     Text(
                         text = "СТС, страховка и чеки",
                         style = MaterialTheme.typography.titleMedium,
-                        color = colorScheme.onSurface,
+                        color = LambaInk,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "Экран готов для подключения хранилища документов.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant
+                        color = LambaInkMuted
                     )
                 }
             }
@@ -571,8 +551,6 @@ private enum class LambaRoute(
     Statistics("statistics"),
     Documents("documents"),
     Profile("profile"),
-    VehicleData("vehicle_data"),
-    AppSettings("app_settings"),
     RecordSuccess("record_success"),
     TripFinished("trip_finished")
 }

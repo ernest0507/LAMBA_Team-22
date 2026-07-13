@@ -37,14 +37,14 @@ class CarViewModel(
 
         viewModelScope.launch {
             _uiState.update {
-                it.copy(isLoading = true, errorMessage = null, cars = null)
+                it.copy(isLoading = true, errorMessage = null, cars = null, createdCar = null)
             }
 
             runCatching {
                 repository.getCars(accessToken)
             }.onSuccess { cars ->
                 _uiState.update {
-                    it.copy(isLoading = false, cars = cars)
+                    it.copy(isLoading = false, cars = cars, createdCar = null)
                 }
             }.onFailure { error ->
                 _uiState.update {
@@ -99,6 +99,10 @@ class CarViewModel(
         _uiState.update {
             it.copy(isLoading = false, errorMessage = null, createdCar = null)
         }
+    }
+
+    fun clearSession() {
+        _uiState.value = CarUiState()
     }
 
     private fun Throwable.toCarMessage(): String {

@@ -50,6 +50,8 @@ class TimelineItem(BaseModel):
     id: int
     category: str | None
     title: str | None
+    description: str | None = None
     occurred_at: date | None
     mileage_km: int | None
     cost_amount: Decimal
+    vendor: str | None = None

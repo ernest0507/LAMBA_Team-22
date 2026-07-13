@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.lamba.app.data.cars.CarResponse
 
-
 @Composable
 fun HomeScreen(
     car: CarResponse? = null,
@@ -28,13 +27,17 @@ fun HomeScreen(
     onOpenAiChat: () -> Unit = {},
     onAddExpensesClick: () -> Unit = {},
     onOpenHistory: () -> Unit = {},
+    onOpenTripHistory: () -> Unit = {},
     onOpenStatistics: () -> Unit = {},
+    onOpenQrClick: () -> Unit = {},
+    onOpenAchievements: () -> Unit = {},
     onOpenDocuments: () -> Unit = {},
     onOpenProfile: () -> Unit = {},
     onSendMessage: (String) -> Unit = {},
     onStartTripClick: () -> Unit = {},
     isTripActive: Boolean = false,
     tripStartedAtMillis: Long? = null,
+    tripDistanceKm: Double = 0.0,
     onTripHoldComplete: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -46,7 +49,6 @@ fun HomeScreen(
         fraction = chatExpandProgress
     )
     val dragDistancePx = with(LocalDensity.current) { 285.dp.toPx() }
-
 
     Box(
         modifier = Modifier
@@ -66,9 +68,9 @@ fun HomeScreen(
                 onStartTripClick = onStartTripClick,
                 isTripActive = isTripActive,
                 tripStartedAtMillis = tripStartedAtMillis,
+                tripDistanceKm = tripDistanceKm,
                 onTripHoldComplete = onTripHoldComplete
             )
-
 
             AiChatPanel(
                 messages = messages,
@@ -79,7 +81,11 @@ fun HomeScreen(
                         .coerceIn(0f, 1f)
                 },
                 onDragEnd = {
-                    if (chatExpandProgress > 0.35f)  chatExpandProgress = 1f else chatExpandProgress = 0f
+                    if (chatExpandProgress > 0.35f) {
+                        chatExpandProgress = 1f
+                    } else {
+                        chatExpandProgress = 0f
+                    }
                 },
                 onSwipeUp = {
                     chatExpandProgress = 1f
@@ -111,9 +117,21 @@ fun HomeScreen(
                     isMenuOpen = false
                     onOpenHistory()
                 },
+                onTripHistoryClick = {
+                    isMenuOpen = false
+                    onOpenTripHistory()
+                },
                 onStatisticsClick = {
                     isMenuOpen = false
                     onOpenStatistics()
+                },
+                onOpenQrClick = {
+                    isMenuOpen = false
+                    onOpenQrClick()
+                },
+                onAchievementsClick = {
+                    isMenuOpen = false
+                    onOpenAchievements()
                 },
                 onDocumentsClick = {
                     isMenuOpen = false
@@ -126,26 +144,4 @@ fun HomeScreen(
             )
         }
     }
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
