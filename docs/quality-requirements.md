@@ -97,3 +97,15 @@ recommendations if the backend accepted them without validation.
 **Linked quality requirement tests:** [QRT-007](quality-requirement-tests.md#qrt-007-record-photo-upload-validation)
 
 **Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md), [ADR-003: Use database for persistent storage](architecture/adr/ADR-003-database-for-persistent-storage.md)
+
+## QR-008: Receipt QR scan reliability and access control
+
+**ISO/IEC 25010 sub-characteristic:** Fault tolerance
+
+**Scenario:** When an authenticated user scans a receipt QR code for a vehicle under the backend runtime environment, the backend shall process valid QR inputs only for vehicles owned by that user, reject unsupported qr-codes or unowned vehicles with controlled HTTP responses, and handle receipt-provider configuration or provider errors without exposing unhandled failures.
+
+**Why this matters:** Receipt QR scanning depends on user-owned vehicle data and an external receipt provider. The backend must keep the scan flow reliable, prevent users from scanning receipts for vehicles they do not own, and return predictable errors when input or provider behavior is invalid.
+
+**Linked quality requirement tests:** [QRT-008](quality-requirement-tests.md#qrt-008-receipt-qr-scan-backend-handling)
+
+**Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md)
