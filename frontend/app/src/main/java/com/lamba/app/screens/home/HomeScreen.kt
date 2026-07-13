@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -17,7 +18,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.lamba.app.data.cars.CarResponse
-import com.lamba.app.ui.theme.LambaCanvas
 
 
 @Composable
@@ -37,6 +37,7 @@ fun HomeScreen(
     tripStartedAtMillis: Long? = null,
     onTripHoldComplete: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     var isMenuOpen by remember { mutableStateOf(false) }
     var chatExpandProgress by remember { mutableFloatStateOf(0f) }
     val carHeight = lerp(
@@ -50,12 +51,12 @@ fun HomeScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(LambaCanvas)
+            .background(colorScheme.background)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(LambaCanvas)
+                .background(colorScheme.background)
         ) {
             CarSummaryCard(
                 car = car,

@@ -57,19 +57,19 @@ import com.lamba.app.screens.profile.VehicleDataScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
 import com.lamba.app.screens.trip.TripFinishedScreen
 import com.lamba.app.screens.trip.TripModeScreen
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
+import com.lamba.app.ui.theme.AppTheme
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    currentTheme: AppTheme,
+    onThemeSelected: (AppTheme) -> Unit
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val authViewModel: AuthViewModel = viewModel()
@@ -388,6 +388,8 @@ fun AppNavigation() {
 
         composable(LambaRoute.AppSettings.path) {
             AppSettingsScreen(
+                currentTheme = currentTheme,
+                onThemeSelected = onThemeSelected,
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -498,14 +500,16 @@ private fun String.toRecordCostAmount(): String {
 private fun DocumentsScreen(
     onBackClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(LambaCanvas)
+                .background(colorScheme.background)
                 .padding(
                     PaddingValues(
                         start = LambaSpacing.ScreenHorizontal,
@@ -521,13 +525,13 @@ private fun DocumentsScreen(
             Text(
                 text = "Документы",
                 style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
+                color = colorScheme.onBackground
             )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(LambaRadius.Large),
-                colors = CardDefaults.cardColors(containerColor = LambaSurface),
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(
@@ -537,13 +541,13 @@ private fun DocumentsScreen(
                     Text(
                         text = "СТС, страховка и чеки",
                         style = MaterialTheme.typography.titleMedium,
-                        color = LambaInk,
+                        color = colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "Экран готов для подключения хранилища документов.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                 }
             }

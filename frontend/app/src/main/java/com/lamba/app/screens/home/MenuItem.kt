@@ -31,13 +31,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaChatInk
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurfaceSoft
 
 @Composable
 fun GarageMenuItem(
@@ -46,6 +41,8 @@ fun GarageMenuItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -57,13 +54,13 @@ fun GarageMenuItem(
             modifier = Modifier
                 .size(44.dp)
                 .clip(RoundedCornerShape(LambaRadius.Medium))
-                .background(LambaSurfaceSoft),
+                .background(colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = "▤",
                 style = MaterialTheme.typography.bodyMedium,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
         }
 
@@ -75,20 +72,20 @@ fun GarageMenuItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = LambaInk
+                color = colorScheme.onSurface
             )
 
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
         }
 
         Icon(
             imageVector = Icons.Default.ChevronRight,
             contentDescription = null,
-            tint = LambaInkMuted
+            tint = colorScheme.onSurfaceVariant
         )
     }
 }

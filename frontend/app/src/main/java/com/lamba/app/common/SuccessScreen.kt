@@ -15,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaSpacing
 import components.ContinueButton
 
@@ -27,10 +25,12 @@ fun SuccessScreen(
     buttonText: String,
     onContinue: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Surface(
         modifier = Modifier
             .fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -42,11 +42,15 @@ fun SuccessScreen(
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineMedium,
-                color = LambaInk,
+                color = colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = message)
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = colorScheme.onSurfaceVariant
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
             ContinueButton(

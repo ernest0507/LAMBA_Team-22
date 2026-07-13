@@ -18,26 +18,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaSpacing
-import components.BackButton
-import components.LambaTextField
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
+import com.lamba.app.ui.theme.LambaSpacing
 import com.lamba.app.ui.theme.LambaSpacing.ScreenHorizontal
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.lamba.app.data.cars.CarDraft
+import components.BackButton
 import components.ContinueButton
+import components.LambaTextField
 
 @Composable
 fun CreationDigitalTwinStep1(
     onBack: () -> Unit = {},
     onContinue: (CarDraft) -> Unit = { _ -> }
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     var carModel by remember { mutableStateOf("") }
     var carYear by remember { mutableStateOf("") }
     var mileage by remember { mutableStateOf("") }
@@ -53,7 +51,7 @@ fun CreationDigitalTwinStep1(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(LambaCanvas)
+            .background(colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -70,6 +68,7 @@ fun CreationDigitalTwinStep1(
             Text(
                 text = "Создайте цифровой двойник",
                 style = MaterialTheme.typography.titleLarge,
+                color = colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
 
@@ -78,6 +77,7 @@ fun CreationDigitalTwinStep1(
             Text(
                 text = "Шаг 1 из 2",
                 style = MaterialTheme.typography.bodySmall,
+                color = colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(LambaSpacing.Step))
@@ -92,7 +92,7 @@ fun CreationDigitalTwinStep1(
                         .weight(1f)
                         .height(4.dp)
                         .clip(RoundedCornerShape(LambaRadius.Pill))
-                        .background(LambaAccentStrong)
+                        .background(colorScheme.primary)
                 )
 
                 Box(
@@ -100,7 +100,7 @@ fun CreationDigitalTwinStep1(
                         .weight(1f)
                         .height(4.dp)
                         .clip(RoundedCornerShape(LambaRadius.Pill))
-                        .background(LambaOutlineSoft)
+                        .background(colorScheme.outlineVariant)
                 )
             }
             Spacer(modifier = Modifier.height(44.dp))

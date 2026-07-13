@@ -57,12 +57,6 @@ import com.lamba.app.data.records.RecordPhotosUiState
 import com.lamba.app.data.records.TimelineItemResponse
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 
-private val HistoryScreenBackground = Color(0xFFEEF4F2)
-private val HistoryCardBackground = Color(0xFFFBFCFB)
-private val HistoryPrimaryText = Color(0xFF182124)
-private val HistorySecondaryText = Color(0xFF6D7C80)
-private val HistoryAccent = Color(0xFF17A1B8)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
@@ -73,24 +67,25 @@ fun HistoryScreen(
     onRecordExpanded: (Int) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val sections = rememberHistorySections(records)
     var expandedItemId by remember { mutableStateOf<Int?>(null) }
     var selectedPhoto by remember { mutableStateOf<RecordPhotoImage?>(null) }
 
     Scaffold(
-        containerColor = HistoryScreenBackground,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = HistoryScreenBackground,
-                    titleContentColor = HistoryPrimaryText,
-                    navigationIconContentColor = HistoryPrimaryText
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground,
+                    navigationIconContentColor = colorScheme.onBackground
                 ),
                 title = {
                     Text(
                         text = "История",
                         style = MaterialTheme.typography.titleLarge,
-                        color = HistoryPrimaryText,
+                        color = colorScheme.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -100,7 +95,7 @@ fun HistoryScreen(
                         Text(
                             text = "\u2039",
                             style = MaterialTheme.typography.headlineMedium,
-                            color = HistoryPrimaryText
+                            color = colorScheme.onBackground
                         )
                     }
                 }
@@ -122,7 +117,7 @@ fun HistoryScreen(
 
             if (!errorMessage.isNullOrBlank()) {
                 item {
-                    HistoryStatusCard(text = errorMessage, color = Color(0xFFB3261E))
+                    HistoryStatusCard(text = errorMessage, color = colorScheme.error)
                 }
             }
 
@@ -137,7 +132,7 @@ fun HistoryScreen(
                     Text(
                         text = section.title,
                         style = MaterialTheme.typography.labelLarge,
-                        color = HistorySecondaryText,
+                        color = colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 8.dp, bottom = 2.dp)
                     )
@@ -185,13 +180,15 @@ private fun HistoryEventCard(
     onPhotoClick: (RecordPhotoImage) -> Unit,
     onToggle: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onToggle),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = HistoryCardBackground
+            containerColor = colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -213,21 +210,21 @@ private fun HistoryEventCard(
                     Text(
                         text = item.title,
                         style = MaterialTheme.typography.titleMedium,
-                        color = HistoryPrimaryText,
+                        color = colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = item.subtitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = HistorySecondaryText
+                        color = colorScheme.onSurfaceVariant
                     )
                 }
 
                 Text(
                     text = item.amount,
                     style = MaterialTheme.typography.titleMedium,
-                    color = HistoryPrimaryText,
+                    color = colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -266,11 +263,13 @@ private fun HistoryPhotosSection(
     onPhotoClick: (RecordPhotoImage) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "Фото",
             style = MaterialTheme.typography.bodySmall,
-            color = HistorySecondaryText,
+            color = colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.SemiBold
         )
 
@@ -281,7 +280,7 @@ private fun HistoryPhotosSection(
                 Text(
                     text = "Загрузка фото...",
                     style = MaterialTheme.typography.bodySmall,
-                    color = HistorySecondaryText
+                    color = colorScheme.onSurfaceVariant
                 )
             }
 
@@ -289,7 +288,7 @@ private fun HistoryPhotosSection(
                 Text(
                     text = photoState.errorMessage,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFB3261E)
+                    color = colorScheme.error
                 )
             }
 
@@ -297,7 +296,7 @@ private fun HistoryPhotosSection(
                 Text(
                     text = "Фото не добавлены",
                     style = MaterialTheme.typography.bodySmall,
-                    color = HistorySecondaryText
+                    color = colorScheme.onSurfaceVariant
                 )
             }
 
@@ -323,6 +322,7 @@ private fun HistoryPhotoThumbnail(
     photo: RecordPhotoImage,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val image = remember(photo.id, photo.bytes) {
         BitmapFactory.decodeByteArray(photo.bytes, 0, photo.bytes.size)?.asImageBitmap()
     }
@@ -331,8 +331,8 @@ private fun HistoryPhotoThumbnail(
         modifier = Modifier
             .size(86.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(HistoryAccent.copy(alpha = 0.08f))
-            .border(1.dp, HistoryAccent.copy(alpha = 0.18f), RoundedCornerShape(14.dp))
+            .background(colorScheme.primary.copy(alpha = 0.08f))
+            .border(1.dp, colorScheme.primary.copy(alpha = 0.18f), RoundedCornerShape(14.dp))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -347,7 +347,7 @@ private fun HistoryPhotoThumbnail(
             Text(
                 text = "Фото",
                 style = MaterialTheme.typography.bodySmall,
-                color = HistorySecondaryText
+                color = colorScheme.onSurfaceVariant
             )
         }
     }
@@ -358,6 +358,7 @@ private fun PhotoPreviewDialog(
     photo: RecordPhotoImage,
     onDismiss: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val image = remember(photo.id, photo.bytes) {
         BitmapFactory.decodeByteArray(photo.bytes, 0, photo.bytes.size)?.asImageBitmap()
     }
@@ -369,7 +370,7 @@ private fun PhotoPreviewDialog(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.92f))
+                .background(colorScheme.scrim.copy(alpha = 0.92f))
                 .clickable(onClick = onDismiss)
                 .padding(20.dp),
             contentAlignment = Alignment.Center
@@ -402,6 +403,8 @@ private fun HistoryDetailRow(
     label: String,
     value: String
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -411,12 +414,12 @@ private fun HistoryDetailRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = HistorySecondaryText
+            color = colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodySmall,
-            color = HistoryPrimaryText
+            color = colorScheme.onSurface
         )
     }
 }
@@ -424,13 +427,15 @@ private fun HistoryDetailRow(
 @Composable
 private fun HistoryStatusCard(
     text: String,
-    color: Color = HistorySecondaryText
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
-            containerColor = HistoryCardBackground
+            containerColor = colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -447,6 +452,7 @@ private fun HistoryStatusCard(
 private fun HistoryBadge(
     title: String
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val badgeText = when {
         title.contains("Заправка", ignoreCase = true) -> "АЗС"
         title.contains("масл", ignoreCase = true) -> "ТО"
@@ -457,13 +463,13 @@ private fun HistoryBadge(
         modifier = Modifier
             .size(50.dp)
             .clip(CircleShape)
-            .background(HistoryAccent.copy(alpha = 0.12f)),
+            .background(colorScheme.primary.copy(alpha = 0.12f)),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = badgeText,
             style = MaterialTheme.typography.labelLarge,
-            color = HistoryAccent,
+            color = colorScheme.primary,
             fontWeight = FontWeight.Bold
         )
     }
@@ -473,11 +479,13 @@ private fun HistoryBadge(
 private fun InsightCard(
     text: String
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(
-            containerColor = HistoryCardBackground
+            containerColor = colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -491,12 +499,12 @@ private fun InsightCard(
                     .width(4.dp)
                     .height(72.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(HistoryAccent)
+                    .background(colorScheme.primary)
             )
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
-                color = HistoryPrimaryText
+                color = colorScheme.onSurface
             )
         }
     }

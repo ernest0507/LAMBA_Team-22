@@ -54,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lamba.app.ui.theme.AppTheme
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
@@ -66,10 +67,11 @@ private const val ThemeDark = "Тёмная"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSettingsScreen(
+    currentTheme: AppTheme = AppTheme.LIGHT,
+    onThemeSelected: (AppTheme) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    var selectedTheme by rememberSaveable { mutableStateOf(ThemeLight) }
     var useCarDataForAi by rememberSaveable { mutableStateOf(true) }
     var usePersonalizedAnswers by rememberSaveable { mutableStateOf(true) }
     var saveChatHistory by rememberSaveable { mutableStateOf(true) }
@@ -88,8 +90,11 @@ fun AppSettingsScreen(
             shape = RoundedCornerShape(topStart = LambaRadius.Large, topEnd = LambaRadius.Large)
         ) {
             ThemeSelectionSheet(
-                selectedTheme = selectedTheme,
-                onThemeSelected = { selectedTheme = it },
+                currentTheme = currentTheme,
+                onThemeSelected = { theme ->
+                    onThemeSelected(theme)
+                    isThemeSheetVisible = false
+                },
                 onCancel = { isThemeSheetVisible = false }
             )
         }
@@ -186,7 +191,7 @@ fun AppSettingsScreen(
                     ClickableSettingsCard(
                         icon = Icons.Filled.Palette,
                         title = "Тема приложения",
-                        description = selectedTheme,
+                        description = currentTheme.displayName(),
                         onClick = { isThemeSheetVisible = true }
                     )
                 }
@@ -416,8 +421,8 @@ private fun SettingsIcon(
 
 @Composable
 private fun ThemeSelectionSheet(
-    selectedTheme: String,
-    onThemeSelected: (String) -> Unit,
+    currentTheme: AppTheme,
+    onThemeSelected: (AppTheme) -> Unit,
     onCancel: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -438,8 +443,8 @@ private fun ThemeSelectionSheet(
 
         ThemeOptionRow(
             title = ThemeLight,
-            selected = selectedTheme == ThemeLight,
-            onClick = { onThemeSelected(ThemeLight) }
+            selected = currentTheme == AppTheme.LIGHT,
+            onClick = { onThemeSelected(AppTheme.LIGHT) }
         )
 
         HorizontalDivider(
@@ -449,8 +454,8 @@ private fun ThemeSelectionSheet(
 
         ThemeOptionRow(
             title = ThemeDark,
-            selected = selectedTheme == ThemeDark,
-            onClick = { onThemeSelected(ThemeDark) }
+            selected = currentTheme == AppTheme.DARK,
+            onClick = { onThemeSelected(AppTheme.DARK) }
         )
 
         TextButton(
@@ -550,10 +555,17 @@ private fun ConfirmationDialog(
     )
 }
 
+private fun AppTheme.displayName(): String {
+    return when (this) {
+        AppTheme.LIGHT -> ThemeLight
+        AppTheme.DARK -> ThemeDark
+    }
+}
+
 @Preview(showBackground = true, backgroundColor = 0xFFEEF4F2)
 @Composable
 private fun AppSettingsScreenPreview() {
     LAMBA_MVPv0Theme {
-        AppSettingsScreen()
+        AppSettingsScreen(currentTheme = AppTheme.LIGHT)
     }
 }

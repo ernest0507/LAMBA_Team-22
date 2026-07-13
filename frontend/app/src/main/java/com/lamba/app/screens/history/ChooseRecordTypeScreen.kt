@@ -40,11 +40,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.lamba.app.ui.theme.LambaAccent
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaSignal
-import com.lamba.app.ui.theme.LambaSurface
 
 enum class RecordType {
     EXPENSE,
@@ -58,19 +54,22 @@ fun ChooseRecordTypeScreen(
     onBackClick: () -> Unit,
     onTypeSelected: (RecordType) -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Scaffold(
-        containerColor = LambaCanvas,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = LambaCanvas,
-                    titleContentColor = LambaInk,
-                    actionIconContentColor = LambaInk
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground,
+                    actionIconContentColor = colorScheme.onBackground
                 ),
                 title = {
                     Text(
                         text = "Новая запись",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        color = colorScheme.onBackground
                     )
                 },
                 actions = {
@@ -96,7 +95,7 @@ fun ChooseRecordTypeScreen(
             Text(
                 text = "Выберите тип записи",
                 style = MaterialTheme.typography.bodyLarge,
-                color = LambaInkMuted,
+                color = colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium
             )
 
@@ -135,12 +134,14 @@ private fun RecordTypeCard(
     description: String,
     onClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
@@ -169,7 +170,7 @@ private fun RecordTypeCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = LambaInk,
+                    color = colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
 
@@ -178,14 +179,14 @@ private fun RecordTypeCard(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
             }
 
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = LambaInkMuted
+                tint = colorScheme.onSurfaceVariant
             )
         }
     }

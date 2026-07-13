@@ -16,9 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.lamba.app.data.cars.CarResponse
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaSurface
 import com.lamba.app.ui.theme.LambaVehicleBlue
 import com.lamba.app.ui.theme.LambaVehicleGraphite
 import com.lamba.app.ui.theme.LambaVehicleGreen
@@ -36,6 +33,7 @@ fun CarSummaryCard(
     tripStartedAtMillis: Long? = null,
     onTripHoldComplete: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val vehicleColor = car?.color.toVehicleColor()
     val title = car?.displayName().orEmpty().ifBlank { "Модель автомобиля" }
     val subtitle = car?.bodyType?.takeIf { it.isNotBlank() }
@@ -47,7 +45,7 @@ fun CarSummaryCard(
 
     Column(
         modifier = modifier
-            .background(LambaSurface)
+            .background(colorScheme.surface)
             .padding(
                 start = 24.dp,
                 top = 32.dp,
@@ -61,12 +59,12 @@ fun CarSummaryCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
+                color = colorScheme.onSurface
             )
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.labelLarge,
-                color = LambaInk
+                color = colorScheme.onSurface
             )
 
         }
@@ -89,13 +87,13 @@ fun CarSummaryCard(
             Text(
                 text = details,
                 style = MaterialTheme.typography.labelSmall,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
 
             Text(
                 text = "Состояние 92%",
                 style = MaterialTheme.typography.labelSmall,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
         }
 

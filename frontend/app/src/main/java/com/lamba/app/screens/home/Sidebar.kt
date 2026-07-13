@@ -32,13 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import com.lamba.app.data.cars.CarResponse
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaChatInk
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 
 @Composable
 fun Sidebar(
@@ -51,6 +46,7 @@ fun Sidebar(
     onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val carTitle = car?.displayName().orEmpty().ifBlank { "Автомобиль" }
     val carDetails = car?.let {
         "${it.currentMileageKm.formatMileage()} км · ${it.year}"
@@ -70,7 +66,7 @@ fun Sidebar(
                 .align(Alignment.CenterEnd)
                 .fillMaxHeight()
                 .fillMaxWidth(0.74f)
-                .background(LambaSurface)
+                .background(colorScheme.surface)
                 .padding(horizontal = 24.dp, vertical = 52.dp)
         ) {
             Row(
@@ -81,19 +77,19 @@ fun Sidebar(
                     Text(
                         text = "МОЙ АВТОМОБИЛЬ",
                         style = MaterialTheme.typography.labelSmall,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
 
                     Text(
                         text = carTitle,
                         style = MaterialTheme.typography.titleLarge,
-                        color = LambaInk
+                        color = colorScheme.onSurface
                     )
 
                     Text(
                         text = carDetails,
                         style = MaterialTheme.typography.bodySmall,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -101,7 +97,7 @@ fun Sidebar(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = null,
-                        tint = LambaInk
+                        tint = colorScheme.onSurface
                     )
                 }
             }
@@ -111,7 +107,7 @@ fun Sidebar(
             Text(
                 text = "Гараж",
                 style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
+                color = colorScheme.onSurface
             )
 
             Spacer(modifier = Modifier.height(24.dp))
