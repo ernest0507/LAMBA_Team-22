@@ -162,7 +162,7 @@ fun Sidebar(
 
             GarageMenuItem(
                 title = "Профиль",
-                subtitle = "Автомобиль, уведомления, настройки",
+                subtitle = "Автомобиль и настройки приложения",
                 onClick = onProfileClick
             )
         }

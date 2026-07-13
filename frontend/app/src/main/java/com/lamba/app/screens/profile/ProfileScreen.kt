@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,26 +29,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
-import com.lamba.app.ui.theme.LambaAccent
-import com.lamba.app.ui.theme.LambaAccentSoft
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
-import com.lamba.app.ui.theme.LambaOutlineSoft
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
 
 @Composable
 fun ProfileScreen(
     onBackClick: () -> Unit = {},
     onVehicleDataClick: () -> Unit = {},
-    onNotificationsClick: () -> Unit = {},
-    onAppSettingsClick: () -> Unit = {},
-    onHelpClick: () -> Unit = {}
+    onAppSettingsClick: () -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val menuItems = listOf(
         ProfileMenuItem(
             iconLabel = "А",
@@ -58,28 +48,16 @@ fun ProfileScreen(
             onClick = onVehicleDataClick
         ),
         ProfileMenuItem(
-            iconLabel = "У",
-            title = "Уведомления",
-            subtitle = "ТО, страховка, расходы",
-            onClick = onNotificationsClick
-        ),
-        ProfileMenuItem(
             iconLabel = "Н",
             title = "Настройки приложения",
             subtitle = "Тема, единицы, приватность",
             onClick = onAppSettingsClick
-        ),
-        ProfileMenuItem(
-            iconLabel = "?",
-            title = "Помощь",
-            subtitle = "FAQ и поддержка",
-            onClick = onHelpClick
         )
     )
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -114,6 +92,8 @@ fun ProfileScreen(
 private fun ProfileHeader(
     onBackClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -124,7 +104,7 @@ private fun ProfileHeader(
         Text(
             text = "Профиль",
             style = MaterialTheme.typography.titleLarge,
-            color = LambaInk,
+            color = colorScheme.onBackground,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -133,11 +113,13 @@ private fun ProfileHeader(
 
 @Composable
 private fun ProfileUserCard() {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
         colors = CardDefaults.cardColors(
-            containerColor = LambaSurface
+            containerColor = colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -152,13 +134,13 @@ private fun ProfileUserCard() {
                 modifier = Modifier
                     .size(72.dp)
                     .clip(CircleShape)
-                    .background(LambaAccentSoft),
+                    .background(colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "Н",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = LambaAccentStrong,
+                    color = colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -169,13 +151,13 @@ private fun ProfileUserCard() {
                 Text(
                     text = "Никита",
                     style = MaterialTheme.typography.titleMedium,
-                    color = LambaInk,
+                    color = colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = "Toyota Corolla · 48 230 км",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = LambaInkMuted
+                    color = colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -186,11 +168,13 @@ private fun ProfileUserCard() {
 private fun ProfileMenuCard(
     items: List<ProfileMenuItem>
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
         colors = CardDefaults.cardColors(
-            containerColor = LambaSurface
+            containerColor = colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
@@ -204,7 +188,7 @@ private fun ProfileMenuCard(
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = LambaSpacing.CardPadding),
                         thickness = 1.dp,
-                        color = LambaOutlineSoft
+                        color = colorScheme.outlineVariant
                     )
                 }
             }
@@ -216,6 +200,8 @@ private fun ProfileMenuCard(
 private fun ProfileMenuRow(
     item: ProfileMenuItem
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -229,13 +215,13 @@ private fun ProfileMenuRow(
             modifier = Modifier
                 .size(44.dp)
                 .clip(RoundedCornerShape(LambaRadius.Medium))
-                .background(LambaAccentSoft),
+                .background(colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = item.iconLabel,
                 style = MaterialTheme.typography.titleMedium,
-                color = LambaAccentStrong,
+                color = colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -247,20 +233,20 @@ private fun ProfileMenuRow(
             Text(
                 text = item.title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = LambaInk,
+                color = colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
                 text = item.subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = LambaInkMuted
+                color = colorScheme.onSurfaceVariant
             )
         }
 
         Text(
             text = "\u203A",
             style = MaterialTheme.typography.headlineMedium,
-            color = LambaAccent,
+            color = colorScheme.primary,
             fontWeight = FontWeight.Normal
         )
     }
@@ -268,6 +254,8 @@ private fun ProfileMenuRow(
 
 @Composable
 private fun ProfileFooter() {
+    val colorScheme = MaterialTheme.colorScheme
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -277,7 +265,7 @@ private fun ProfileFooter() {
         Text(
             text = "LAMBA · Версия 1.0.0",
             style = MaterialTheme.typography.bodySmall,
-            color = LambaInkMuted
+            color = colorScheme.onSurfaceVariant
         )
     }
 }

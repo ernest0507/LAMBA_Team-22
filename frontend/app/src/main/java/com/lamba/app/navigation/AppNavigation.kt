@@ -30,6 +30,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.lamba.app.common.SuccessScreen
+import com.lamba.app.data.achievements.AchievementsViewModel
 import com.lamba.app.data.assistant.AssistantViewModel
 import com.lamba.app.data.auth.AuthViewModel
 import com.lamba.app.data.cars.CarDraft
@@ -37,6 +38,9 @@ import com.lamba.app.data.cars.CarViewModel
 import com.lamba.app.data.records.MaintenanceRecordCreateRequest
 import com.lamba.app.data.records.RecordsViewModel
 import com.lamba.app.data.statistics.StatisticsViewModel
+import com.lamba.app.data.trips.TripRepository
+import com.lamba.app.data.trips.TripResponse
+import com.lamba.app.screens.achievements.AchievementsScreen
 import com.lamba.app.screens.auth.LoginScreen
 import com.lamba.app.screens.auth.RegistrationScreen
 import com.lamba.app.screens.greeting.CreationDigitalTwinStep1
@@ -51,23 +55,26 @@ import com.lamba.app.screens.history.RecordType
 import com.lamba.app.screens.history.RepairRecordFormData
 import com.lamba.app.screens.history.RepairRecordScreen
 import com.lamba.app.screens.home.HomeScreen
+import com.lamba.app.screens.profile.AppSettingsScreen
 import com.lamba.app.screens.profile.ProfileScreen
+import com.lamba.app.screens.profile.VehicleDataScreen
+import com.lamba.app.screens.qr.QrScannerScreen
 import com.lamba.app.screens.statistics.StatisticsScreen
 import com.lamba.app.screens.trip.TripFinishedScreen
-import com.lamba.app.screens.trip.TripModeScreen
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
+import com.lamba.app.screens.trip.TripHistoryScreen
+import com.lamba.app.ui.theme.AppTheme
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    currentTheme: AppTheme,
+    onThemeSelected: (AppTheme) -> Unit
+) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val authViewModel: AuthViewModel = viewModel()
@@ -78,8 +85,11 @@ fun AppNavigation() {
     val recordsState by recordsViewModel.uiState.collectAsState()
     val statisticsViewModel: StatisticsViewModel = viewModel()
     val statisticsState by statisticsViewModel.uiState.collectAsState()
+    val achievementsViewModel: AchievementsViewModel = viewModel()
+    val achievementsState by achievementsViewModel.uiState.collectAsState()
     val assistantViewModel: AssistantViewModel = viewModel()
     val assistantState by assistantViewModel.uiState.collectAsState()
+    val tripRepository = remember { TripRepository() }
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
     val currentCarId = carState.currentCar?.id
     val isCheckingCars = authState.isAuthenticated && !carState.hasCompletedCarsCheck
@@ -215,7 +225,10 @@ fun AppNavigation() {
                 onOpenAiChat = {},
                 onAddExpensesClick = { navController.navigate(LambaRoute.ChooseRecordType.path) },
                 onOpenHistory = { navController.navigate(LambaRoute.History.path) },
+                onOpenTripHistory = { navController.navigate(LambaRoute.TripHistory.path) },
                 onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
+                onOpenQrClick = { navController.navigate(LambaRoute.QrScanner.path) },
+                onOpenAchievements = { navController.navigate(LambaRoute.Achievements.path) },
                 onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
                 onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
                 onSendMessage = { message ->
@@ -364,6 +377,74 @@ fun AppNavigation() {
             )
         }
 
+        composable(LambaRoute.TripHistory.path) {
+            var isLoading by remember { mutableStateOf(false) }
+            var errorMessage by remember { mutableStateOf<String?>(null) }
+            var trips by remember { mutableStateOf<List<TripResponse>>(emptyList()) }
+
+            LaunchedEffect(authState.accessToken, currentCarId) {
+                val token = authState.accessToken
+                val carId = currentCarId
+
+                when {
+                    token.isNullOrBlank() -> {
+                        isLoading = false
+                        trips = emptyList()
+                        errorMessage = "Sign in before viewing trips."
+                    }
+
+                    carId == null -> {
+                        isLoading = false
+                        trips = emptyList()
+                        errorMessage = "Create a digital twin before viewing trips."
+                    }
+
+                    else -> {
+                        isLoading = true
+                        errorMessage = null
+                        trips = emptyList()
+
+                        runCatching {
+                            tripRepository.trips(token, carId)
+                        }.onSuccess { loadedTrips ->
+                            trips = loadedTrips
+                        }.onFailure { throwable ->
+                            errorMessage = throwable.localizedMessage ?: "Не удалось загрузить поездки."
+                        }
+
+                        isLoading = false
+                    }
+                }
+            }
+
+            TripHistoryScreen(
+                isLoading = isLoading,
+                errorMessage = errorMessage,
+                trips = trips,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(LambaRoute.QrScanner.path) {
+            QrScannerScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(LambaRoute.Achievements.path) {
+            LaunchedEffect(authState.accessToken, currentCarId) {
+                achievementsViewModel.loadAchievements(authState.accessToken, currentCarId)
+            }
+
+            AchievementsScreen(
+                isLoading = achievementsState.isLoading,
+                errorMessage = achievementsState.errorMessage,
+                achievements = achievementsState.achievements,
+                onBackClick = { navController.popBackStack() },
+                onUnlockClick = achievementsViewModel::unlockAchievement
+            )
+        }
+
         composable(LambaRoute.Documents.path) {
             DocumentsScreen(
                 onBackClick = { navController.popBackStack() }
@@ -372,6 +453,22 @@ fun AppNavigation() {
 
         composable(LambaRoute.Profile.path) {
             ProfileScreen(
+                onBackClick = { navController.popBackStack() },
+                onVehicleDataClick = { navController.navigate(LambaRoute.VehicleData.path) },
+                onAppSettingsClick = { navController.navigate(LambaRoute.AppSettings.path) }
+            )
+        }
+
+        composable(LambaRoute.VehicleData.path) {
+            VehicleDataScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        composable(LambaRoute.AppSettings.path) {
+            AppSettingsScreen(
+                currentTheme = currentTheme,
+                onThemeSelected = onThemeSelected,
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -482,14 +579,16 @@ private fun String.toRecordCostAmount(): String {
 private fun DocumentsScreen(
     onBackClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
+        color = colorScheme.background
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(LambaCanvas)
+                .background(colorScheme.background)
                 .padding(
                     PaddingValues(
                         start = LambaSpacing.ScreenHorizontal,
@@ -505,13 +604,13 @@ private fun DocumentsScreen(
             Text(
                 text = "Документы",
                 style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
+                color = colorScheme.onBackground
             )
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(LambaRadius.Large),
-                colors = CardDefaults.cardColors(containerColor = LambaSurface),
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Column(
@@ -521,13 +620,13 @@ private fun DocumentsScreen(
                     Text(
                         text = "СТС, страховка и чеки",
                         style = MaterialTheme.typography.titleMedium,
-                        color = LambaInk,
+                        color = colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = "Экран готов для подключения хранилища документов.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = LambaInkMuted
+                        color = colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -549,8 +648,13 @@ private enum class LambaRoute(
     AddBreakdown("add_breakdown"),
     History("history"),
     Statistics("statistics"),
+    TripHistory("trip_history"),
+    QrScanner("qr_scanner"),
+    Achievements("achievements"),
     Documents("documents"),
     Profile("profile"),
+    VehicleData("vehicle_data"),
+    AppSettings("app_settings"),
     RecordSuccess("record_success"),
     TripFinished("trip_finished")
 }

@@ -41,20 +41,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lamba.app.data.achievements.AchievementResponse
 import com.lamba.app.data.achievements.CategoryTitles
-import com.lamba.app.ui.theme.LambaAccent
-import com.lamba.app.ui.theme.LambaAccentStrong
-import com.lamba.app.ui.theme.LambaCanvas
-import com.lamba.app.ui.theme.LambaInk
-import com.lamba.app.ui.theme.LambaInkMuted
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
-import com.lamba.app.ui.theme.LambaSurface
 import components.BackButton
-
-private val LockedCardBg = Color(0xFFE1E8E6)
-private val LockedCardIconBg = Color(0xFFD0D9D6)
-private val LockedIconColor = Color(0xFF9AABAB)
-private val UnlockedAccent = LambaAccent
 
 private val CategoryOrder = listOf("statistics", "road", "repair")
 
@@ -69,6 +58,7 @@ fun AchievementsScreen(
     onBackClick: () -> Unit = {},
     onUnlockClick: (Int) -> Unit = {}
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val sections = remember(achievements) {
         achievements
             .groupBy { it.category }
@@ -82,19 +72,19 @@ fun AchievementsScreen(
     val hasAnyItems = remember(sections) { sections.any { it.second.isNotEmpty() } }
 
     Scaffold(
-        containerColor = LambaCanvas,
+        containerColor = colorScheme.background,
         topBar = {
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = LambaCanvas,
-                    titleContentColor = LambaInk,
-                    navigationIconContentColor = LambaInk
+                    containerColor = colorScheme.background,
+                    titleContentColor = colorScheme.onBackground,
+                    navigationIconContentColor = colorScheme.onBackground
                 ),
                 title = {
                     Text(
                         text = "Достижения",
                         style = MaterialTheme.typography.titleLarge,
-                        color = LambaInk,
+                        color = colorScheme.onBackground,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -143,7 +133,7 @@ fun AchievementsScreen(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.labelLarge,
-                        color = LambaInkMuted,
+                        color = colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                     )
@@ -181,6 +171,7 @@ private fun AchievementCard(
     onUnlockClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val unlocked = achievement.unlocked
     var showUnlock by remember { mutableStateOf(false) }
 
@@ -188,7 +179,7 @@ private fun AchievementCard(
         modifier = modifier,
         shape = RoundedCornerShape(LambaRadius.Large),
         colors = CardDefaults.cardColors(
-            containerColor = if (unlocked) LambaSurface else LockedCardBg
+            containerColor = if (unlocked) colorScheme.surface else colorScheme.surfaceVariant
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = if (unlocked) 2.dp else 0.dp)
     ) {
@@ -208,8 +199,8 @@ private fun AchievementCard(
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(LambaRadius.Medium))
                     .background(
-                        if (unlocked) UnlockedAccent.copy(alpha = 0.12f)
-                        else LockedCardIconBg
+                        if (unlocked) colorScheme.primaryContainer.copy(alpha = 0.52f)
+                        else colorScheme.outlineVariant.copy(alpha = 0.7f)
                     ),
                 contentAlignment = Alignment.Center
             ) {
@@ -217,14 +208,14 @@ private fun AchievementCard(
                     Text(
                         text = achievement.name.take(2),
                         style = MaterialTheme.typography.titleLarge,
-                        color = UnlockedAccent,
+                        color = colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 } else {
                     Text(
                         text = "?",
                         style = MaterialTheme.typography.headlineLarge,
-                        color = LockedIconColor,
+                        color = colorScheme.onSurfaceVariant,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -235,7 +226,7 @@ private fun AchievementCard(
             Text(
                 text = achievement.name,
                 style = MaterialTheme.typography.titleSmall,
-                color = if (unlocked) LambaInk else LockedIconColor,
+                color = if (unlocked) colorScheme.onSurface else colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -247,7 +238,7 @@ private fun AchievementCard(
                 Text(
                     text = achievement.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (unlocked) LambaInkMuted else LockedIconColor,
+                    color = colorScheme.onSurfaceVariant,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center
@@ -261,8 +252,8 @@ private fun AchievementCard(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(LambaRadius.Small),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = LambaAccentStrong,
-                        contentColor = Color.White
+                        containerColor = colorScheme.primary,
+                        contentColor = colorScheme.onPrimary
                     )
                 ) {
                     Text(text = "Выполнить", style = MaterialTheme.typography.labelLarge)
@@ -275,18 +266,25 @@ private fun AchievementCard(
 @Composable
 private fun StatusCard(
     text: String,
-    color: Color = LambaInkMuted
+    color: Color = Color.Unspecified
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+    val resolvedColor = if (color == Color.Unspecified) {
+        colorScheme.onSurfaceVariant
+    } else {
+        color
+    }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = LambaSurface),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = color,
+            color = resolvedColor,
             modifier = Modifier.padding(LambaSpacing.CardPadding)
         )
     }
