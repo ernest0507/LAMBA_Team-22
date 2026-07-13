@@ -436,7 +436,6 @@ fun AppNavigation() {
                     onOpenTripHistory = { navController.navigate(LambaRoute.TripHistory.path) },
                     onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
                     onOpenAchievements = { navController.navigate(LambaRoute.Achievements.path) },
-                    onOpenDocuments = { navController.navigate(LambaRoute.Documents.path) },
                     onOpenQrClick = qrClick@{
                         if (currentCarId == null) {
                             Toast.makeText(
@@ -749,12 +748,6 @@ fun AppNavigation() {
             )
         }
 
-        composable(LambaRoute.Documents.path) {
-            DocumentsScreen(
-                onBackClick = { navController.popBackStack() }
-            )
-        }
-
         composable(LambaRoute.Profile.path) {
             ProfileScreen(
                 onBackClick = { navController.popBackStack() },
@@ -1027,63 +1020,6 @@ private fun Throwable.toTripErrorMessage(): String {
     }
 }
 
-@Composable
-private fun DocumentsScreen(
-    onBackClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = LambaCanvas
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(LambaCanvas)
-                .padding(
-                    PaddingValues(
-                        start = LambaSpacing.ScreenHorizontal,
-                        top = LambaSpacing.ScreenTop,
-                        end = LambaSpacing.ScreenHorizontal,
-                        bottom = LambaSpacing.ScreenBottom
-                    )
-                ),
-            verticalArrangement = Arrangement.spacedBy(LambaSpacing.CardPadding)
-        ) {
-            BackButton(onClick = onBackClick)
-
-            Text(
-                text = "Документы",
-                style = MaterialTheme.typography.titleLarge,
-                color = LambaInk
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(LambaRadius.Large),
-                colors = CardDefaults.cardColors(containerColor = LambaSurface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(LambaSpacing.CardPadding),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "СТС, страховка и чеки",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = LambaInk,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "Экран готов для подключения хранилища документов.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = LambaInkMuted
-                    )
-                }
-            }
-        }
-    }
-}
-
 private enum class LambaRoute(
     val path: String
 ) {
@@ -1099,11 +1035,9 @@ private enum class LambaRoute(
     History("history"),
     Statistics("statistics"),
     Achievements("achievements"),
-    Documents("documents"),
     Profile("profile"),
     RecordSuccess("record_success"),
     TripFinished("trip_finished"),
     QrSuccess("qr_success"),
     TripHistory("trip_history")
 }
-```

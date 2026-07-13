@@ -50,7 +50,6 @@ fun Sidebar(
     onStatisticsClick: () -> Unit,
     onOpenQrClick: () -> Unit,
     onAchievementsClick: () -> Unit,
-    onDocumentsClick: () -> Unit,
     onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -159,12 +158,6 @@ fun Sidebar(
             )
 
             GarageMenuItem(
-                title = "Документы",
-                subtitle = "СТС, страховка, чеки",
-                onClick = onDocumentsClick
-            )
-
-            GarageMenuItem(
                 title = "Профиль",
                 subtitle = "Автомобиль, уведомления, настройки",
                 onClick = onProfileClick
@@ -172,3 +165,4 @@ fun Sidebar(
         }
     }
 }
+
