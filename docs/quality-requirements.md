@@ -115,9 +115,9 @@ recommendations if the backend accepted them without validation.
 
 **ISO/IEC 25010 sub-characteristic:** Integrity
 
-**Scenario:** When an authenticated user records a vehicle trip under the backend runtime environment, the backend shall calculate trip distance from submitted location points consistently, reject invalid trip data with controlled responses, and persist completed trip metrics without losing or corrupting the recorded distance.
+**Scenario:** When an authenticated user records and finishes a vehicle trip under the backend runtime environment, the backend shall calculate trip distance and duration consistently from submitted location points, ignore invalid coordinates, low-accuracy points, and unrealistic location jumps during metric calculation, protect trip operations by vehicle or trip ownership, and persist completed trip metrics and final mileage without losing or corrupting the recorded data.
 
-**Why this matters:** Trip mode is used to track kilometers driven by a vehicle. Incorrect distance calculation or corrupted trip metrics would make the digital twin mileage, trip history, and future maintenance planning unreliable.
+**Why this matters:** Trip mode is used to track kilometers driven by a vehicle. Incorrect distance calculation, unsafe handling of noisy GPS points, unauthorized trip access, or corrupted final mileage would make the digital twin mileage, trip history, and future maintenance planning unreliable.
 
 **Linked quality requirement tests:** [QRT-009](quality-requirement-tests.md#qrt-009-trip-distance-tracking-integrity)
 
