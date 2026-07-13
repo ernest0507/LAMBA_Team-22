@@ -15,11 +15,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -34,8 +31,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -64,6 +59,13 @@ import kotlinx.coroutines.launch
 private const val ThemeLight = "Светлая"
 private const val ThemeDark = "Тёмная"
 
+private enum class SettingsDialogStep {
+    ResetStepOne,
+    ResetStepTwo,
+    LogoutStepOne,
+    LogoutStepTwo
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSettingsScreen(
@@ -72,13 +74,8 @@ fun AppSettingsScreen(
     onBackClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    var useCarDataForAi by rememberSaveable { mutableStateOf(true) }
-    var usePersonalizedAnswers by rememberSaveable { mutableStateOf(true) }
-    var saveChatHistory by rememberSaveable { mutableStateOf(true) }
     var isThemeSheetVisible by rememberSaveable { mutableStateOf(false) }
-    var showResetStepOneDialog by rememberSaveable { mutableStateOf(false) }
-    var showResetStepTwoDialog by rememberSaveable { mutableStateOf(false) }
-    var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
+    var activeDialogStep by rememberSaveable { mutableStateOf<SettingsDialogStep?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -100,50 +97,43 @@ fun AppSettingsScreen(
         }
     }
 
-    if (showResetStepOneDialog) {
-        ConfirmationDialog(
-            title = "Сбросить данные приложения?",
-            message = "Будут удалены локальные настройки приложения.",
-            confirmText = "Продолжить",
-            dismissText = "Отмена",
-            confirmColor = colorScheme.onPrimaryContainer,
-            onDismiss = { showResetStepOneDialog = false },
-            onConfirm = {
-                showResetStepOneDialog = false
-                showResetStepTwoDialog = true
-            }
-        )
-    }
+    activeDialogStep?.let { dialogStep ->
+        val dialogConfig = dialogStep.toDialogConfig(colorScheme = colorScheme)
 
-    if (showResetStepTwoDialog) {
         ConfirmationDialog(
-            title = "Вы уверены?",
-            message = "Это действие нельзя отменить.",
-            confirmText = "Сбросить",
-            dismissText = "Отмена",
-            confirmColor = colorScheme.error,
-            onDismiss = { showResetStepTwoDialog = false },
+            title = dialogConfig.title,
+            message = dialogConfig.message,
+            confirmText = dialogConfig.confirmText,
+            dismissText = dialogConfig.dismissText,
+            confirmColor = dialogConfig.confirmColor,
+            onDismiss = { activeDialogStep = null },
             onConfirm = {
-                showResetStepTwoDialog = false
-                scope.launch {
-                    snackbarHostState.showSnackbar("Настройки приложения сброшены")
-                }
-            }
-        )
-    }
+                when (dialogStep) {
+                    SettingsDialogStep.ResetStepOne -> {
+                        activeDialogStep = SettingsDialogStep.ResetStepTwo
+                    }
 
-    if (showLogoutDialog) {
-        ConfirmationDialog(
-            title = "Выйти из аккаунта?",
-            message = "После выхода потребуется снова выполнить вход.",
-            confirmText = "Выйти",
-            dismissText = "Отмена",
-            confirmColor = colorScheme.error,
-            onDismiss = { showLogoutDialog = false },
-            onConfirm = {
-                showLogoutDialog = false
-                scope.launch {
-                    snackbarHostState.showSnackbar("Вы вышли из аккаунта")
+                    SettingsDialogStep.LogoutStepOne -> {
+                        activeDialogStep = SettingsDialogStep.LogoutStepTwo
+                    }
+
+                    SettingsDialogStep.ResetStepTwo -> {
+                        activeDialogStep = null
+                        scope.launch {
+                            // TODO: Implement local app settings reset when data layer is connected.
+                            snackbarHostState.showSnackbar("Данные приложения успешно сброшены.")
+                        }
+                    }
+
+                    SettingsDialogStep.LogoutStepTwo -> {
+                        activeDialogStep = null
+                        scope.launch {
+                            // TODO: Implement logout when authorization flow is connected.
+                            snackbarHostState.showSnackbar(
+                                "Выход из аккаунта будет реализован после подключения авторизации."
+                            )
+                        }
+                    }
                 }
             }
         )
@@ -177,7 +167,7 @@ fun AppSettingsScreen(
 
                 item {
                     Text(
-                        text = "Настройте внешний вид приложения и параметры конфиденциальности.",
+                        text = "Настройте внешний вид приложения и параметры аккаунта.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = colorScheme.onSurfaceVariant
                     )
@@ -197,40 +187,6 @@ fun AppSettingsScreen(
                 }
 
                 item {
-                    SettingsSectionTitle(text = "Конфиденциальность")
-                }
-
-                item {
-                    PrivacyToggleCard(
-                        icon = Icons.Filled.AutoAwesome,
-                        title = "Использовать данные автомобиля\nдля рекомендаций ИИ",
-                        description = "ИИ сможет учитывать пробег, историю обслуживания и расходы.",
-                        checked = useCarDataForAi,
-                        onCheckedChange = { useCarDataForAi = it }
-                    )
-                }
-
-                item {
-                    PrivacyToggleCard(
-                        icon = Icons.AutoMirrored.Filled.Chat,
-                        title = "Персонализированные ответы",
-                        description = "ИИ сможет использовать информацию о вашем автомобиле при ответах.",
-                        checked = usePersonalizedAnswers,
-                        onCheckedChange = { usePersonalizedAnswers = it }
-                    )
-                }
-
-                item {
-                    PrivacyToggleCard(
-                        icon = Icons.Filled.History,
-                        title = "Сохранять историю чата",
-                        description = "История переписки будет доступна после повторного входа.",
-                        checked = saveChatHistory,
-                        onCheckedChange = { saveChatHistory = it }
-                    )
-                }
-
-                item {
                     SettingsSectionTitle(text = "Управление данными")
                 }
 
@@ -239,7 +195,8 @@ fun AppSettingsScreen(
                         icon = Icons.Filled.DeleteOutline,
                         title = "Сбросить данные приложения",
                         description = "Удалить локальные настройки приложения.",
-                        onClick = { showResetStepOneDialog = true }
+                        showChevron = true,
+                        onClick = { activeDialogStep = SettingsDialogStep.ResetStepOne }
                     )
                 }
 
@@ -252,7 +209,7 @@ fun AppSettingsScreen(
                         icon = Icons.AutoMirrored.Filled.Logout,
                         title = "Выйти из аккаунта",
                         description = "Завершить текущий сеанс.",
-                        onClick = { showLogoutDialog = true }
+                        onClick = { activeDialogStep = SettingsDialogStep.LogoutStepOne }
                     )
                 }
             }
@@ -298,6 +255,7 @@ private fun ClickableSettingsCard(
     icon: ImageVector,
     title: String,
     description: String,
+    showChevron: Boolean = false,
     onClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -337,63 +295,15 @@ private fun ClickableSettingsCard(
                     color = colorScheme.onSurfaceVariant
                 )
             }
-        }
-    }
-}
 
-@Composable
-private fun PrivacyToggleCard(
-    icon: ImageVector,
-    title: String,
-    description: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(LambaRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surface),
-        border = BorderStroke(1.dp, colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(LambaSpacing.CardPadding),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            SettingsIcon(icon = icon)
-
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
+            if (showChevron) {
                 Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = colorScheme.onSurface,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colorScheme.onSurfaceVariant
+                    text = "\u203A",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = colorScheme.primary,
+                    fontWeight = FontWeight.Normal
                 )
             }
-
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = colorScheme.onPrimary,
-                    checkedTrackColor = colorScheme.primary,
-                    uncheckedThumbColor = colorScheme.surface,
-                    uncheckedTrackColor = colorScheme.outlineVariant
-                )
-            )
         }
     }
 }
@@ -553,6 +463,54 @@ private fun ConfirmationDialog(
             }
         }
     )
+}
+
+private data class SettingsDialogConfig(
+    val title: String,
+    val message: String,
+    val confirmText: String,
+    val dismissText: String,
+    val confirmColor: Color
+)
+
+@Composable
+private fun SettingsDialogStep.toDialogConfig(
+    colorScheme: androidx.compose.material3.ColorScheme
+): SettingsDialogConfig {
+    return when (this) {
+        SettingsDialogStep.ResetStepOne -> SettingsDialogConfig(
+            title = "Сбросить данные приложения?",
+            message = "Будут удалены только локальные настройки приложения. " +
+                "Данные автомобиля и записи не будут удалены.",
+            confirmText = "Продолжить",
+            dismissText = "Отмена",
+            confirmColor = colorScheme.onPrimaryContainer
+        )
+
+        SettingsDialogStep.ResetStepTwo -> SettingsDialogConfig(
+            title = "Вы уверены?",
+            message = "Это действие нельзя отменить. Продолжить?",
+            confirmText = "Да, сбросить",
+            dismissText = "Нет",
+            confirmColor = colorScheme.error
+        )
+
+        SettingsDialogStep.LogoutStepOne -> SettingsDialogConfig(
+            title = "Выйти из аккаунта?",
+            message = "Для повторного входа потребуется снова авторизоваться.",
+            confirmText = "Продолжить",
+            dismissText = "Отмена",
+            confirmColor = colorScheme.onPrimaryContainer
+        )
+
+        SettingsDialogStep.LogoutStepTwo -> SettingsDialogConfig(
+            title = "Подтвердите выход",
+            message = "Вы действительно хотите выйти из аккаунта?",
+            confirmText = "Да, выйти",
+            dismissText = "Нет",
+            confirmColor = colorScheme.error
+        )
+    }
 }
 
 private fun AppTheme.displayName(): String {

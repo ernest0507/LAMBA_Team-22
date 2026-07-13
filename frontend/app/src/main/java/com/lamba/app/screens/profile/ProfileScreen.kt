@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,9 +37,7 @@ import components.BackButton
 fun ProfileScreen(
     onBackClick: () -> Unit = {},
     onVehicleDataClick: () -> Unit = {},
-    onNotificationsClick: () -> Unit = {},
-    onAppSettingsClick: () -> Unit = {},
-    onHelpClick: () -> Unit = {}
+    onAppSettingsClick: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val menuItems = listOf(
@@ -51,22 +48,10 @@ fun ProfileScreen(
             onClick = onVehicleDataClick
         ),
         ProfileMenuItem(
-            iconLabel = "У",
-            title = "Напоминания",
-            subtitle = "ТО, страховка, обслуживание",
-            onClick = onNotificationsClick
-        ),
-        ProfileMenuItem(
             iconLabel = "Н",
             title = "Настройки приложения",
             subtitle = "Тема, единицы, приватность",
             onClick = onAppSettingsClick
-        ),
-        ProfileMenuItem(
-            iconLabel = "?",
-            title = "О приложении",
-            subtitle = "Версия, поддержка, информация",
-            onClick = onHelpClick
         )
     )
 
