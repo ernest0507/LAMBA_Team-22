@@ -132,10 +132,6 @@ fun HomeScreen(
                     isMenuOpen = false
                     onOpenAchievements()
                 },
-                onDocumentsClick = {
-                    isMenuOpen = false
-                    onOpenDocuments()
-                },
                 onProfileClick = {
                     isMenuOpen = false
                     onOpenProfile()
