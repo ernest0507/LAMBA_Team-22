@@ -2,7 +2,7 @@
 
 ## Critical Modules and Coverage
 
-| Critical module | Why critical | Required line coverage | Current evidence |
+| Critical module | Why critical | Required line coverage | Current eфvidence |
 |---|---|---:|---|
 | `backend/app/services/assistant.py` | Handles AI-assisted record extraction, AI provider fallback behavior, extracted-record validation, and mileage-update interpretation. | 30% | Covered by backend tests and reported by `pytest tests --cov=app --cov-report=term-missing` in CI. |
 | `backend/app/schemas/assistant.py` | Defines assistant request, response, action, mileage-update, and extracted-record structures used by the AI chat flow. | 30% | Covered by backend tests and reported by `pytest tests --cov=app --cov-report=term-missing` in CI. |
@@ -10,6 +10,9 @@
 | `backend/app/api/routes/auth.py` | Owns registration and login routes, including the registration transaction boundary verified by QRT-006. | 30% | Covered by backend tests and reported by `pytest tests --cov=app --cov-report=term-missing` in CI. |
 | `backend/app/crud/users.py` | Owns user lookup, creation, authentication, and password hashing/verification helpers verified by QRT-005. | 30% | Covered by backend tests and reported by `pytest tests --cov=app --cov-report=term-missing` in CI. |
 | `backend/app/api/routes/maintenance_records.py` | Owns maintenance record routes and record-photo upload validation verified by QRT-007. | 30% | Covered by backend tests and reported by `pytest tests --cov=app --cov-report=term-missing` in CI. |
+| `backend/app/api/routes/receipts.py` | Owns receipt QR scan routes, car ownership checks, QR file validation, and provider error mapping verified by QRT-008. | 30% | 96% line coverage in the latest protected default-branch backend CI run. |
+| `backend/app/api/routes/trips.py` | Owns trip start, point append, finish, read, ownership checks, active/finished state handling, and final-mileage validation verified by QRT-009. | 30% | 96% line coverage in the latest protected default-branch backend CI run. |
+| `backend/app/services/trip_metrics.py` | Calculates trip distance, duration, average speed, max speed, GPS-point filtering, chronological processing, and safe default metrics verified by QRT-009. | 30% | 92% line coverage in the latest protected default-branch backend CI run. |
 
 The backend CI job runs `pytest tests --cov=app --cov-report=term-missing`.
 The coverage output from the latest protected default-branch run is the source
@@ -21,9 +24,9 @@ the same environment created by CI.
 
 | Test type | Scope | Command or CI check | Latest result | Evidence |
 |---|---|---|---|---|
-| Backend unit tests | AI provider fallback, invalid AI-extracted record data, mileage-update handling, password hashing/verification threadpool behavior, registration transaction release, and record photo upload validation. | `pytest tests/test_returns_clarifictation_ai_provider_unavailable.py tests/test_returns_clarification_negative_cost.py tests/test_assistant_mileage_updates.py tests/test_password_hash_threadpool.py tests/test_registration_releases_connection.py tests/test_record_photo_uploads.py` | Passing when the `backend-tests` CI job passes. | [Backend tests workflow](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml) |
+| Backend unit tests | AI provider fallback, invalid AI-extracted record data, mileage-update handling, password hashing/verification threadpool behavior, registration transaction release, record photo upload validation, receipt QR scan backend handling, and trip metric calculation/API behavior. | `pytest tests/test_returns_clarifictation_ai_provider_unavailable.py tests/test_returns_clarification_negative_cost.py tests/test_assistant_mileage_updates.py tests/test_password_hash_threadpool.py tests/test_registration_releases_connection.py tests/test_record_photo_uploads.py tests/test_receipts_api.py tests/test_trip_metrics.py tests/test_trip_api.py` | Passing when the `backend-tests` CI job passes. | [Backend tests workflow](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml) |
 | Backend integration tests | Registration response time and persisted car plus maintenance-record workflow with PostgreSQL, Alembic migrations, and a running FastAPI backend. | `pytest tests/test_registration_response_time.py tests/test_database_persists_car_and_maintenance_record_workflow.py` | Passing when the `backend-tests` CI job passes. | [Backend tests workflow](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml) |
-| Automated QRTs | QR-001 through QR-007. | `pytest tests --cov=app --cov-report=term-missing` | Passing when the `backend-tests` CI job passes. | [Quality requirement tests](quality-requirement-tests.md) |
+| Automated QRTs | QR-001 through QR-009. | `pytest tests --cov=app --cov-report=term-missing` | Passing when the `backend-tests` CI job passes. | [Quality requirement tests](quality-requirement-tests.md) |
 | Coverage reporting | Backend application modules under `backend/app`. | `pytest tests --cov=app --cov-report=term-missing` | Reported in the `backend-tests` CI output. | [Backend tests workflow](https://github.com/ernest0507/LAMBA_Team-22/actions/workflows/backend-tests.yml) |
 
 
@@ -61,6 +64,8 @@ Assignment 4 additional QA check.
 | QRT-005 | QR-005 | `pytest tests/test_password_hash_threadpool.py` | Password hashing and verification run outside the event-loop thread. | [QRT-005](quality-requirement-tests.md#qrt-005-registration-event-loop-responsiveness) |
 | QRT-006 | QR-006 | `pytest tests/test_registration_releases_connection.py` | Registration performs the existing-user lookup, releases the lookup transaction with rollback, and only then starts user creation. | [QRT-006](quality-requirement-tests.md#qrt-006-registration-database-connection-release) |
 | QRT-007 | QR-007 | `pytest tests/test_record_photo_uploads.py` | Valid image upload returns photo metadata with an API URL; invalid upload cases return controlled HTTP 415 or HTTP 400 errors. | [QRT-007](quality-requirement-tests.md#qrt-007-record-photo-upload-validation) |
+| QRT-008 | QR-008 | `pytest tests/test_receipts_api.py` | All receipt QR scan route tests pass: owned-car raw QR scans return the provider response, owned-car QR image uploads are forwarded to the provider with a safe filename and content type, unsupported file types return HTTP 415, inaccessible vehicle IDs return HTTP 404 without calling the provider, missing provider configuration returns HTTP 503, and provider error codes are mapped to controlled HTTP 400, 202, 429, or 502 responses. | [QRT-008](quality-requirement-tests.md#qrt-008-receipt-qr-scan-backend-handling) |
+| QRT-009 | QR-009 | `pytest tests/test_trip_metrics.py tests/test_trip_api.py` | Trip tracking tests pass: distance, duration, average speed, and max speed are calculated consistently from valid submitted points; invalid coordinates, low-accuracy points, and unrealistic jumps are ignored; points are processed chronologically; empty and single-point trips return safe zero metrics; trip operations enforce ownership and active/finished state rules; finishing a trip saves calculated metrics and persists valid final mileage; and invalid final mileage below the current vehicle mileage is rejected with a controlled HTTP 400 response. | [QRT-009](quality-requirement-tests.md#qrt-009-trip-distance-tracking-integrity) |
 
 ## Manual Evidence That Does Not Count as QRT
 
@@ -72,9 +77,10 @@ Assignment 4 additional QA check.
 Manual evidence supports release and customer validation, but it does not count
 as an automated QRT.
 
-## Maintained Assignment 4 Gates
+## Maintained Quality Gates
 
-The following Assignment 4 gates remain active for Assignment 5 and MVP v2 work:
+The following maintained quality gates remain active for Assignment 6, Week 7,
+and MVP v3 work:
 
 - Backend linting must run in CI for pull requests and protected default-branch
   updates.
