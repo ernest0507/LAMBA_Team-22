@@ -37,11 +37,11 @@ fun CarSummaryCard(
     val colorScheme = MaterialTheme.colorScheme
     val vehicleColor = car?.color.toVehicleColor()
     val title = car?.displayName().orEmpty().ifBlank { "Модель автомобиля" }
-    val subtitle = car?.bodyType?.takeIf { it.isNotBlank() }
+    val subtitle = car?.bodyType.toBodyTypeLabel()
         ?: car?.color?.takeIf { it.isNotBlank() }
         ?: "Цифровой двойник"
     val details = car?.let {
-        "${it.currentMileageKm.formatMileage()} км · ${it.year}"
+        "${it.currentMileageKm.formatMileage()} км • ${it.year}"
     } ?: "Данные авто загружаются"
 
     Column(
@@ -91,12 +91,6 @@ fun CarSummaryCard(
                 style = MaterialTheme.typography.labelSmall,
                 color = colorScheme.onSurfaceVariant
             )
-
-            Text(
-                text = "Состояние 92%",
-                style = MaterialTheme.typography.labelSmall,
-                color = colorScheme.onSurfaceVariant
-            )
         }
 
         Spacer(modifier = Modifier.height(18.dp))
@@ -108,6 +102,20 @@ fun CarSummaryCard(
             tripStartedAtMillis = tripStartedAtMillis,
             distanceKm = tripDistanceKm
         )
+    }
+}
+
+private fun String?.toBodyTypeLabel(): String? {
+    return when (this?.trim()?.lowercase()) {
+        "sedan" -> "Седан"
+        "hatchback" -> "Хэтчбек"
+        "crossover" -> "Кроссовер"
+        "coupe" -> "Купе"
+        "wagon" -> "Универсал"
+        "pickup" -> "Пикап"
+        "cabriolet" -> "Кабриолет"
+        null, "" -> null
+        else -> this
     }
 }
 

@@ -22,10 +22,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.LocalGasStation
-import androidx.compose.material.icons.filled.Numbers
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,6 +54,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
+import com.lamba.app.data.cars.CarResponse
+import com.lamba.app.data.cars.CarUpdateRequest
+import com.lamba.app.screens.greeting.CarBrands
+import com.lamba.app.screens.greeting.CarModelsByBrand
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaRadius
@@ -69,12 +70,18 @@ import com.lamba.app.ui.theme.LambaVehicleSilver
 import components.BackButton
 import components.CarImage
 import components.ContinueButton
+import java.text.NumberFormat
+import java.time.Year
+import java.util.Locale
 import kotlinx.coroutines.delay
 
 @Composable
 fun VehicleDataScreen(
     onBackClick: () -> Unit = {},
-    vehicleData: VehicleDataUiModel = VehicleDataUiModel()
+    vehicleData: VehicleDataUiModel = VehicleDataUiModel(),
+    isSaving: Boolean = false,
+    saveErrorMessage: String? = null,
+    onSaveVehicleData: (CarUpdateRequest) -> Unit = {}
 ) {
     var savedVehicleData by remember {
         mutableStateOf(vehicleData.toEditableData())
@@ -86,9 +93,26 @@ fun VehicleDataScreen(
     var expandedDropdownKey by rememberSaveable { mutableStateOf<String?>(null) }
     var isSuccessVisible by remember { mutableStateOf(false) }
 
-    val isSaveEnabled = currentVehicleData != savedVehicleData
+    val validationErrors = currentVehicleData.validate()
+    val isSaveEnabled = currentVehicleData != savedVehicleData && !isSaving && validationErrors.isValid
     val bodyColor = currentVehicleData.colorLabel.toVehicleColor()
     val colorScheme = MaterialTheme.colorScheme
+    val makeOptions = remember(currentVehicleData.make) {
+        CarBrands.withCurrentOption(currentVehicleData.make)
+    }
+    val modelOptions = remember(currentVehicleData.make, currentVehicleData.model) {
+        CarModelsByBrand[currentVehicleData.make]
+            .orEmpty()
+            .withCurrentOption(currentVehicleData.model)
+    }
+
+    LaunchedEffect(vehicleData) {
+        val editableData = vehicleData.toEditableData()
+        savedVehicleData = editableData
+        currentVehicleData = editableData
+        editingFieldKey = null
+        expandedDropdownKey = null
+    }
 
     LaunchedEffect(isSuccessVisible) {
         if (isSuccessVisible) {
@@ -117,29 +141,56 @@ fun VehicleDataScreen(
 
             item {
                 VehicleHeroCard(
-                    model = currentVehicleData.model,
+                    model = currentVehicleData.displayName(),
                     bodyType = currentVehicleData.bodyType,
-                    mileage = currentVehicleData.mileage,
+                    mileage = currentVehicleData.mileage.displayMileage(),
                     year = currentVehicleData.year,
-                    condition = vehicleData.condition,
-                    bodyColor = bodyColor
+                    bodyColor = bodyColor,
+                    colorKey = currentVehicleData.colorLabel.toBackendColor()
                 )
             }
 
             item {
-                ManualVehicleFieldCard(
-                    label = "Марка и модель",
-                    value = currentVehicleData.model,
+                DropdownVehicleFieldCard(
+                    label = "Марка автомобиля",
+                    value = currentVehicleData.make,
                     icon = Icons.Filled.DirectionsCar,
-                    isEditing = editingFieldKey == VehicleFieldKeys.Model,
-                    onStartEditing = {
-                        editingFieldKey = VehicleFieldKeys.Model
-                        expandedDropdownKey = null
-                    },
-                    onDoneEditing = {
+                    options = makeOptions,
+                    expanded = expandedDropdownKey == VehicleFieldKeys.Make,
+                    onExpandedChange = { expanded ->
+                        expandedDropdownKey = if (expanded) VehicleFieldKeys.Make else null
                         editingFieldKey = null
                     },
-                    onValueChange = { currentVehicleData = currentVehicleData.copy(model = it) }
+                    onOptionSelected = { selectedMake ->
+                        val nextModel = CarModelsByBrand[selectedMake]?.firstOrNull()
+                            ?: currentVehicleData.model.takeIf { it.isNotBlank() }
+                            ?: selectedMake
+                        currentVehicleData = currentVehicleData.copy(
+                            make = selectedMake,
+                            model = nextModel
+                        )
+                        expandedDropdownKey = null
+                    },
+                    errorMessage = validationErrors.make
+                )
+            }
+
+            item {
+                DropdownVehicleFieldCard(
+                    label = "Модель автомобиля",
+                    value = currentVehicleData.model,
+                    icon = Icons.Filled.DirectionsCar,
+                    options = modelOptions,
+                    expanded = expandedDropdownKey == VehicleFieldKeys.Model,
+                    onExpandedChange = { expanded ->
+                        expandedDropdownKey = if (expanded) VehicleFieldKeys.Model else null
+                        editingFieldKey = null
+                    },
+                    onOptionSelected = {
+                        currentVehicleData = currentVehicleData.copy(model = it)
+                        expandedDropdownKey = null
+                    },
+                    errorMessage = validationErrors.model
                 )
             }
 
@@ -157,7 +208,10 @@ fun VehicleDataScreen(
                     onDoneEditing = {
                         editingFieldKey = null
                     },
-                    onValueChange = { currentVehicleData = currentVehicleData.copy(year = it) }
+                    onValueChange = {
+                        currentVehicleData = currentVehicleData.copy(year = it.filterDigits(maxLength = 4))
+                    },
+                    errorMessage = validationErrors.year
                 )
             }
 
@@ -168,6 +222,7 @@ fun VehicleDataScreen(
                     icon = Icons.Filled.Speed,
                     isEditing = editingFieldKey == VehicleFieldKeys.Mileage,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    valueSuffix = "км",
                     onStartEditing = {
                         editingFieldKey = VehicleFieldKeys.Mileage
                         expandedDropdownKey = null
@@ -175,27 +230,12 @@ fun VehicleDataScreen(
                     onDoneEditing = {
                         editingFieldKey = null
                     },
-                    onValueChange = { currentVehicleData = currentVehicleData.copy(mileage = it) }
+                    onValueChange = {
+                        currentVehicleData = currentVehicleData.copy(mileage = it.filterDigits(maxLength = 7))
+                    },
+                    errorMessage = validationErrors.mileage
                 )
             }
-
-            item {
-                ManualVehicleFieldCard(
-                    label = "VIN",
-                    value = currentVehicleData.vin,
-                    icon = Icons.Filled.Numbers,
-                    isEditing = editingFieldKey == VehicleFieldKeys.Vin,
-                    onStartEditing = {
-                        editingFieldKey = VehicleFieldKeys.Vin
-                        expandedDropdownKey = null
-                    },
-                    onDoneEditing = {
-                        editingFieldKey = null
-                    },
-                    onValueChange = { currentVehicleData = currentVehicleData.copy(vin = it) }
-                )
-            }
-
             item {
                 DropdownVehicleFieldCard(
                     label = "Цвет автомобиля",
@@ -233,59 +273,6 @@ fun VehicleDataScreen(
             }
 
             item {
-                DropdownVehicleFieldCard(
-                    label = "Тип топлива",
-                    value = currentVehicleData.fuelType,
-                    icon = Icons.Filled.LocalGasStation,
-                    options = VehicleFuelTypes,
-                    expanded = expandedDropdownKey == VehicleFieldKeys.FuelType,
-                    onExpandedChange = { expanded ->
-                        expandedDropdownKey = if (expanded) VehicleFieldKeys.FuelType else null
-                        editingFieldKey = null
-                    },
-                    onOptionSelected = {
-                        currentVehicleData = currentVehicleData.copy(fuelType = it)
-                        expandedDropdownKey = null
-                    }
-                )
-            }
-
-            item {
-                DropdownVehicleFieldCard(
-                    label = "Коробка передач",
-                    value = currentVehicleData.transmission,
-                    icon = Icons.Filled.Settings,
-                    options = VehicleTransmissionTypes,
-                    expanded = expandedDropdownKey == VehicleFieldKeys.Transmission,
-                    onExpandedChange = { expanded ->
-                        expandedDropdownKey = if (expanded) VehicleFieldKeys.Transmission else null
-                        editingFieldKey = null
-                    },
-                    onOptionSelected = {
-                        currentVehicleData = currentVehicleData.copy(transmission = it)
-                        expandedDropdownKey = null
-                    }
-                )
-            }
-
-            item {
-                ManualVehicleFieldCard(
-                    label = "Госномер",
-                    value = currentVehicleData.licensePlate,
-                    icon = Icons.Filled.Numbers,
-                    isEditing = editingFieldKey == VehicleFieldKeys.LicensePlate,
-                    onStartEditing = {
-                        editingFieldKey = VehicleFieldKeys.LicensePlate
-                        expandedDropdownKey = null
-                    },
-                    onDoneEditing = {
-                        editingFieldKey = null
-                    },
-                    onValueChange = { currentVehicleData = currentVehicleData.copy(licensePlate = it) }
-                )
-            }
-
-            item {
                 ManualVehicleFieldCard(
                     label = "Общие заметки",
                     value = currentVehicleData.notes,
@@ -299,7 +286,10 @@ fun VehicleDataScreen(
                     onDoneEditing = {
                         editingFieldKey = null
                     },
-                    onValueChange = { currentVehicleData = currentVehicleData.copy(notes = it) }
+                    onValueChange = {
+                        currentVehicleData = currentVehicleData.copy(notes = it.take(MAX_NOTES_LENGTH))
+                    },
+                    errorMessage = validationErrors.notes
                 )
             }
 
@@ -309,11 +299,22 @@ fun VehicleDataScreen(
                 }
             }
 
+            if (!saveErrorMessage.isNullOrBlank()) {
+                item {
+                    Text(
+                        text = saveErrorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+
             item {
                 ContinueButton(
-                    text = "Сохранить изменения",
+                    text = if (isSaving) "Сохраняю..." else "Сохранить изменения",
                     onClick = {
                         if (!isSaveEnabled) return@ContinueButton
+                        onSaveVehicleData(currentVehicleData.toCarUpdateRequest())
                         savedVehicleData = currentVehicleData
                         editingFieldKey = null
                         expandedDropdownKey = null
@@ -354,8 +355,8 @@ private fun VehicleHeroCard(
     bodyType: String,
     mileage: String,
     year: String,
-    condition: String,
-    bodyColor: Color
+    bodyColor: Color,
+    colorKey: String
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -398,36 +399,16 @@ private fun VehicleHeroCard(
             ) {
                 CarImage(
                     bodyColor = bodyColor,
-                    bodyType = bodyType
+                    bodyType = bodyType,
+                    colorKey = colorKey
                 )
             }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "$mileage · $year",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colorScheme.onSurfaceVariant
-                )
-
-                Box(modifier = Modifier.weight(1f))
-
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(LambaRadius.Pill))
-                        .background(colorScheme.primaryContainer)
-                        .padding(horizontal = 12.dp, vertical = 8.dp)
-                ) {
-                    Text(
-                        text = "Состояние $condition",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
+            Text(
+                text = "$mileage • $year",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -442,7 +423,9 @@ private fun ManualVehicleFieldCard(
     onDoneEditing: () -> Unit,
     onValueChange: (String) -> Unit,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    valueSuffix: String? = null,
+    errorMessage: String? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -497,14 +480,45 @@ private fun ManualVehicleFieldCard(
                             unfocusedIndicatorColor = Color.Transparent,
                             disabledIndicatorColor = Color.Transparent,
                             errorIndicatorColor = Color.Transparent
-                        )
+                        ),
+                        suffix = valueSuffix?.let {
+                            {
+                                Text(
+                                    text = it,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colorScheme.onSurfaceVariant,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
+                        }
                     )
                 } else {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = value,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = colorScheme.onSurface,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        if (!valueSuffix.isNullOrBlank()) {
+                            Text(
+                                text = valueSuffix,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
+
+                if (!errorMessage.isNullOrBlank()) {
                     Text(
-                        text = value,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = colorScheme.onSurface,
-                        fontWeight = FontWeight.SemiBold
+                        text = errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorScheme.error
                     )
                 }
             }
@@ -530,7 +544,8 @@ private fun DropdownVehicleFieldCard(
     options: List<String>,
     expanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
-    onOptionSelected: (String) -> Unit
+    onOptionSelected: (String) -> Unit,
+    errorMessage: String? = null
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -570,6 +585,13 @@ private fun DropdownVehicleFieldCard(
                         color = colorScheme.onSurface,
                         fontWeight = FontWeight.SemiBold
                     )
+                    if (!errorMessage.isNullOrBlank()) {
+                        Text(
+                            text = errorMessage,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colorScheme.error
+                        )
+                    }
                 }
 
                 Icon(
@@ -670,97 +692,203 @@ private fun SuccessMessageCard() {
 }
 
 data class VehicleDataUiModel(
-    val model: String = "ВАЗ-2101",
+    val make: String = "Lada",
+    val model: String = "2101",
     val year: String = "1975",
-    val mileage: String = "100 000 км",
-    val vin: String = "Не указано",
+    val mileage: String = "100000",
     val colorLabel: String = "Красный",
     val bodyType: String = "Кроссовер",
-    val fuelType: String = "Бензин",
-    val transmission: String = "Механика",
-    val licensePlate: String = "Не указано",
     val notes: String = "Кроссовер",
-    val condition: String = "92%"
 ) {
     fun toEditableData(): VehicleEditableData {
         return VehicleEditableData(
+            make = make,
             model = model,
             year = year,
             mileage = mileage,
-            vin = vin,
             colorLabel = colorLabel,
             bodyType = bodyType,
-            fuelType = fuelType,
-            transmission = transmission,
-            licensePlate = licensePlate,
             notes = notes
         )
     }
 }
 
 data class VehicleEditableData(
+    val make: String,
     val model: String,
     val year: String,
     val mileage: String,
-    val vin: String,
     val colorLabel: String,
     val bodyType: String,
-    val fuelType: String,
-    val transmission: String,
-    val licensePlate: String,
     val notes: String
 )
+
+private data class VehicleValidationErrors(
+    val make: String? = null,
+    val model: String? = null,
+    val year: String? = null,
+    val mileage: String? = null,
+    val notes: String? = null
+) {
+    val isValid: Boolean
+        get() = make == null && model == null && year == null && mileage == null && notes == null
+}
+
+private fun VehicleEditableData.validate(): VehicleValidationErrors {
+    val cleanMake = make.trim()
+    val cleanModel = model.trim()
+    val cleanYear = year.trim()
+    val cleanMileage = mileage.filter { it.isDigit() }
+    val currentYear = Year.now().value + 1
+    val parsedYear = cleanYear.toIntOrNull()
+    val parsedMileage = cleanMileage.toIntOrNull()
+
+    return VehicleValidationErrors(
+        make = when {
+            cleanMake.isBlank() -> "Выберите марку автомобиля"
+            cleanMake.length > MAX_MODEL_LENGTH -> "Максимум $MAX_MODEL_LENGTH символов"
+            else -> null
+        },
+        model = when {
+            cleanModel.isBlank() -> "Выберите модель автомобиля"
+            cleanModel.length < 2 -> "Минимум 2 символа"
+            cleanModel.length > MAX_MODEL_LENGTH -> "Максимум $MAX_MODEL_LENGTH символов"
+            !cleanModel.all { it.isLetterOrDigit() || it.isWhitespace() || it in MODEL_ALLOWED_SYMBOLS } ->
+                "Можно использовать буквы, цифры, пробел, - / ."
+            else -> null
+        },
+        year = when {
+            cleanYear.isBlank() -> "Укажите год выпуска"
+            parsedYear == null -> "Год должен быть числом"
+            parsedYear !in MIN_CAR_YEAR..currentYear -> "Год должен быть от $MIN_CAR_YEAR до $currentYear"
+            else -> null
+        },
+        mileage = when {
+            cleanMileage.isBlank() -> "Укажите пробег"
+            parsedMileage == null -> "Пробег должен быть числом"
+            parsedMileage > MAX_MILEAGE_KM -> "Пробег не больше ${MAX_MILEAGE_KM.formatMileage()} км"
+            else -> null
+        },
+        notes = when {
+            notes.length > MAX_NOTES_LENGTH -> "Максимум $MAX_NOTES_LENGTH символов"
+            else -> null
+        }
+    )
+}
+
+private fun String.sanitizeModelInput(): String {
+    return filter { it.isLetterOrDigit() || it.isWhitespace() || it in MODEL_ALLOWED_SYMBOLS }
+        .take(MAX_MODEL_LENGTH)
+}
+
+private fun String.filterDigits(maxLength: Int): String {
+    return filter { it.isDigit() }.take(maxLength)
+}
+
+private fun VehicleEditableData.displayName(): String {
+    return listOf(make, model)
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+        .joinToString(separator = " ")
+        .ifBlank { "Автомобиль" }
+}
+
+private fun String.displayMileage(): String {
+    return filter { it.isDigit() }
+        .toIntOrNull()
+        ?.let { "${it.formatMileage()} км" }
+        ?: "0 км"
+}
+
+private fun List<String>.withCurrentOption(currentValue: String): List<String> {
+    val cleanValue = currentValue.trim()
+    return if (cleanValue.isBlank() || any { it.equals(cleanValue, ignoreCase = true) }) {
+        this
+    } else {
+        listOf(cleanValue) + this
+    }
+}
 
 private val VehicleEditableDataSaver: Saver<VehicleEditableData, List<String>> = Saver(
     save = {
         listOf(
+            it.make,
             it.model,
             it.year,
             it.mileage,
-            it.vin,
             it.colorLabel,
             it.bodyType,
-            it.fuelType,
-            it.transmission,
-            it.licensePlate,
             it.notes
         )
     },
     restore = {
         VehicleEditableData(
-            model = it[0],
-            year = it[1],
-            mileage = it[2],
-            vin = it[3],
+            make = it[0],
+            model = it[1],
+            year = it[2],
+            mileage = it[3],
             colorLabel = it[4],
             bodyType = it[5],
-            fuelType = it[6],
-            transmission = it[7],
-            licensePlate = it[8],
-            notes = it[9]
+            notes = it[6]
         )
     }
 )
 
+fun CarResponse?.toVehicleDataUiModel(): VehicleDataUiModel {
+    if (this == null) return VehicleDataUiModel()
+    val resolvedMake = make?.trim()?.takeIf { it.isNotBlank() } ?: CarBrands.first()
+
+    return VehicleDataUiModel(
+        make = resolvedMake,
+        model = model.trim().ifBlank { CarModelsByBrand[resolvedMake]?.firstOrNull() ?: "Автомобиль" },
+        year = year.toString(),
+        mileage = currentMileageKm.toString(),
+        colorLabel = color.toColorLabel(),
+        bodyType = bodyType.toBodyTypeLabel(),
+        notes = notes?.takeIf { it.isNotBlank() } ?: "Не указано"
+    )
+}
+
+private fun VehicleEditableData.toCarUpdateRequest(): CarUpdateRequest {
+    return CarUpdateRequest(
+        make = make.trim().takeIf { it.isNotBlank() },
+        model = model.trim().ifBlank { "Автомобиль" },
+        year = year.filter { it.isDigit() }.toIntOrNull(),
+        currentMileageKm = mileage.filter { it.isDigit() }.toIntOrNull(),
+        color = colorLabel.toBackendColor(),
+        bodyType = bodyType.toBackendBodyType(),
+        notes = notes.trim().takeIf { it.isNotBlank() && it != "Не указано" }
+    )
+}
+
+private fun Int.formatMileage(): String {
+    return NumberFormat
+        .getIntegerInstance(Locale.forLanguageTag("ru-RU"))
+        .format(this)
+}
+
+private const val MIN_CAR_YEAR = 1886
+private const val MAX_MODEL_LENGTH = 80
+private const val MAX_NOTES_LENGTH = 500
+private const val MAX_MILEAGE_KM = 2_000_000
+private val MODEL_ALLOWED_SYMBOLS = setOf('-', '/', '.', '_')
+
 private object VehicleFieldKeys {
+    const val Make = "make"
     const val Model = "model"
     const val Year = "year"
     const val Mileage = "mileage"
-    const val Vin = "vin"
     const val Color = "color"
     const val BodyType = "body_type"
-    const val FuelType = "fuel_type"
-    const val Transmission = "transmission"
-    const val LicensePlate = "license_plate"
     const val Notes = "notes"
 }
 
 private val VehicleColorOptions = listOf(
     "Красный",
     "Синий",
-    "Зелёный",
+    "Зеленый",
     "Серый",
-    "Чёрный",
+    "Черный",
     "Белый"
 )
 
@@ -773,29 +901,61 @@ private val VehicleBodyTypes = listOf(
     "Пикап"
 )
 
-private val VehicleFuelTypes = listOf(
-    "Бензин",
-    "Дизель",
-    "Гибрид",
-    "Электро"
-)
-
-private val VehicleTransmissionTypes = listOf(
-    "Механика",
-    "Автомат",
-    "Робот",
-    "Вариатор"
-)
-
 private fun String.toVehicleColor(): Color {
     return when (this) {
         "Красный" -> LambaVehicleRed
         "Синий" -> LambaVehicleBlue
-        "Зелёный" -> LambaVehicleGreen
+        "Зеленый" -> LambaVehicleGreen
         "Серый" -> LambaVehicleSilver
-        "Чёрный" -> LambaInk
+        "Черный" -> LambaInk
         "Белый" -> LambaSurface
         else -> LambaVehicleRed
+    }
+}
+
+private fun String?.toColorLabel(): String {
+    return when (this?.trim()?.lowercase()) {
+        "red" -> "Красный"
+        "blue" -> "Синий"
+        "green" -> "Зеленый"
+        "graphite", "black" -> "Черный"
+        "white" -> "Белый"
+        else -> "Серый"
+    }
+}
+
+private fun String.toBackendColor(): String {
+    return when (trim().lowercase()) {
+        "красный", "red" -> "red"
+        "синий", "blue" -> "blue"
+        "зеленый", "зелёный", "green" -> "green"
+        "черный", "чёрный", "графит", "graphite", "black" -> "graphite"
+        "белый", "white" -> "white"
+        else -> "silver"
+    }
+}
+
+private fun String?.toBodyTypeLabel(): String {
+    return when (this?.trim()?.lowercase()) {
+        "hatchback" -> "Хэтчбек"
+        "crossover" -> "Кроссовер"
+        "coupe" -> "Купе"
+        "wagon" -> "Универсал"
+        "pickup" -> "Пикап"
+        "cabriolet" -> "Кабриолет"
+        else -> "Седан"
+    }
+}
+
+private fun String.toBackendBodyType(): String {
+    return when (trim().lowercase()) {
+        "хэтчбек", "hatchback" -> "hatchback"
+        "кроссовер", "crossover" -> "crossover"
+        "купе", "coupe" -> "coupe"
+        "универсал", "wagon" -> "wagon"
+        "пикап", "pickup" -> "pickup"
+        "кабриолет", "cabriolet" -> "cabriolet"
+        else -> "sedan"
     }
 }
 

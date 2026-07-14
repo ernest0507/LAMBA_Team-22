@@ -36,6 +36,18 @@ data class CarCreateRequest(
     val notes: String? = null
 )
 
+data class CarUpdateRequest(
+    val make: String? = null,
+    val model: String? = null,
+    val year: Int? = null,
+    @SerializedName("current_mileage_km")
+    val currentMileageKm: Int? = null,
+    val color: String? = null,
+    @SerializedName("body_type")
+    val bodyType: String? = null,
+    val notes: String? = null
+)
+
 data class CarResponse(
     val id: Int,
     @SerializedName("owner_id")

@@ -13,4 +13,12 @@ class CarRepository(
             request = draft.toCreateRequest()
         )
     }
+
+    suspend fun updateCar(accessToken: String, carId: Int, request: CarUpdateRequest): CarResponse {
+        return api.updateCar(
+            authorization = "Bearer $accessToken",
+            carId = carId,
+            request = request
+        )
+    }
 }
