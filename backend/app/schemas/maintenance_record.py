@@ -42,6 +42,7 @@ class MaintenanceRecordRead(MaintenanceRecordBase):
 
     id: int
     car_id: int
+    receipt_id: str | None = None
     created_at: datetime
     updated_at: datetime
 
