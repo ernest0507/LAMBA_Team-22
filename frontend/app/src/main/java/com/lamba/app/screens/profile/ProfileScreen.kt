@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.lamba.app.data.auth.UserResponse
+import com.lamba.app.data.cars.CarResponse
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
@@ -35,6 +37,8 @@ import components.BackButton
 
 @Composable
 fun ProfileScreen(
+    user: UserResponse? = null,
+    car: CarResponse? = null,
     onBackClick: () -> Unit = {},
     onVehicleDataClick: () -> Unit = {},
     onAppSettingsClick: () -> Unit = {}
@@ -44,13 +48,13 @@ fun ProfileScreen(
         ProfileMenuItem(
             iconLabel = "А",
             title = "Данные автомобиля",
-            subtitle = "Год, пробег, VIN, цвет кузова",
+            subtitle = "Год, пробег, цвет кузова",
             onClick = onVehicleDataClick
         ),
         ProfileMenuItem(
             iconLabel = "Н",
             title = "Настройки приложения",
-            subtitle = "Тема, единицы, приватность",
+            subtitle = "Тема приложения",
             onClick = onAppSettingsClick
         )
     )
@@ -74,7 +78,10 @@ fun ProfileScreen(
             }
 
             item {
-                ProfileUserCard()
+                ProfileUserCard(
+                    user = user,
+                    car = car
+                )
             }
 
             item {
@@ -112,8 +119,13 @@ private fun ProfileHeader(
 }
 
 @Composable
-private fun ProfileUserCard() {
+private fun ProfileUserCard(
+    user: UserResponse?,
+    car: CarResponse?
+) {
     val colorScheme = MaterialTheme.colorScheme
+    val userName = user.displayName()
+    val email = user.displayEmail()
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -138,7 +150,7 @@ private fun ProfileUserCard() {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Н",
+                    text = userName.avatarLetter(),
                     style = MaterialTheme.typography.headlineMedium,
                     color = colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.SemiBold
@@ -149,13 +161,13 @@ private fun ProfileUserCard() {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = "Никита",
+                    text = userName,
                     style = MaterialTheme.typography.titleMedium,
                     color = colorScheme.onSurface,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = "Toyota Corolla · 48 230 км",
+                    text = email,
                     style = MaterialTheme.typography.bodyMedium,
                     color = colorScheme.onSurfaceVariant
                 )
@@ -276,6 +288,31 @@ private data class ProfileMenuItem(
     val subtitle: String,
     val onClick: () -> Unit
 )
+
+private fun UserResponse?.displayName(): String {
+    val fullName = this?.fullName?.trim()
+    if (!fullName.isNullOrBlank()) return fullName
+
+    val emailName = this?.email
+        ?.substringBefore("@")
+        ?.replace('.', ' ')
+        ?.replace('_', ' ')
+        ?.trim()
+
+    return emailName?.takeIf { it.isNotBlank() } ?: "Пользователь"
+}
+
+private fun UserResponse?.displayEmail(): String {
+    return this?.email?.trim()?.takeIf { it.isNotBlank() } ?: "Email не указан"
+}
+
+private fun String.avatarLetter(): String {
+    return trim()
+        .firstOrNull()
+        ?.uppercaseChar()
+        ?.toString()
+        ?: "?"
+}
 
 @Preview(showBackground = true, backgroundColor = 0xFFEEF4F2)
 @Composable

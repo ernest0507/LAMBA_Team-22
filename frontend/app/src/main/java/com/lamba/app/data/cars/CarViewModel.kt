@@ -95,6 +95,61 @@ class CarViewModel(
         }
     }
 
+    fun updateCar(accessToken: String?, carId: Int?, request: CarUpdateRequest) {
+        if (accessToken.isNullOrBlank()) {
+            _uiState.update {
+                it.copy(errorMessage = "Sign in before updating car data.")
+            }
+            return
+        }
+
+        if (carId == null) {
+            _uiState.update {
+                it.copy(errorMessage = "Select a car before updating car data.")
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(isLoading = true, errorMessage = null)
+            }
+
+            runCatching {
+                repository.updateCar(accessToken, carId, request)
+            }.onSuccess { updatedCar ->
+                _uiState.update { state ->
+                    val currentCars = state.cars.orEmpty()
+                    val updatedCars = if (currentCars.any { it.id == updatedCar.id }) {
+                        currentCars.map { car ->
+                            if (car.id == updatedCar.id) updatedCar else car
+                        }
+                    } else {
+                        listOf(updatedCar)
+                    }
+
+                    state.copy(
+                        isLoading = false,
+                        errorMessage = null,
+                        cars = updatedCars,
+                        createdCar = if (state.createdCar?.id == updatedCar.id) {
+                            updatedCar
+                        } else {
+                            state.createdCar
+                        }
+                    )
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = error.toCarMessage()
+                    )
+                }
+            }
+        }
+    }
+
     fun clearStatus() {
         _uiState.update {
             it.copy(isLoading = false, errorMessage = null, createdCar = null)

@@ -71,7 +71,8 @@ private enum class SettingsDialogStep {
 fun AppSettingsScreen(
     currentTheme: AppTheme = AppTheme.LIGHT,
     onThemeSelected: (AppTheme) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onLogoutConfirmed: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     var isThemeSheetVisible by rememberSaveable { mutableStateOf(false) }
@@ -127,12 +128,7 @@ fun AppSettingsScreen(
 
                     SettingsDialogStep.LogoutStepTwo -> {
                         activeDialogStep = null
-                        scope.launch {
-                            // TODO: Implement logout when authorization flow is connected.
-                            snackbarHostState.showSnackbar(
-                                "Выход из аккаунта будет реализован после подключения авторизации."
-                            )
-                        }
+                        onLogoutConfirmed()
                     }
                 }
             }

@@ -13,11 +13,13 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -31,8 +33,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -42,6 +46,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
+import com.lamba.app.R
 import com.lamba.app.common.LoadingOverlay
 import com.lamba.app.common.SuccessScreen
 import com.lamba.app.data.achievements.AchievementsViewModel
@@ -73,10 +78,14 @@ import com.lamba.app.screens.history.RecordType
 import com.lamba.app.screens.history.RepairRecordFormData
 import com.lamba.app.screens.history.RepairRecordScreen
 import com.lamba.app.screens.home.HomeScreen
+import com.lamba.app.screens.profile.AppSettingsScreen
 import com.lamba.app.screens.profile.ProfileScreen
+import com.lamba.app.screens.profile.VehicleDataScreen
+import com.lamba.app.screens.profile.toVehicleDataUiModel
 import com.lamba.app.screens.statistics.StatisticsScreen
 import com.lamba.app.screens.trip.TripFinishedScreen
 import com.lamba.app.screens.trip.TripHistoryScreen
+import com.lamba.app.ui.theme.AppTheme
 import com.lamba.app.ui.theme.LambaCanvas
 import com.lamba.app.ui.theme.LambaInk
 import com.lamba.app.ui.theme.LambaInkMuted
@@ -92,12 +101,21 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    currentTheme: AppTheme = AppTheme.LIGHT,
+    onThemeSelected: (AppTheme) -> Unit = {}
+) {
+    val authViewModel: AuthViewModel = viewModel()
+    val authState by authViewModel.uiState.collectAsState()
+
+    if (authState.isRestoringSession) {
+        SessionRestoreScreen()
+        return
+    }
+
     val navController = rememberNavController()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val authViewModel: AuthViewModel = viewModel()
-    val authState by authViewModel.uiState.collectAsState()
     val carViewModel: CarViewModel = viewModel()
     val carState by carViewModel.uiState.collectAsState()
     val recordsViewModel: RecordsViewModel = viewModel()
@@ -119,6 +137,13 @@ fun AppNavigation() {
     val currentCarId = carState.currentCar?.id
     val isCheckingCars = authState.isAuthenticated && !carState.hasCompletedCarsCheck
     val routeErrorMessage = authState.errorMessage ?: carState.errorMessage
+    val hasExpiredSessionError = listOf(
+        carState.errorMessage,
+        recordsState.errorMessage,
+        statisticsState.errorMessage,
+        achievementsState.errorMessage,
+        assistantState.errorMessage
+    ).any { it.isSessionExpiredMessage() }
     var isTripActive by remember { mutableStateOf(false) }
     var tripStartedAtMillis by remember { mutableStateOf<Long?>(null) }
     var activeTripId by remember { mutableStateOf<Int?>(null) }
@@ -132,6 +157,21 @@ fun AppNavigation() {
     var tripHistoryItems by remember { mutableStateOf<List<TripResponse>>(emptyList()) }
     var isTripHistoryLoading by remember { mutableStateOf(false) }
     var tripHistoryErrorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(authState.sessionExpired) {
+        if (authState.sessionExpired) {
+            context.stopTripTrackingService()
+            TripTrackingStateStore.clear()
+            carViewModel.clearSession()
+            navController.openLoginAfterLogout()
+        }
+    }
+
+    LaunchedEffect(hasExpiredSessionError) {
+        if (hasExpiredSessionError) {
+            authViewModel.expireSession()
+        }
+    }
 
     fun showLocationError(message: String, action: TripLocationDialogAction? = null) {
         locationErrorDialogMessage = message
@@ -360,11 +400,36 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = LambaRoute.Login.path
+        startDestination = LambaRoute.SessionRestore.path
     ) {
+        composable(LambaRoute.SessionRestore.path) {
+            SessionRestoreScreen()
+
+            LaunchedEffect(
+                authState.isRestoringSession,
+                authState.isAuthenticated
+            ) {
+                if (authState.isRestoringSession) {
+                    return@LaunchedEffect
+                }
+
+                if (!authState.isAuthenticated) {
+                    navController.navigate(LambaRoute.Login.path) {
+                        popUpTo(LambaRoute.SessionRestore.path) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                    return@LaunchedEffect
+                }
+
+                navController.openHomeAfterAuthentication()
+            }
+        }
+
         composable(LambaRoute.Login.path) {
             LoginScreen(
-                isLoading = authState.isLoading || isCheckingCars,
+                isLoading = authState.isLoading,
                 authErrorMessage = routeErrorMessage,
                 onLoginClick = authViewModel::login,
                 onRegisterClick = {
@@ -740,8 +805,36 @@ fun AppNavigation() {
 
         composable(LambaRoute.Profile.path) {
             ProfileScreen(
+                user = authState.currentUser,
+                car = carState.currentCar,
                 onBackClick = { navController.popBackStack() },
-                onSignOutClick = {
+                onVehicleDataClick = { navController.navigate(LambaRoute.VehicleData.path) },
+                onAppSettingsClick = { navController.navigate(LambaRoute.AppSettings.path) }
+            )
+        }
+
+        composable(LambaRoute.VehicleData.path) {
+            VehicleDataScreen(
+                onBackClick = { navController.popBackStack() },
+                vehicleData = carState.currentCar.toVehicleDataUiModel(),
+                isSaving = carState.isLoading,
+                saveErrorMessage = carState.errorMessage,
+                onSaveVehicleData = { request ->
+                    carViewModel.updateCar(
+                        accessToken = authState.accessToken,
+                        carId = currentCarId,
+                        request = request
+                    )
+                }
+            )
+        }
+
+        composable(LambaRoute.AppSettings.path) {
+            AppSettingsScreen(
+                currentTheme = currentTheme,
+                onThemeSelected = onThemeSelected,
+                onBackClick = { navController.popBackStack() },
+                onLogoutConfirmed = {
                     context.stopTripTrackingService()
                     TripTrackingStateStore.clear()
                     carViewModel.clearSession()
@@ -829,6 +922,25 @@ fun AppNavigation() {
     }
 }
 
+@Composable
+private fun SessionRestoreScreen() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.lamba_logo_foreground),
+                contentDescription = "LAMBA",
+                modifier = Modifier.size(width = 240.dp, height = 90.dp)
+            )
+        }
+    }
+}
+
 private enum class TripLocationDialogAction {
     RequestPermission,
     OpenLocationSettings,
@@ -846,7 +958,7 @@ private fun TripLocationDialogAction?.confirmButtonText(): String {
 
 private fun NavHostController.openDigitalTwinFlow() {
     navigate(LambaRoute.CreateTwinStep1.path) {
-        popUpTo(LambaRoute.Login.path) {
+        popUpTo(graph.id) {
             inclusive = true
         }
         launchSingleTop = true
@@ -855,7 +967,7 @@ private fun NavHostController.openDigitalTwinFlow() {
 
 private fun NavHostController.openHomeAfterAuthentication() {
     navigate(LambaRoute.Home.path) {
-        popUpTo(LambaRoute.Login.path) {
+        popUpTo(graph.id) {
             inclusive = true
         }
         launchSingleTop = true
@@ -948,6 +1060,10 @@ private fun String.toEpochMillisOrNull(): Long? {
     }
 }
 
+private fun String?.isSessionExpiredMessage(): Boolean {
+    return this?.startsWith("Session expired", ignoreCase = true) == true
+}
+
 private fun Context.hasTripLocationPermission(): Boolean {
     return ContextCompat.checkSelfPermission(
         this,
@@ -1013,6 +1129,7 @@ private fun Throwable.toTripErrorMessage(): String {
 private enum class LambaRoute(
     val path: String
 ) {
+    SessionRestore("session_restore"),
     Login("login"),
     Registration("registration"),
     CreateTwinStep1("create_twin_step_1"),
@@ -1026,6 +1143,8 @@ private enum class LambaRoute(
     Statistics("statistics"),
     Achievements("achievements"),
     Profile("profile"),
+    VehicleData("vehicle_data"),
+    AppSettings("app_settings"),
     RecordSuccess("record_success"),
     TripFinished("trip_finished"),
     QrSuccess("qr_success"),
