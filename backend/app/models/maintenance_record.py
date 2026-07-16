@@ -30,7 +30,11 @@ class RecordCategory(StrEnum):
 class MaintenanceRecord(Base):
     __tablename__ = "maintenance_records"
     __table_args__ = (
-        UniqueConstraint("receipt_id", name="uq_maintenance_records_receipt_id"),
+        UniqueConstraint(
+            "car_id",
+            "receipt_id",
+            name="uq_maintenance_records_car_receipt_id",
+        ),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
