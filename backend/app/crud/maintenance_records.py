@@ -45,10 +45,13 @@ async def get_record(db: AsyncSession, car_id: int, record_id: int) -> Maintenan
 
 
 async def get_record_by_receipt_id(
-    db: AsyncSession, receipt_id: str
+    db: AsyncSession, car_id: int, receipt_id: str
 ) -> MaintenanceRecord | None:
     result = await db.execute(
-        select(MaintenanceRecord).where(MaintenanceRecord.receipt_id == receipt_id)
+        select(MaintenanceRecord).where(
+            MaintenanceRecord.car_id == car_id,
+            MaintenanceRecord.receipt_id == receipt_id,
+        )
     )
     return result.scalar_one_or_none()
 
@@ -60,7 +63,7 @@ async def create_record(
     *,
     receipt_id: str | None = None,
 ) -> MaintenanceRecord:
-    if receipt_id and await get_record_by_receipt_id(db, receipt_id):
+    if receipt_id and await get_record_by_receipt_id(db, car_id, receipt_id):
         raise DuplicateReceiptError
 
     record = MaintenanceRecord(car_id=car_id, receipt_id=receipt_id, **data.model_dump())
@@ -69,7 +72,7 @@ async def create_record(
         await db.commit()
     except IntegrityError as exc:
         await db.rollback()
-        if receipt_id and await get_record_by_receipt_id(db, receipt_id):
+        if receipt_id and await get_record_by_receipt_id(db, car_id, receipt_id):
             raise DuplicateReceiptError from exc
         raise
     await db.refresh(record)

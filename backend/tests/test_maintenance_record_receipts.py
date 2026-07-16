@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from app.api.routes import maintenance_records
 from app.crud import maintenance_records as maintenance_records_crud
 from app.crud.maintenance_records import DuplicateReceiptError
+from app.models.maintenance_record import MaintenanceRecord
 from app.models.user import User
 from app.schemas.maintenance_record import MaintenanceRecordCreate
 from app.services.receipt_identity import (
@@ -40,7 +41,8 @@ def test_receipt_id_is_extracted_from_existing_record_description():
 
 @pytest.mark.asyncio
 async def test_create_record_rejects_existing_receipt_before_insert(monkeypatch):
-    async def fake_get_record_by_receipt_id(db, receipt_id):
+    async def fake_get_record_by_receipt_id(db, car_id, receipt_id):
+        assert car_id == 3
         assert receipt_id == RECEIPT_ID
         return SimpleNamespace(id=42)
 
@@ -63,8 +65,10 @@ async def test_create_record_rejects_existing_receipt_before_insert(monkeypatch)
 async def test_create_record_handles_concurrent_duplicate(monkeypatch):
     lookup_count = 0
 
-    async def fake_get_record_by_receipt_id(db, receipt_id):
+    async def fake_get_record_by_receipt_id(db, car_id, receipt_id):
         nonlocal lookup_count
+        assert car_id == 3
+        assert receipt_id == RECEIPT_ID
         lookup_count += 1
         return None if lookup_count == 1 else SimpleNamespace(id=42)
 
@@ -96,6 +100,60 @@ async def test_create_record_handles_concurrent_duplicate(monkeypatch):
         )
 
     assert db.rolled_back is True
+
+
+@pytest.mark.asyncio
+async def test_create_record_allows_same_receipt_for_different_car(monkeypatch):
+    existing_receipts = {(3, RECEIPT_ID): SimpleNamespace(id=42)}
+    lookups = []
+
+    async def fake_get_record_by_receipt_id(db, car_id, receipt_id):
+        lookups.append((car_id, receipt_id))
+        return existing_receipts.get((car_id, receipt_id))
+
+    class FakeDb:
+        added_record = None
+
+        def add(self, record):
+            self.added_record = record
+
+        async def commit(self):
+            pass
+
+        async def refresh(self, record):
+            pass
+
+    db = FakeDb()
+    monkeypatch.setattr(
+        maintenance_records_crud,
+        "get_record_by_receipt_id",
+        fake_get_record_by_receipt_id,
+    )
+
+    record = await maintenance_records_crud.create_record(
+        db,
+        4,
+        make_record_data(),
+        receipt_id=RECEIPT_ID,
+    )
+
+    assert lookups == [(4, RECEIPT_ID)]
+    assert record is db.added_record
+    assert record.car_id == 4
+    assert record.receipt_id == RECEIPT_ID
+
+
+def test_receipt_unique_constraint_is_scoped_to_car():
+    constraints = {
+        constraint.name: {column.name for column in constraint.columns}
+        for constraint in MaintenanceRecord.__table__.constraints
+    }
+
+    assert constraints["uq_maintenance_records_car_receipt_id"] == {
+        "car_id",
+        "receipt_id",
+    }
+    assert "uq_maintenance_records_receipt_id" not in constraints
 
 
 @pytest.mark.asyncio
