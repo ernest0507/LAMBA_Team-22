@@ -551,3 +551,58 @@ chat so that I do not have to manually fill in an expense form.
 **Customer comments or observed issues:** Should display the separate status of expenses from QR-scanning (frontend side)
 
 **Resulting PBIs or issues:** No follow-up PBI or issue was created because the customer accepted the adding fuel expense from receipt QR-code
+
+
+
+## UAT-008: View and Use User Profile Screen
+
+**Status:** Active
+
+**Related requirement:** [US-11: Create account and sign in](https://github.com/ernest0507/LAMBA_Team-22/issues/61), [Storing car's data](https://github.com/ernest0507/LAMBA_Team-22/issues/31)
+
+**User goal:** As a signed-in car owner, I want to open my profile, view my account and vehicle information, update vehicle data, and have ability to sign out
+
+
+**Preconditions:**
+
+- The LAMBA mobile application is installed and opens successfully
+- The user is signed in with a valid test account
+- The user has a vehicle digital twin available
+- The profile screen is available from the main application navigation
+- The backend authentication and vehicle data services are available, or the test environment clearly shows fallback/error messages
+
+**Steps:**
+
+1. Open the application and sign in
+2. Open the side menu
+3. Tap the profile section
+4. Review the displayed user information, including user name and email
+5. Tap to option of vehicle data
+6. Check that the vehicle data screen opens
+7. Review the displayed vehicle information: make, model, year, mileage, color, body type, and notes
+8. Change one editable vehicle field, for example mileage or notes
+9. Tap Save changes
+10. Return to the profile screen
+11. Open Application settings
+12. Change the application theme from light to dark or from dark to light
+13. Tap the sign-out option
+
+
+**Expected outcome:**
+
+- The profile screen opens successfully from the main navigation
+- The screen displays the signed-in user’s account
+- The user can open the vehicle data screen from the profile
+- Existing vehicle data is shown correctly and matches the digital twin
+- The user can edit supported vehicle fields
+- The application validates incorrect vehicle data, such as an invalid year or mileage
+- The user can change the application theme
+- The sign-out flow asks for confirmation before ending the session
+- If the user confirms sign-out, the session ends and the user is returned to the login/authentication flow
+- The application does not freeze, crash, lose saved data, or leave the user without feedback
+
+**Assignment 6 execution results:** 
+
+**Customer comments or observed issues:** 
+
+**Resulting PBIs or issues:** 
