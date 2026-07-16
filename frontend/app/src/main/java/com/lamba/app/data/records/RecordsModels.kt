@@ -17,7 +17,8 @@ data class MaintenanceRecordCreateRequest(
     val mileageKm: Long? = null,
     @SerializedName("cost_amount")
     val costAmount: String,
-    val vendor: String? = null
+    val vendor: String? = null,
+    val receipt: RecordReceiptPayload? = null
 )
 
 data class MaintenanceRecordResponse(
@@ -34,6 +35,7 @@ data class MaintenanceRecordResponse(
     @SerializedName("cost_amount")
     val costAmount: String,
     val vendor: String?,
+    val receipt: RecordReceiptPayload? = null,
     @SerializedName("created_at")
     val createdAt: String,
     @SerializedName("updated_at")
@@ -65,7 +67,8 @@ data class TimelineItemResponse(
     val mileageKm: Long?,
     @SerializedName("cost_amount")
     val costAmount: String,
-    val vendor: String? = null
+    val vendor: String? = null,
+    val receipt: RecordReceiptPayload? = null
 )
 
 
@@ -75,6 +78,8 @@ data class ReceiptScanRequest(
 
 
 data class ReceiptResponse(
+    @SerializedName("receipt_id")
+    val receiptId: String,
     @SerializedName("provider_code")
     val providerCode: Int,
     val status: String,
@@ -90,10 +95,41 @@ data class ReceiptResponse(
     val requestNumber: Int?,
     @SerializedName("total_amount")
     val totalAmount: String?,
+    @SerializedName("fiscal_drive_number")
+    val fiscalDriveNumber: String?,
+    @SerializedName("fiscal_document_number")
+    val fiscalDocumentNumber: String?,
+    @SerializedName("fiscal_sign")
+    val fiscalSign: String?,
+    val items: List<ReceiptItemResponse> = emptyList()
+)
+
+data class RecordReceiptPayload(
+    @SerializedName("receipt_id")
+    val receiptId: String? = null,
+    @SerializedName("seller_name")
+    val sellerName: String? = null,
+    @SerializedName("seller_inn")
+    val sellerInn: String? = null,
+    @SerializedName("retail_place_address")
+    val retailPlaceAddress: String? = null,
+    @SerializedName("ticket_date")
+    val ticketDate: String? = null,
+    @SerializedName("total_amount")
+    val totalAmount: String? = null,
+    @SerializedName("fiscal_drive_number")
+    val fiscalDriveNumber: String? = null,
+    @SerializedName("fiscal_document_number")
+    val fiscalDocumentNumber: String? = null,
+    @SerializedName("fiscal_sign")
+    val fiscalSign: String? = null,
     val items: List<ReceiptItemResponse> = emptyList()
 )
 
 data class ReceiptItemResponse(
+    val id: Int? = null,
+    @SerializedName("record_id")
+    val recordId: Int? = null,
     val name: String?,
     @SerializedName("price_amount")
     val priceAmount: String?,

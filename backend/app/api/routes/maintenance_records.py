@@ -73,13 +73,15 @@ async def create_new_record(
     current_user: User = Depends(get_current_user),
 ) -> MaintenanceRecordRead:
     await ensure_car_owner(db, current_user, car_id)
-    try:
-        receipt_id = receipt_id_from_record_description(data.description)
-    except ReceiptIdentityError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(exc),
-        ) from exc
+    receipt_id = data.receipt.receipt_id if data.receipt else None
+    if receipt_id is None:
+        try:
+            receipt_id = receipt_id_from_record_description(data.description)
+        except ReceiptIdentityError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(exc),
+            ) from exc
     try:
         return await create_record(db, car_id, data, receipt_id=receipt_id)
     except DuplicateReceiptError as exc:
@@ -241,6 +243,7 @@ async def read_timeline(
             mileage_km=record.mileage_km,
             cost_amount=record.cost_amount,
             vendor=record.vendor,
+            receipt=record.receipt,
         )
         for record in records
     ]

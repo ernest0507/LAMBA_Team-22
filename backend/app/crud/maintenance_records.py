@@ -3,8 +3,9 @@ from datetime import date
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
-from app.models.maintenance_record import MaintenanceRecord
+from app.models.maintenance_record import MaintenanceRecord, MaintenanceRecordReceiptItem
 from app.schemas.maintenance_record import MaintenanceRecordCreate, MaintenanceRecordUpdate
 
 
@@ -20,7 +21,11 @@ async def list_records(
     date_from: date | None = None,
     date_to: date | None = None,
 ) -> list[MaintenanceRecord]:
-    query = select(MaintenanceRecord).where(MaintenanceRecord.car_id == car_id)
+    query = (
+        select(MaintenanceRecord)
+        .options(selectinload(MaintenanceRecord.receipt_items))
+        .where(MaintenanceRecord.car_id == car_id)
+    )
     if date_from:
         query = query.where(MaintenanceRecord.occurred_at >= date_from)
     if date_to:
@@ -36,7 +41,9 @@ async def list_records(
 
 async def get_record(db: AsyncSession, car_id: int, record_id: int) -> MaintenanceRecord | None:
     result = await db.execute(
-        select(MaintenanceRecord).where(
+        select(MaintenanceRecord)
+        .options(selectinload(MaintenanceRecord.receipt_items))
+        .where(
             MaintenanceRecord.id == record_id,
             MaintenanceRecord.car_id == car_id,
         )
@@ -48,7 +55,9 @@ async def get_record_by_receipt_id(
     db: AsyncSession, car_id: int, receipt_id: str
 ) -> MaintenanceRecord | None:
     result = await db.execute(
-        select(MaintenanceRecord).where(
+        select(MaintenanceRecord)
+        .options(selectinload(MaintenanceRecord.receipt_items))
+        .where(
             MaintenanceRecord.car_id == car_id,
             MaintenanceRecord.receipt_id == receipt_id,
         )
@@ -63,10 +72,21 @@ async def create_record(
     *,
     receipt_id: str | None = None,
 ) -> MaintenanceRecord:
+    if receipt_id is None and data.receipt is not None:
+        receipt_id = data.receipt.receipt_id
     if receipt_id and await get_record_by_receipt_id(db, car_id, receipt_id):
         raise DuplicateReceiptError
 
-    record = MaintenanceRecord(car_id=car_id, receipt_id=receipt_id, **data.model_dump())
+    record = MaintenanceRecord(
+        car_id=car_id,
+        **data.model_dump(exclude={"receipt"}),
+        **_receipt_model_fields(data, receipt_id),
+    )
+    if data.receipt:
+        record.receipt_items = [
+            MaintenanceRecordReceiptItem(**item.model_dump())
+            for item in data.receipt.items
+        ]
     db.add(record)
     try:
         await db.commit()
@@ -77,6 +97,27 @@ async def create_record(
         raise
     await db.refresh(record)
     return record
+
+
+def _receipt_model_fields(
+    data: MaintenanceRecordCreate,
+    receipt_id: str | None,
+) -> dict[str, object]:
+    if data.receipt is None:
+        return {"receipt_id": receipt_id}
+
+    receipt = data.receipt
+    return {
+        "receipt_id": receipt_id,
+        "receipt_seller_name": receipt.seller_name,
+        "receipt_seller_inn": receipt.seller_inn,
+        "receipt_retail_place_address": receipt.retail_place_address,
+        "receipt_ticket_date": receipt.ticket_date,
+        "receipt_total_amount": receipt.total_amount,
+        "receipt_fiscal_drive_number": receipt.fiscal_drive_number,
+        "receipt_fiscal_document_number": receipt.fiscal_document_number,
+        "receipt_fiscal_sign": receipt.fiscal_sign,
+    }
 
 
 async def update_record(

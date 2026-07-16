@@ -333,7 +333,8 @@ private fun MaintenanceRecordResponse.toTimelineItem(): TimelineItemResponse {
         occurredAt = occurredAt,
         mileageKm = mileageKm,
         costAmount = costAmount,
-        vendor = vendor
+        vendor = vendor,
+        receipt = receipt
     )
 }
 
@@ -355,7 +356,23 @@ private fun ReceiptResponse.toRecordRequest(qrRaw: String): MaintenanceRecordCre
         description = description,
         occurredAt = receiptDate,
         costAmount = totalAmount?.takeIf { it.isNotBlank() } ?: "0.00",
-        vendor = gasStation.takeIf { it.isNotBlank() }
+        vendor = gasStation.takeIf { it.isNotBlank() },
+        receipt = toRecordReceiptPayload()
+    )
+}
+
+private fun ReceiptResponse.toRecordReceiptPayload(): RecordReceiptPayload {
+    return RecordReceiptPayload(
+        receiptId = receiptId,
+        sellerName = sellerName,
+        sellerInn = sellerInn,
+        retailPlaceAddress = retailPlaceAddress,
+        ticketDate = ticketDate,
+        totalAmount = totalAmount,
+        fiscalDriveNumber = fiscalDriveNumber,
+        fiscalDocumentNumber = fiscalDocumentNumber,
+        fiscalSign = fiscalSign,
+        items = items
     )
 }
 

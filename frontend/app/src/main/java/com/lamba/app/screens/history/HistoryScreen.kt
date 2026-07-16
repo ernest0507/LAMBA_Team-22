@@ -543,6 +543,7 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
             HistorySection(
                 title = date,
                 items = items.map { record ->
+                    val receipt = record.receipt
                     HistoryItem(
                         id = record.id,
                         title = record.title ?: "Событие",
@@ -551,11 +552,15 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
                         category = record.category,
                         mileageKm = record.mileageKm,
                         occurredAt = record.occurredAt,
-                        receiptTime = record.description.extractReceiptField("Receipt time"),
+                        receiptTime = receipt?.ticketDate?.toReceiptTimeOrNull()
+                            ?: record.description.extractReceiptField("Receipt time"),
                         pumpNumber = record.description.extractReceiptField("Pump number"),
                         fuelType = record.description.extractReceiptField("Fuel type"),
-                        gasStation = record.description.extractReceiptField("Gas station") ?: record.vendor,
-                        address = record.description.extractReceiptField("Address"),
+                        gasStation = receipt?.sellerName
+                            ?: record.description.extractReceiptField("Gas station")
+                            ?: record.vendor,
+                        address = receipt?.retailPlaceAddress
+                            ?: record.description.extractReceiptField("Address"),
                         vendor = record.vendor
                     )
                 }
@@ -566,7 +571,7 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
 private fun TimelineItemResponse.subtitleText(): String {
     if (category == "заправка") {
         return listOfNotNull(
-            description.extractReceiptField("Gas station") ?: vendor,
+            receipt?.sellerName ?: description.extractReceiptField("Gas station") ?: vendor,
             description.extractReceiptField("Fuel type"),
             description.extractReceiptField("Pump number")?.let { "Колонка $it" }
         ).joinToString(" | ").ifBlank { "Заправка" }
@@ -588,6 +593,13 @@ private fun String?.extractReceiptField(label: String): String? {
         ?.removePrefix(prefix)
         ?.trim()
         ?.takeIf { it.isNotBlank() }
+}
+
+private fun String.toReceiptTimeOrNull(): String? {
+    val timePart = substringAfter('T', missingDelimiterValue = "")
+        .ifBlank { substringAfter(' ', missingDelimiterValue = "") }
+    if (timePart.length < 5) return null
+    return timePart.take(5)
 }
 
 private fun String.formatAmount(): String {
