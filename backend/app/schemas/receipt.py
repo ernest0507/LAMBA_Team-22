@@ -18,6 +18,7 @@ class ReceiptItem(BaseModel):
 
 
 class ReceiptRead(BaseModel):
+    receipt_id: str = Field(pattern=r"^[0-9a-f]{64}$")
     provider_code: int
     status: str
     first: bool | None = None

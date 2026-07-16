@@ -1,10 +1,15 @@
 from datetime import date
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.maintenance_record import MaintenanceRecord
 from app.schemas.maintenance_record import MaintenanceRecordCreate, MaintenanceRecordUpdate
+
+
+class DuplicateReceiptError(Exception):
+    pass
 
 
 async def list_records(
@@ -39,12 +44,34 @@ async def get_record(db: AsyncSession, car_id: int, record_id: int) -> Maintenan
     return result.scalar_one_or_none()
 
 
+async def get_record_by_receipt_id(
+    db: AsyncSession, receipt_id: str
+) -> MaintenanceRecord | None:
+    result = await db.execute(
+        select(MaintenanceRecord).where(MaintenanceRecord.receipt_id == receipt_id)
+    )
+    return result.scalar_one_or_none()
+
+
 async def create_record(
-    db: AsyncSession, car_id: int, data: MaintenanceRecordCreate
+    db: AsyncSession,
+    car_id: int,
+    data: MaintenanceRecordCreate,
+    *,
+    receipt_id: str | None = None,
 ) -> MaintenanceRecord:
-    record = MaintenanceRecord(car_id=car_id, **data.model_dump())
+    if receipt_id and await get_record_by_receipt_id(db, receipt_id):
+        raise DuplicateReceiptError
+
+    record = MaintenanceRecord(car_id=car_id, receipt_id=receipt_id, **data.model_dump())
     db.add(record)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError as exc:
+        await db.rollback()
+        if receipt_id and await get_record_by_receipt_id(db, receipt_id):
+            raise DuplicateReceiptError from exc
+        raise
     await db.refresh(record)
     return record
 

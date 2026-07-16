@@ -8,6 +8,7 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.crud.cars import get_car
 from app.crud.maintenance_records import (
+    DuplicateReceiptError,
     create_record,
     delete_record,
     get_record,
@@ -32,6 +33,10 @@ from app.schemas.maintenance_record import (
 )
 from app.schemas.record_photo import RecordPhotoRead
 from app.schemas.statistics import CarStatistics
+from app.services.receipt_identity import (
+    ReceiptIdentityError,
+    receipt_id_from_record_description,
+)
 from app.services.statistics import build_car_statistics
 
 
@@ -68,7 +73,20 @@ async def create_new_record(
     current_user: User = Depends(get_current_user),
 ) -> MaintenanceRecordRead:
     await ensure_car_owner(db, current_user, car_id)
-    return await create_record(db, car_id, data)
+    try:
+        receipt_id = receipt_id_from_record_description(data.description)
+    except ReceiptIdentityError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(exc),
+        ) from exc
+    try:
+        return await create_record(db, car_id, data, receipt_id=receipt_id)
+    except DuplicateReceiptError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Receipt has already been uploaded",
+        ) from exc
 
 
 @router.get("/records/{record_id}", response_model=MaintenanceRecordRead)

@@ -19,6 +19,7 @@ def make_user() -> User:
 
 def make_receipt() -> ReceiptRead:
     return ReceiptRead(
+        receipt_id="a" * 64,
         provider_code=1,
         status="Receipt data received",
         first=True,

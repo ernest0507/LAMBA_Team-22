@@ -8,6 +8,7 @@ import httpx
 
 from app.core.config import Settings, get_settings
 from app.schemas.receipt import ReceiptItem, ReceiptRead
+from app.services.receipt_identity import ReceiptIdentityError, build_receipt_id
 
 
 class ProverkachekaError(Exception):
@@ -102,7 +103,16 @@ def normalize_receipt_response(payload: dict[str, Any]) -> ReceiptRead:
         raise ProverkachekaError(CODE_MESSAGES.get(code, "Receipt data was not received"), code=code)
 
     receipt_json = _receipt_json(payload)
+    ticket_date = _optional_datetime(receipt_json.get("ticketDate"))
+    fiscal_sign = _optional_str(receipt_json.get("fiscalSign"))
+    try:
+        receipt_id = build_receipt_id(ticket_date=ticket_date, fiscal_sign=fiscal_sign)
+    except ReceiptIdentityError as exc:
+        raise ProverkachekaError(
+            "Proverkacheka API response does not include receipt date or fiscal sign"
+        ) from exc
     return ReceiptRead(
+        receipt_id=receipt_id,
         provider_code=code,
         status=CODE_MESSAGES[code],
         first=_optional_bool(payload.get("first")),
@@ -111,7 +121,7 @@ def normalize_receipt_response(payload: dict[str, Any]) -> ReceiptRead:
         retail_place_address=_optional_str(
             receipt_json.get("retailPlaceAddres") or receipt_json.get("retailPlaceAddress")
         ),
-        ticket_date=_optional_datetime(receipt_json.get("ticketDate")),
+        ticket_date=ticket_date,
         request_number=_optional_int(receipt_json.get("requestNumber")),
         shift_number=_optional_int(receipt_json.get("shiftNumber")),
         operator=_optional_str(receipt_json.get("operator")),
@@ -121,7 +131,7 @@ def normalize_receipt_response(payload: dict[str, Any]) -> ReceiptRead:
         ecash_total_amount=_kopecks_to_rubles(receipt_json.get("ecashTotalSum")),
         fiscal_drive_number=_optional_str(receipt_json.get("fiscalDriveNumber")),
         fiscal_document_number=_optional_str(receipt_json.get("fiscalDocumentNumber")),
-        fiscal_sign=_optional_str(receipt_json.get("fiscalSign")),
+        fiscal_sign=fiscal_sign,
         items=_receipt_items(receipt_json.get("items")),
         raw=payload,
     )
