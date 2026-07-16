@@ -1,5 +1,6 @@
 package com.lamba.app.screens.home
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
@@ -39,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
@@ -184,11 +186,7 @@ fun AiChatPanel(
                         .background(LambaAccentStrong.copy(alpha = 0.75f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "✦",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFFB7FF5A)
-                    )
+                    AiSparkleIcon()
                 }
 
                 Spacer(modifier = Modifier.width(12.dp))
@@ -260,5 +258,47 @@ fun AiChatPanel(
                 modifier = Modifier.padding(bottom = 22.dp),
             )
         }
+    }
+}
+
+@Composable
+private fun AiSparkleIcon(
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier = modifier.size(16.dp)) {
+        val center = Offset(size.width / 2f, size.height / 2f)
+        val longRadius = size.minDimension * 0.36f
+        val shortRadius = size.minDimension * 0.18f
+        val color = Color(0xFFB7FF5A)
+        val strokeWidth = 2.dp.toPx()
+
+        drawLine(
+            color = color,
+            start = Offset(center.x, center.y - longRadius),
+            end = Offset(center.x, center.y + longRadius),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(center.x - longRadius, center.y),
+            end = Offset(center.x + longRadius, center.y),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(center.x - shortRadius, center.y - shortRadius),
+            end = Offset(center.x + shortRadius, center.y + shortRadius),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = color,
+            start = Offset(center.x - shortRadius, center.y + shortRadius),
+            end = Offset(center.x + shortRadius, center.y - shortRadius),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round
+        )
     }
 }

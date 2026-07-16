@@ -48,6 +48,11 @@ class AuthViewModel(
     }
 
     fun login(email: String, password: String) {
+        if (_uiState.value.isLoading) return
+        _uiState.update {
+            it.copy(isLoading = true, errorMessage = null)
+        }
+
         viewModelScope.launch {
             authenticate {
                 repository.login(email = email, password = password)
@@ -56,6 +61,11 @@ class AuthViewModel(
     }
 
     fun register(name: String, email: String, password: String) {
+        if (_uiState.value.isLoading) return
+        _uiState.update {
+            it.copy(isLoading = true, errorMessage = null)
+        }
+
         viewModelScope.launch {
             authenticate {
                 repository.register(name = name, email = email, password = password)
@@ -141,10 +151,6 @@ class AuthViewModel(
     }
 
     private suspend fun authenticate(loginCall: suspend () -> TokenResponse) {
-        _uiState.update {
-            it.copy(isLoading = true, errorMessage = null)
-        }
-
         runCatching {
             val token = loginCall()
             val user = repository.me(token.accessToken)

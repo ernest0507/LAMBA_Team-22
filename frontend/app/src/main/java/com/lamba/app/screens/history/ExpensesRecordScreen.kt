@@ -19,6 +19,7 @@ data class ExpensesRecordFormData(
 )
 
 private val ExpenseCategories = listOf("Заправка", "Деталь", "Мойка", "Прочее")
+private const val MaxExpenseCostDigits = 10
 
 @Composable
 fun ExpensesRecordScreen(
@@ -88,7 +89,7 @@ fun ExpensesRecordScreen(
         LambaTextField(
             label = "Стоимость",
             value = cost,
-            onValueChange = { cost = it.filter(Char::isDigit) },
+            onValueChange = { cost = it.filter(Char::isDigit).take(MaxExpenseCostDigits) },
             placeholder = "0 ₽",
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )

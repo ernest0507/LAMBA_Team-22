@@ -78,6 +78,8 @@ import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSignal
 import com.lamba.app.ui.theme.LambaSpacing
 import components.BackButton
+import java.math.BigDecimal
+import java.math.RoundingMode
 import kotlin.math.max
 
 enum class StatisticsPeriod(
@@ -108,7 +110,7 @@ private data class MetricData(
 
 private data class ChartPoint(
     val label: String,
-    val value: Int
+    val value: Long
 )
 
 private data class CategoryData(
@@ -541,7 +543,7 @@ private fun StatisticsPeriodResponse.toUiState(period: StatisticsPeriod): Statis
             .ifEmpty { emptyDynamics(period) },
         dynamicsStyle = if (dynamicsStyle == "line") DynamicsChartStyle.LINE else DynamicsChartStyle.BAR,
         categories = categories.mapIndexed { index, category -> category.toCategoryData(index) },
-        donutCenterValue = totalAmount.toMoneyText(),
+        donutCenterValue = totalAmount.toMoneyText(compact = true),
         donutCenterLabel = totalLabel
     )
 }
@@ -575,7 +577,7 @@ private fun StatisticsCategoryResponse.toCategoryData(index: Int): CategoryData 
     return CategoryData(
         title = title,
         percent = percent.coerceIn(0, 100),
-        amount = amount,
+        amount = amount.toMoneyText(),
         color = categoryColor(index)
     )
 }
@@ -621,9 +623,46 @@ private fun emptyDynamics(period: StatisticsPeriod): List<ChartPoint> {
     }
 }
 
-private fun String.toMoneyText(): String {
-    val integerPart = substringBefore('.').toIntOrNull() ?: return this
-    return "%,d ₽".format(integerPart).replace(",", " ")
+private fun String.toMoneyText(compact: Boolean = false): String {
+    val amount = toMoneyAmountOrNull() ?: return this
+    if (compact && amount.abs() >= BigDecimal("1000000")) {
+        return amount.toCompactMoneyText()
+    }
+    return "${amount.roundToIntegerText()} ₽"
+}
+
+private fun String.toMoneyAmountOrNull(): BigDecimal? {
+    val normalized = trim()
+        .replace(" ", "")
+        .replace("₽", "")
+        .replace(",", ".")
+    return normalized.toBigDecimalOrNull()
+}
+
+private fun BigDecimal.toCompactMoneyText(): String {
+    val billion = BigDecimal("1000000000")
+    val million = BigDecimal("1000000")
+    val (divider, suffix) = if (abs() >= billion) {
+        billion to "млрд"
+    } else {
+        million to "млн"
+    }
+    val value = divide(divider, 1, RoundingMode.HALF_UP)
+        .stripTrailingZeros()
+        .toPlainString()
+        .replace(".", ",")
+    return "$value $suffix ₽"
+}
+
+private fun BigDecimal.roundToIntegerText(): String {
+    val plainText = setScale(0, RoundingMode.HALF_UP).toPlainString()
+    val sign = if (plainText.startsWith("-")) "-" else ""
+    val digits = plainText.removePrefix("-")
+    val grouped = digits.reversed()
+        .chunked(3)
+        .joinToString(" ")
+        .reversed()
+    return sign + grouped
 }
 
 @Composable

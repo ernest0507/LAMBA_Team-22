@@ -232,6 +232,7 @@ fun RegistrationScreen(
                 RegistrationFooterAction(
                     prompt = "Уже есть аккаунт?",
                     action = "Войти",
+                    enabled = !isLoading,
                     onClick = onLoginClick
                 )
             }
@@ -383,6 +384,7 @@ private fun RegistrationPasswordField(
 private fun RegistrationFooterAction(
     prompt: String,
     action: String,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -403,9 +405,9 @@ private fun RegistrationFooterAction(
         Text(
             text = " $action",
             style = MaterialTheme.typography.bodyMedium,
-            color = colorScheme.primary,
+            color = if (enabled) colorScheme.primary else colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.clickable(onClick = onClick)
+            modifier = Modifier.clickable(enabled = enabled, onClick = onClick)
         )
     }
 }

@@ -54,11 +54,10 @@ fun ProfileScreen(
         ProfileMenuItem(
             iconLabel = "Н",
             title = "Настройки приложения",
-            subtitle = "Тема приложения",
+            subtitle = "Тема приложениясе",
             onClick = onAppSettingsClick
         )
     )
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = colorScheme.background

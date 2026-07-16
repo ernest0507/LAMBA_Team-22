@@ -82,28 +82,29 @@ class TripForegroundLocationService : Service() {
         TripTrackingStateStore.update(initialSnapshot)
         startForegroundWithLocationType(buildNotification(initialSnapshot))
 
+        val locationPriority = if (hasFineLocationPermission()) {
+            Priority.PRIORITY_HIGH_ACCURACY
+        } else {
+            Priority.PRIORITY_BALANCED_POWER_ACCURACY
+        }
         val currentLocationToken = CancellationTokenSource()
         fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
+            locationPriority,
             currentLocationToken.token
         ).addOnSuccessListener { location ->
             if (location != null) {
                 handleLocation(location)
-            } else {
-                TripTrackingStateStore.updateError("Не удалось получить текущую GPS-точку. Проверьте, что геолокация включена.")
             }
-        }.addOnFailureListener {
-            TripTrackingStateStore.updateError("Ошибка геолокации: ${it.localizedMessage ?: "GPS недоступен"}")
         }
 
         fusedLocationClient.locationAvailability.addOnSuccessListener { availability ->
             if (!availability.isLocationAvailable) {
-                TripTrackingStateStore.updateError("Геолокация сейчас недоступна. Включите GPS и выйдите на открытое место.")
+                TripTrackingStateStore.updateError(null)
             }
         }
 
         val request = LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY,
+            locationPriority,
             LOCATION_INTERVAL_MILLIS
         )
             .setMinUpdateIntervalMillis(FASTEST_LOCATION_INTERVAL_MILLIS)
@@ -146,6 +147,16 @@ class TripForegroundLocationService : Service() {
     }
 
     private fun hasLocationPermission(): Boolean {
+        val hasFineLocation = hasFineLocationPermission()
+        val hasCoarseLocation = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        return hasFineLocation || hasCoarseLocation
+    }
+
+    private fun hasFineLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_FINE_LOCATION

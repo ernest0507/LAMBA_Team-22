@@ -19,7 +19,8 @@ data class RecordsUiState(
     val createdRecord: MaintenanceRecordResponse? = null,
     val recordPhotos: Map<Int, RecordPhotosUiState> = emptyMap(),
     val isScanningReceipt: Boolean = false,
-    val scannedReceipt: ReceiptResponse? = null
+    val scannedReceipt: ReceiptResponse? = null,
+    val receiptScanSuccessId: Int? = null
 )
 
 data class RecordPhotoImage(
@@ -226,7 +227,7 @@ class RecordsViewModel(
 
     fun consumeScannedReceipt() {
         _uiState.update {
-            it.copy(scannedReceipt = null)
+            it.copy(scannedReceipt = null, receiptScanSuccessId = null)
         }
     }
 
@@ -271,6 +272,7 @@ class RecordsViewModel(
                     isSaving = true,
                     errorMessage = null,
                     scannedReceipt = null,
+                    receiptScanSuccessId = null,
                     createdRecord = null
                 )
             }
@@ -293,8 +295,9 @@ class RecordsViewModel(
                         isScanningReceipt = false,
                         isSaving = false,
                         scannedReceipt = receipt,
+                        receiptScanSuccessId = record.id,
                         timeline = it.timeline.withRecord(record),
-                        createdRecord = record,
+                        createdRecord = null,
                         errorMessage = null
                     )
                 }
@@ -335,37 +338,25 @@ private fun MaintenanceRecordResponse.toTimelineItem(): TimelineItemResponse {
 }
 
 private fun ReceiptResponse.toRecordRequest(qrRaw: String): MaintenanceRecordCreateRequest {
-    val seller = sellerName?.trim().orEmpty()
+    val gasStation = sellerName?.trim().orEmpty()
     val receiptDate = ticketDate?.take(10)
-    val receiptTime = ticketDate?.toReceiptTimeOrNull()
     val fuelType = primaryFuelItemName()
+    val pumpNumber = pumpNumberFromReceipt()
     val description = listOfNotNull(
-        "Receipt scanned from QR",
-        receiptDate?.let { "Receipt date: $it" },
-        receiptTime?.let { "Receipt time: $it" },
+        pumpNumber?.let { "Pump number: $it" },
         fuelType?.let { "Fuel type: $it" },
-        seller.takeIf { it.isNotBlank() }?.let { "Seller: $it" },
-        sellerInn?.takeIf { it.isNotBlank() }?.let { "Seller INN: $it" },
-        "Provider status: $status",
-        receiptItemsDescription().takeIf { it.isNotBlank() },
-        "QR: $qrRaw"
+        gasStation.takeIf { it.isNotBlank() }?.let { "Gas station: $it" },
+        retailPlaceAddress?.trim()?.takeIf { it.isNotBlank() }?.let { "Address: $it" }
     ).joinToString(separator = "\n")
 
     return MaintenanceRecordCreateRequest(
-        category = "expense",
-        title = receiptTitle(fuelType = fuelType, seller = seller),
+        category = "заправка",
+        title = "заправка",
         description = description,
         occurredAt = receiptDate,
         costAmount = totalAmount?.takeIf { it.isNotBlank() } ?: "0.00",
-        vendor = seller.takeIf { it.isNotBlank() }
+        vendor = gasStation.takeIf { it.isNotBlank() }
     )
-}
-
-private fun receiptTitle(fuelType: String?, seller: String): String {
-    return listOfNotNull(
-        fuelType?.takeIf { it.isNotBlank() },
-        seller.takeIf { it.isNotBlank() }
-    ).joinToString(separator = " - ").ifBlank { "Receipt expense" }
 }
 
 private fun ReceiptResponse.primaryFuelItemName(): String? {
@@ -374,7 +365,35 @@ private fun ReceiptResponse.primaryFuelItemName(): String? {
             ?.trim()
             ?.takeIf { name -> name.isNotBlank() }
             ?.takeIf { name -> name.isLikelyFuelName() }
+            ?.extractFuelType()
     } ?: items.firstOrNull()?.name?.trim()?.takeIf { it.isNotBlank() }
+}
+
+private fun String.extractFuelType(): String {
+    val patterns = listOf(
+        Regex("""(?i)\b(?:АИ|AI)\s*[- ]?\s*\d{2,3}(?:[- ]?[A-ZА-Я0-9]+)?\b"""),
+        Regex("""(?i)\b(?:ДТ|ДИЗЕЛЬ|DIESEL|GAS|FUEL)\b""")
+    )
+
+    return patterns.firstNotNullOfOrNull { pattern ->
+        pattern.find(this)?.value
+    }?.replace(Regex("""\s+"""), " ")
+        ?.trim()
+        ?: this
+}
+
+private fun ReceiptResponse.pumpNumberFromReceipt(): String? {
+    val candidates = items.mapNotNull { it.name?.trim() }
+    val patterns = listOf(
+        Regex("""(?i)(?:колонк[а-я]*|pump|column)\s*(?:№|#|N)?\s*[:\-]?\s*(\d+)"""),
+        Regex("""(?i)(?:трк|trk)\s*(?:№|#|N)?\s*[:\-]?\s*(\d+)""")
+    )
+
+    return candidates.firstNotNullOfOrNull { candidate ->
+        patterns.firstNotNullOfOrNull { pattern ->
+            pattern.find(candidate)?.groupValues?.getOrNull(1)
+        }
+    } ?: requestNumber?.toString()
 }
 
 private fun String.isLikelyFuelName(): Boolean {

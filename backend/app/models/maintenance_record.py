@@ -22,6 +22,7 @@ class RecordCategory(StrEnum):
     MAINTENANCE = "maintenance"
     REPAIR = "repair"
     EXPENSE = "expense"
+    REFUELING = "заправка"
     INSPECTION = "inspection"
     OTHER = "other"
 

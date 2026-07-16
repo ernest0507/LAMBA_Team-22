@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -28,8 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,14 +51,11 @@ import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 import com.lamba.app.ui.theme.LambaRadius
 import com.lamba.app.ui.theme.LambaSpacing
 import components.BackButton
-import kotlinx.coroutines.launch
 
 private const val ThemeLight = "Светлая"
 private const val ThemeDark = "Тёмная"
 
 private enum class SettingsDialogStep {
-    ResetStepOne,
-    ResetStepTwo,
     LogoutStepOne,
     LogoutStepTwo
 }
@@ -77,8 +71,6 @@ fun AppSettingsScreen(
     val colorScheme = MaterialTheme.colorScheme
     var isThemeSheetVisible by rememberSaveable { mutableStateOf(false) }
     var activeDialogStep by rememberSaveable { mutableStateOf<SettingsDialogStep?>(null) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     if (isThemeSheetVisible) {
         ModalBottomSheet(
@@ -110,20 +102,8 @@ fun AppSettingsScreen(
             onDismiss = { activeDialogStep = null },
             onConfirm = {
                 when (dialogStep) {
-                    SettingsDialogStep.ResetStepOne -> {
-                        activeDialogStep = SettingsDialogStep.ResetStepTwo
-                    }
-
                     SettingsDialogStep.LogoutStepOne -> {
                         activeDialogStep = SettingsDialogStep.LogoutStepTwo
-                    }
-
-                    SettingsDialogStep.ResetStepTwo -> {
-                        activeDialogStep = null
-                        scope.launch {
-                            // TODO: Implement local app settings reset when data layer is connected.
-                            snackbarHostState.showSnackbar("Данные приложения успешно сброшены.")
-                        }
                     }
 
                     SettingsDialogStep.LogoutStepTwo -> {
@@ -136,10 +116,7 @@ fun AppSettingsScreen(
     }
 
     Scaffold(
-        containerColor = colorScheme.background,
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        }
+        containerColor = colorScheme.background
     ) { innerPadding ->
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -183,20 +160,6 @@ fun AppSettingsScreen(
                 }
 
                 item {
-                    SettingsSectionTitle(text = "Управление данными")
-                }
-
-                item {
-                    ClickableSettingsCard(
-                        icon = Icons.Filled.DeleteOutline,
-                        title = "Сбросить данные приложения",
-                        description = "Удалить локальные настройки приложения.",
-                        showChevron = true,
-                        onClick = { activeDialogStep = SettingsDialogStep.ResetStepOne }
-                    )
-                }
-
-                item {
                     SettingsSectionTitle(text = "Аккаунт")
                 }
 
@@ -226,9 +189,10 @@ private fun SettingsHeader(
 
         Text(
             text = "Настройки приложения",
+            modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onBackground,
-            maxLines = 1,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
     }
@@ -474,23 +438,6 @@ private fun SettingsDialogStep.toDialogConfig(
     colorScheme: androidx.compose.material3.ColorScheme
 ): SettingsDialogConfig {
     return when (this) {
-        SettingsDialogStep.ResetStepOne -> SettingsDialogConfig(
-            title = "Сбросить данные приложения?",
-            message = "Будут удалены только локальные настройки приложения. " +
-                "Данные автомобиля и записи не будут удалены.",
-            confirmText = "Продолжить",
-            dismissText = "Отмена",
-            confirmColor = colorScheme.onPrimaryContainer
-        )
-
-        SettingsDialogStep.ResetStepTwo -> SettingsDialogConfig(
-            title = "Вы уверены?",
-            message = "Это действие нельзя отменить. Продолжить?",
-            confirmText = "Да, сбросить",
-            dismissText = "Нет",
-            confirmColor = colorScheme.error
-        )
-
         SettingsDialogStep.LogoutStepOne -> SettingsDialogConfig(
             title = "Выйти из аккаунта?",
             message = "Для повторного входа потребуется снова авторизоваться.",

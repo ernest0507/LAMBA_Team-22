@@ -65,6 +65,10 @@ fun TripStartButton(
         }
     }
 
+    LaunchedEffect(isTripActive) {
+        holdProgress.snapTo(0f)
+    }
+
     val elapsedMillis = if (isTripActive && tripStartedAtMillis != null) {
         nowMillis - tripStartedAtMillis
     } else {
@@ -125,10 +129,10 @@ fun TripStartButton(
                             holdProgress.snapTo(0f)
                         }
 
-                        val up = waitForUpOrCancellation()
+                        waitForUpOrCancellation()
                         holdJob.cancel()
 
-                        if (up != null && !completed) {
+                        if (!completed) {
                             launch {
                                 holdProgress.animateTo(
                                     targetValue = 0f,

@@ -7,25 +7,23 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface TripApi {
-    @POST("api/v1/cars/{car_id}/trips")
+    @POST("api/v1/cars/{car_id}/trips/start")
     suspend fun startTrip(
         @Header("Authorization") authorization: String,
         @Path("car_id") carId: Int,
         @Body request: TripStartRequest
     ): TripResponse
 
-    @POST("api/v1/cars/{car_id}/trips/{trip_id}/points")
+    @POST("api/v1/trips/{trip_id}/points")
     suspend fun appendPoints(
         @Header("Authorization") authorization: String,
-        @Path("car_id") carId: Int,
         @Path("trip_id") tripId: Int,
         @Body request: TripPointBatchRequest
     ): List<TripPointResponse>
 
-    @POST("api/v1/cars/{car_id}/trips/{trip_id}/finish")
+    @POST("api/v1/trips/{trip_id}/finish")
     suspend fun finishTrip(
         @Header("Authorization") authorization: String,
-        @Path("car_id") carId: Int,
         @Path("trip_id") tripId: Int,
         @Body request: TripFinishRequest
     ): TripResponse
@@ -42,10 +40,9 @@ interface TripApi {
         @Path("car_id") carId: Int
     ): List<TripResponse>
 
-    @GET("api/v1/cars/{car_id}/trips/{trip_id}")
+    @GET("api/v1/trips/{trip_id}")
     suspend fun tripDetails(
         @Header("Authorization") authorization: String,
-        @Path("car_id") carId: Int,
         @Path("trip_id") tripId: Int
     ): TripResponse
 }
