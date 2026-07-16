@@ -34,7 +34,7 @@ data class StatisticsMetricResponse(
 
 data class StatisticsChartPointResponse(
     val label: String,
-    val value: Int
+    val value: Long
 )
 
 data class StatisticsCategoryResponse(

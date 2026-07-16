@@ -14,7 +14,7 @@ data class MaintenanceRecordCreateRequest(
     @SerializedName("occurred_at")
     val occurredAt: String? = null,
     @SerializedName("mileage_km")
-    val mileageKm: Int? = null,
+    val mileageKm: Long? = null,
     @SerializedName("cost_amount")
     val costAmount: String,
     val vendor: String? = null
@@ -30,7 +30,7 @@ data class MaintenanceRecordResponse(
     @SerializedName("occurred_at")
     val occurredAt: String?,
     @SerializedName("mileage_km")
-    val mileageKm: Int?,
+    val mileageKm: Long?,
     @SerializedName("cost_amount")
     val costAmount: String,
     val vendor: String?,
@@ -62,7 +62,7 @@ data class TimelineItemResponse(
     @SerializedName("occurred_at")
     val occurredAt: String?,
     @SerializedName("mileage_km")
-    val mileageKm: Int?,
+    val mileageKm: Long?,
     @SerializedName("cost_amount")
     val costAmount: String,
     val vendor: String? = null
@@ -82,8 +82,12 @@ data class ReceiptResponse(
     val sellerName: String?,
     @SerializedName("seller_inn")
     val sellerInn: String?,
+    @SerializedName("retail_place_address")
+    val retailPlaceAddress: String?,
     @SerializedName("ticket_date")
     val ticketDate: String?,
+    @SerializedName("request_number")
+    val requestNumber: Int?,
     @SerializedName("total_amount")
     val totalAmount: String?,
     val items: List<ReceiptItemResponse> = emptyList()

@@ -42,8 +42,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning
 import com.lamba.app.R
@@ -108,12 +110,9 @@ fun AppNavigation(
     val authViewModel: AuthViewModel = viewModel()
     val authState by authViewModel.uiState.collectAsState()
 
-    if (authState.isRestoringSession) {
-        SessionRestoreScreen()
-        return
-    }
-
     val navController = rememberNavController()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentBackStackEntry?.destination?.route
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val carViewModel: CarViewModel = viewModel()
@@ -133,6 +132,7 @@ fun AppNavigation(
     val scanner = remember { GmsBarcodeScanning.getClient(context) }
 
     var carDraft by remember { mutableStateOf<CarDraft?>(null) }
+    val hasCarDraft = carDraft != null
     var scannedQrValue by remember { mutableStateOf<String?>(null) }
     val currentCarId = carState.currentCar?.id
     val isCheckingCars = authState.isAuthenticated && !carState.hasCompletedCarsCheck
@@ -154,6 +154,15 @@ fun AppNavigation(
     var locationErrorDialogMessage by remember { mutableStateOf<String?>(null) }
     var locationDialogAction by remember { mutableStateOf<TripLocationDialogAction?>(null) }
     var shouldStartTripAfterPermission by remember { mutableStateOf(false) }
+    var isInitialLocationPermissionRequest by remember { mutableStateOf(false) }
+    val locationPermissionPrefs = remember {
+        context.getSharedPreferences(LocationPermissionPrefsName, Context.MODE_PRIVATE)
+    }
+    var hasAskedInitialLocationPermission by remember {
+        mutableStateOf(
+            locationPermissionPrefs.getBoolean(LocationPermissionAskedKey, false)
+        )
+    }
     var tripHistoryItems by remember { mutableStateOf<List<TripResponse>>(emptyList()) }
     var isTripHistoryLoading by remember { mutableStateOf(false) }
     var tripHistoryErrorMessage by remember { mutableStateOf<String?>(null) }
@@ -234,23 +243,26 @@ fun AppNavigation(
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val hasPreciseLocationPermission =
-            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val hasLocationPermission =
+            permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
 
         val accessToken = authState.accessToken
         val carId = currentCarId
         val shouldStartTrip = shouldStartTripAfterPermission
+        val wasInitialRequest = isInitialLocationPermissionRequest
         shouldStartTripAfterPermission = false
+        isInitialLocationPermissionRequest = false
 
         if (
-            hasPreciseLocationPermission &&
+            hasLocationPermission &&
             shouldStartTrip &&
             !accessToken.isNullOrBlank() &&
             carId != null &&
             !isTripActive
         ) {
             startTrip(accessToken, carId)
-        } else if (!hasPreciseLocationPermission) {
+        } else if (!hasLocationPermission && !wasInitialRequest) {
             val canAskAgain = context.findActivity()?.let { activity ->
                 ActivityCompat.shouldShowRequestPermissionRationale(
                     activity,
@@ -259,7 +271,7 @@ fun AppNavigation(
             } ?: false
 
             showLocationError(
-                message = "Для поездки нужна точная геолокация. Разрешите Precise location и попробуйте снова.",
+                message = "Для поездки нужна геолокация. Разрешите доступ к местоположению и попробуйте снова.",
                 action = if (canAskAgain) {
                     TripLocationDialogAction.RequestPermission
                 } else {
@@ -315,12 +327,64 @@ fun AppNavigation(
         }
     }
 
-    LaunchedEffect(authState.isAuthenticated, currentCarId) {
+    LaunchedEffect(
+        authState.isRestoringSession,
+        authState.isAuthenticated,
+        carState.hasCompletedCarsCheck,
+        carState.hasExistingCar,
+        carState.createdCar?.id,
+        hasCarDraft,
+        currentRoute
+    ) {
+        val route = currentRoute ?: return@LaunchedEffect
+
+        if (authState.isRestoringSession) {
+            return@LaunchedEffect
+        }
+
+        if (!authState.isAuthenticated) {
+            if (route == LambaRoute.SessionRestore.path || route in ProtectedRoutes) {
+                navController.openLoginClearingStack()
+            }
+            return@LaunchedEffect
+        }
+
+        if (!carState.hasCompletedCarsCheck) {
+            return@LaunchedEffect
+        }
+
+        if (route !in StartupRoutes) {
+            return@LaunchedEffect
+        }
+
+        if (carState.hasExistingCar) {
+            navController.openHomeAfterAuthentication()
+        } else if (
+            route in AuthEntryRoutes ||
+            (route == LambaRoute.CreateTwinStep2.path && !hasCarDraft)
+        ) {
+            navController.openDigitalTwinFlow()
+        }
+    }
+
+    LaunchedEffect(
+        authState.isAuthenticated,
+        carState.hasCompletedCarsCheck,
+        currentCarId,
+        hasAskedInitialLocationPermission
+    ) {
         if (
             authState.isAuthenticated &&
+            carState.hasCompletedCarsCheck &&
             currentCarId != null &&
+            !hasAskedInitialLocationPermission &&
             !context.hasTripLocationPermission()
         ) {
+            hasAskedInitialLocationPermission = true
+            locationPermissionPrefs.edit()
+                .putBoolean(LocationPermissionAskedKey, true)
+                .apply()
+            isInitialLocationPermissionRequest = true
             launchLocationPermissionRequest(startTripAfterGrant = false)
         }
     }
@@ -332,30 +396,11 @@ fun AppNavigation(
     }
 
     LaunchedEffect(isTripActive, tripTrackingPoints.size) {
-        if (isTripActive && tripTrackingPoints.size < 2) {
-            delay(15_000L)
-            if (isTripActive && TripTrackingStateStore.pointsSnapshot().size < 2) {
+        if (isTripActive && tripTrackingPoints.isEmpty()) {
+            delay(45_000L)
+            if (isTripActive && TripTrackingStateStore.pointsSnapshot().isEmpty()) {
                 locationErrorDialogMessage =
-                    "Геолокация не отчитывается: за 15 секунд не пришли GPS-точки для расчета расстояния. Проверьте точную геолокацию, включенный GPS и попробуйте выйти на открытое место."
-            }
-        }
-    }
-
-    LaunchedEffect(
-        authState.isAuthenticated,
-        carState.hasCompletedCarsCheck,
-        carState.hasExistingCar,
-        carState.createdCar?.id
-    ) {
-        if (
-            authState.isAuthenticated &&
-            carState.hasCompletedCarsCheck &&
-            carState.createdCar == null
-        ) {
-            if (carState.hasExistingCar) {
-                navController.openHomeAfterAuthentication()
-            } else {
-                navController.openDigitalTwinFlow()
+                    "Поездка запущена, но геолокация пока не прислала точки маршрута. Проверьте включенный GPS и попробуйте выйти на открытое место."
             }
         }
     }
@@ -371,7 +416,13 @@ fun AppNavigation(
         if (createdRecord != null) {
             recordsViewModel.loadTimeline(authState.accessToken, createdRecord.carId)
             recordsViewModel.consumeCreatedRecord()
-            navController.navigate(LambaRoute.RecordSuccess.path)
+            navController.navigateSingleTop(LambaRoute.RecordSuccess.path)
+        }
+    }
+
+    LaunchedEffect(recordsState.receiptScanSuccessId) {
+        if (recordsState.receiptScanSuccessId != null) {
+            navController.navigateSingleTop(LambaRoute.QrSuccess.path)
         }
     }
 
@@ -404,27 +455,6 @@ fun AppNavigation(
     ) {
         composable(LambaRoute.SessionRestore.path) {
             SessionRestoreScreen()
-
-            LaunchedEffect(
-                authState.isRestoringSession,
-                authState.isAuthenticated
-            ) {
-                if (authState.isRestoringSession) {
-                    return@LaunchedEffect
-                }
-
-                if (!authState.isAuthenticated) {
-                    navController.navigate(LambaRoute.Login.path) {
-                        popUpTo(LambaRoute.SessionRestore.path) {
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                    }
-                    return@LaunchedEffect
-                }
-
-                navController.openHomeAfterAuthentication()
-            }
         }
 
         composable(LambaRoute.Login.path) {
@@ -434,7 +464,7 @@ fun AppNavigation(
                 onLoginClick = authViewModel::login,
                 onRegisterClick = {
                     authViewModel.clearError()
-                    navController.navigate(LambaRoute.Registration.path)
+                    navController.navigateSingleTop(LambaRoute.Registration.path)
                 }
             )
         }
@@ -446,25 +476,25 @@ fun AppNavigation(
                 onCreateAccountClick = authViewModel::register,
                 onLoginClick = {
                     authViewModel.clearError()
-                    navController.popBackStack()
+                    navController.safePopBackStack(LambaRoute.Login.path)
                 }
             )
         }
 
         composable(LambaRoute.CreateTwinStep1.path) {
             CreationDigitalTwinStep1(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack(LambaRoute.Login.path) },
                 onContinue = { draft ->
                     carDraft = draft
                     carViewModel.clearStatus()
-                    navController.navigate(LambaRoute.CreateTwinStep2.path)
+                    navController.navigateSingleTop(LambaRoute.CreateTwinStep2.path)
                 }
             )
         }
 
         composable(LambaRoute.CreateTwinStep2.path) {
             CreationDigitalTwinStep2(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack(LambaRoute.CreateTwinStep1.path) },
                 isLoading = carState.isLoading,
                 carErrorMessage = carState.errorMessage,
                 onCreateTwin = { color, bodyType ->
@@ -486,11 +516,11 @@ fun AppNavigation(
                     messages = assistantState.messages,
                     isAssistantSending = assistantState.isSending,
                     onOpenAiChat = {},
-                    onAddExpensesClick = { navController.navigate(LambaRoute.ChooseRecordType.path) },
-                    onOpenHistory = { navController.navigate(LambaRoute.History.path) },
-                    onOpenTripHistory = { navController.navigate(LambaRoute.TripHistory.path) },
-                    onOpenStatistics = { navController.navigate(LambaRoute.Statistics.path) },
-                    onOpenAchievements = { navController.navigate(LambaRoute.Achievements.path) },
+                    onAddExpensesClick = { navController.navigateSingleTop(LambaRoute.ChooseRecordType.path) },
+                    onOpenHistory = { navController.navigateSingleTop(LambaRoute.History.path) },
+                    onOpenTripHistory = { navController.navigateSingleTop(LambaRoute.TripHistory.path) },
+                    onOpenStatistics = { navController.navigateSingleTop(LambaRoute.Statistics.path) },
+                    onOpenAchievements = { navController.navigateSingleTop(LambaRoute.Achievements.path) },
                     onOpenQrClick = qrClick@{
                         if (currentCarId == null) {
                             Toast.makeText(
@@ -515,6 +545,7 @@ fun AppNavigation(
                                 }
 
                                 scannedQrValue = qrValue
+                                navController.navigateSingleTop(LambaRoute.QrSuccess.path)
                                 Toast.makeText(
                                     context,
                                     "QR-код считан. Добавляю к машине #$currentCarId...",
@@ -541,7 +572,7 @@ fun AppNavigation(
                                 ).show()
                             }
                     },
-                    onOpenProfile = { navController.navigate(LambaRoute.Profile.path) },
+                    onOpenProfile = { navController.navigateSingleTop(LambaRoute.Profile.path) },
                     onSendMessage = { message ->
                         assistantViewModel.sendMessage(
                             accessToken = authState.accessToken,
@@ -611,7 +642,7 @@ fun AppNavigation(
                                         activeTripId = null
                                         tripStartedAtMillis = null
                                         TripTrackingStateStore.clear()
-                                        navController.navigate(LambaRoute.TripFinished.path)
+                                        navController.navigateSingleTop(LambaRoute.TripFinished.path)
                                     }.onFailure { error ->
                                         locationErrorDialogMessage =
                                             "Не удалось завершить поездку. ${error.toTripErrorMessage()}"
@@ -645,7 +676,7 @@ fun AppNavigation(
                 averageSpeedKmH = finishedTripAverageSpeedKmH,
                 fuelConsumptionL = finishedTripFuelConsumptionL,
                 onDoneClick = {
-                    navController.navigate(LambaRoute.Home.path) {
+                    navController.navigateSingleTop(LambaRoute.Home.path) {
                         popUpTo(LambaRoute.Home.path) {
                             inclusive = true
                         }
@@ -685,18 +716,18 @@ fun AppNavigation(
                 isLoading = isTripHistoryLoading,
                 errorMessage = tripHistoryErrorMessage,
                 trips = tripHistoryItems,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.safePopBackStack(LambaRoute.Home.path) }
             )
         }
 
         composable(LambaRoute.ChooseRecordType.path) {
             ChooseRecordTypeScreen(
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.safePopBackStack(LambaRoute.Home.path) },
                 onTypeSelected = { type ->
                     when (type) {
-                        RecordType.EXPENSE -> navController.navigate(LambaRoute.ExpensesRecord.path)
-                        RecordType.MAINTENANCE -> navController.navigate(LambaRoute.AddMaintenance.path)
-                        RecordType.BREAKDOWN -> navController.navigate(LambaRoute.AddBreakdown.path)
+                        RecordType.EXPENSE -> navController.navigateSingleTop(LambaRoute.ExpensesRecord.path)
+                        RecordType.MAINTENANCE -> navController.navigateSingleTop(LambaRoute.AddMaintenance.path)
+                        RecordType.BREAKDOWN -> navController.navigateSingleTop(LambaRoute.AddBreakdown.path)
                     }
                 }
             )
@@ -704,7 +735,7 @@ fun AppNavigation(
 
         composable(LambaRoute.ExpensesRecord.path) {
             ExpensesRecordScreen(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack(LambaRoute.Home.path) },
                 onSave = { form ->
                     recordsViewModel.createRecord(
                         accessToken = authState.accessToken,
@@ -721,7 +752,7 @@ fun AppNavigation(
 
         composable(LambaRoute.AddMaintenance.path) {
             MaintenanceRecordScreen(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack(LambaRoute.Home.path) },
                 onSave = { form ->
                     recordsViewModel.createRecord(
                         accessToken = authState.accessToken,
@@ -738,7 +769,7 @@ fun AppNavigation(
 
         composable(LambaRoute.AddBreakdown.path) {
             RepairRecordScreen(
-                onBack = { navController.popBackStack() },
+                onBack = { navController.safePopBackStack(LambaRoute.Home.path) },
                 onSave = { form ->
                     recordsViewModel.createRecord(
                         accessToken = authState.accessToken,
@@ -770,7 +801,7 @@ fun AppNavigation(
                         recordId = recordId
                     )
                 },
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.safePopBackStack(LambaRoute.Home.path) }
             )
         }
 
@@ -783,7 +814,7 @@ fun AppNavigation(
                 isLoading = statisticsState.isLoading,
                 errorMessage = statisticsState.errorMessage,
                 statistics = statisticsState.statistics,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.safePopBackStack(LambaRoute.Home.path) }
             )
         }
 
@@ -796,7 +827,7 @@ fun AppNavigation(
                 isLoading = achievementsState.isLoading,
                 errorMessage = achievementsState.errorMessage,
                 achievements = achievementsState.achievements,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.safePopBackStack(LambaRoute.Home.path) },
                 onUnlockClick = { achievementId ->
                     achievementsViewModel.unlockAchievement(achievementId)
                 }
@@ -807,15 +838,15 @@ fun AppNavigation(
             ProfileScreen(
                 user = authState.currentUser,
                 car = carState.currentCar,
-                onBackClick = { navController.popBackStack() },
-                onVehicleDataClick = { navController.navigate(LambaRoute.VehicleData.path) },
-                onAppSettingsClick = { navController.navigate(LambaRoute.AppSettings.path) }
+                onBackClick = { navController.safePopBackStack(LambaRoute.Home.path) },
+                onVehicleDataClick = { navController.navigateSingleTop(LambaRoute.VehicleData.path) },
+                onAppSettingsClick = { navController.navigateSingleTop(LambaRoute.AppSettings.path) }
             )
         }
 
         composable(LambaRoute.VehicleData.path) {
             VehicleDataScreen(
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.safePopBackStack(LambaRoute.Profile.path) },
                 vehicleData = carState.currentCar.toVehicleDataUiModel(),
                 isSaving = carState.isLoading,
                 saveErrorMessage = carState.errorMessage,
@@ -833,7 +864,7 @@ fun AppNavigation(
             AppSettingsScreen(
                 currentTheme = currentTheme,
                 onThemeSelected = onThemeSelected,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.safePopBackStack(LambaRoute.Profile.path) },
                 onLogoutConfirmed = {
                     context.stopTripTrackingService()
                     TripTrackingStateStore.clear()
@@ -850,7 +881,8 @@ fun AppNavigation(
                 message = "Данные чека отправлены на обработку",
                 buttonText = "В главное меню",
                 onContinue = {
-                    navController.navigate(LambaRoute.Home.path) {
+                    recordsViewModel.consumeScannedReceipt()
+                    navController.navigateSingleTop(LambaRoute.Home.path) {
                         popUpTo(LambaRoute.QrSuccess.path) {
                             inclusive = true
                         }
@@ -865,7 +897,7 @@ fun AppNavigation(
                 message = "Данные успешно сохранены",
                 buttonText = "Перейти к истории",
                 onContinue = {
-                    navController.navigate(LambaRoute.History.path) {
+                    navController.navigateSingleTop(LambaRoute.History.path) {
                         popUpTo(LambaRoute.ChooseRecordType.path) {
                             inclusive = true
                         }
@@ -947,6 +979,40 @@ private enum class TripLocationDialogAction {
     OpenAppSettings
 }
 
+private const val LocationPermissionPrefsName = "location_permission_prefs"
+private const val LocationPermissionAskedKey = "initial_location_permission_asked"
+
+private val AuthEntryRoutes = setOf(
+    LambaRoute.SessionRestore.path,
+    LambaRoute.Login.path,
+    LambaRoute.Registration.path
+)
+
+private val OnboardingRoutes = setOf(
+    LambaRoute.CreateTwinStep1.path,
+    LambaRoute.CreateTwinStep2.path
+)
+
+private val StartupRoutes = AuthEntryRoutes + OnboardingRoutes
+
+private val ProtectedRoutes = OnboardingRoutes + setOf(
+    LambaRoute.Home.path,
+    LambaRoute.ChooseRecordType.path,
+    LambaRoute.ExpensesRecord.path,
+    LambaRoute.AddMaintenance.path,
+    LambaRoute.AddBreakdown.path,
+    LambaRoute.History.path,
+    LambaRoute.Statistics.path,
+    LambaRoute.Achievements.path,
+    LambaRoute.Profile.path,
+    LambaRoute.VehicleData.path,
+    LambaRoute.AppSettings.path,
+    LambaRoute.RecordSuccess.path,
+    LambaRoute.TripFinished.path,
+    LambaRoute.QrSuccess.path,
+    LambaRoute.TripHistory.path
+)
+
 private fun TripLocationDialogAction?.confirmButtonText(): String {
     return when (this) {
         TripLocationDialogAction.RequestPermission -> "Разрешить"
@@ -957,34 +1023,65 @@ private fun TripLocationDialogAction?.confirmButtonText(): String {
 }
 
 private fun NavHostController.openDigitalTwinFlow() {
-    navigate(LambaRoute.CreateTwinStep1.path) {
+    navigateSingleTop(LambaRoute.CreateTwinStep1.path) {
         popUpTo(graph.id) {
             inclusive = true
         }
-        launchSingleTop = true
     }
 }
 
 private fun NavHostController.openHomeAfterAuthentication() {
-    navigate(LambaRoute.Home.path) {
+    navigateSingleTop(LambaRoute.Home.path) {
         popUpTo(graph.id) {
             inclusive = true
         }
-        launchSingleTop = true
     }
 }
 
 private fun NavHostController.openHomeAfterCarCreation() {
-    navigate(LambaRoute.Home.path) {
+    navigateSingleTop(LambaRoute.Home.path) {
         popUpTo(LambaRoute.CreateTwinStep1.path) {
             inclusive = true
         }
-        launchSingleTop = true
+    }
+}
+
+private fun NavHostController.openLoginClearingStack() {
+    navigateSingleTop(LambaRoute.Login.path) {
+        popUpTo(graph.id) {
+            inclusive = true
+        }
     }
 }
 
 private fun NavHostController.openLoginAfterLogout() {
-    navigate(LambaRoute.Login.path) {
+    navigateSingleTop(LambaRoute.Login.path) {
+        popUpTo(graph.id) {
+            inclusive = true
+        }
+    }
+}
+
+private fun NavHostController.navigateSingleTop(
+    route: String,
+    builder: NavOptionsBuilder.() -> Unit = {}
+) {
+    if (currentBackStackEntry?.destination?.route == route) {
+        return
+    }
+
+    navigate(route) {
+        launchSingleTop = true
+        builder()
+    }
+}
+
+private fun NavHostController.safePopBackStack(fallbackRoute: String) {
+    if (previousBackStackEntry != null && popBackStack()) {
+        return
+    }
+
+    navigate(fallbackRoute) {
         popUpTo(graph.id) {
             inclusive = true
         }
@@ -1018,7 +1115,7 @@ private fun MaintenanceRecordFormData.toRecordRequest(): MaintenanceRecordCreate
         title = title.trim(),
         description = description.trim().takeIf { it.isNotBlank() },
         occurredAt = serviceDate.toIsoRecordDateOrNull(),
-        mileageKm = mileage.toIntOrNull(),
+        mileageKm = mileage.toLongOrNull(),
         costAmount = cost.toRecordCostAmount(),
         vendor = organization.trim().takeIf { it.isNotBlank() }
     )
@@ -1030,7 +1127,7 @@ private fun RepairRecordFormData.toRecordRequest(): MaintenanceRecordCreateReque
         title = category.trim(),
         description = description.trim().takeIf { it.isNotBlank() },
         occurredAt = breakdownDate.toIsoRecordDateOrNull(),
-        mileageKm = mileage.toIntOrNull(),
+        mileageKm = mileage.toLongOrNull(),
         costAmount = "0.00"
     )
 }
@@ -1065,10 +1162,16 @@ private fun String?.isSessionExpiredMessage(): Boolean {
 }
 
 private fun Context.hasTripLocationPermission(): Boolean {
-    return ContextCompat.checkSelfPermission(
+    val hasFineLocation = ContextCompat.checkSelfPermission(
         this,
         Manifest.permission.ACCESS_FINE_LOCATION
     ) == PackageManager.PERMISSION_GRANTED
+    val hasCoarseLocation = ContextCompat.checkSelfPermission(
+        this,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+
+    return hasFineLocation || hasCoarseLocation
 }
 
 private fun Context.isDeviceLocationEnabled(): Boolean {

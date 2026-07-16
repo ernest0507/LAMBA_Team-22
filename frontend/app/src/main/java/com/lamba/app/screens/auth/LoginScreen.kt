@@ -198,6 +198,7 @@ fun LoginScreen(
                 AuthFooterAction(
                     prompt = "Нет аккаунта?",
                     action = "Зарегистрироваться",
+                    enabled = !isLoading,
                     onClick = onRegisterClick
                 )
             }
@@ -346,6 +347,7 @@ private fun AuthPasswordField(
 private fun AuthFooterAction(
     prompt: String,
     action: String,
+    enabled: Boolean = true,
     onClick: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -366,9 +368,9 @@ private fun AuthFooterAction(
         Text(
             text = " $action",
             style = MaterialTheme.typography.bodyMedium,
-            color = colorScheme.primary,
+            color = if (enabled) colorScheme.primary else colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.clickable(onClick = onClick)
+            modifier = Modifier.clickable(enabled = enabled, onClick = onClick)
         )
     }
 }

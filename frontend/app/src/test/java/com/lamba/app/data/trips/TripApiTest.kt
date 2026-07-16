@@ -19,7 +19,7 @@ class TripApiTest {
 
         val post = method.getAnnotation(POST::class.java)
         assertNotNull(post)
-        assertEquals("api/v1/cars/{car_id}/trips", post!!.value)
+        assertEquals("api/v1/cars/{car_id}/trips/start", post!!.value)
         assertHasAuthorizationCarAndBody(method.parameterAnnotations)
     }
 
@@ -31,11 +31,10 @@ class TripApiTest {
 
         val post = method.getAnnotation(POST::class.java)
         assertNotNull(post)
-        assertEquals("api/v1/cars/{car_id}/trips/{trip_id}/points", post!!.value)
+        assertEquals("api/v1/trips/{trip_id}/points", post!!.value)
 
         val parameterAnnotations = method.parameterAnnotations
-        assertHasAuthorizationCarAndTrip(parameterAnnotations)
-        assertTrue(parameterAnnotations[3].any { it is Body })
+        assertHasAuthorizationTripAndBody(parameterAnnotations)
     }
 
     @Test
@@ -46,11 +45,10 @@ class TripApiTest {
 
         val post = method.getAnnotation(POST::class.java)
         assertNotNull(post)
-        assertEquals("api/v1/cars/{car_id}/trips/{trip_id}/finish", post!!.value)
+        assertEquals("api/v1/trips/{trip_id}/finish", post!!.value)
 
         val parameterAnnotations = method.parameterAnnotations
-        assertHasAuthorizationCarAndTrip(parameterAnnotations)
-        assertTrue(parameterAnnotations[3].any { it is Body })
+        assertHasAuthorizationTripAndBody(parameterAnnotations)
     }
 
     @Test
@@ -74,7 +72,7 @@ class TripApiTest {
         assertNotNull(tripDetailsGet)
         assertEquals("api/v1/cars/{car_id}/trips/active", activeTripGet!!.value)
         assertEquals("api/v1/cars/{car_id}/trips", tripsGet!!.value)
-        assertEquals("api/v1/cars/{car_id}/trips/{trip_id}", tripDetailsGet!!.value)
+        assertEquals("api/v1/trips/{trip_id}", tripDetailsGet!!.value)
     }
 
     private fun assertHasAuthorizationCarAndBody(parameterAnnotations: Array<Array<Annotation>>) {
@@ -91,7 +89,7 @@ class TripApiTest {
         assertTrue(parameterAnnotations[2].any { it is Body })
     }
 
-    private fun assertHasAuthorizationCarAndTrip(parameterAnnotations: Array<Array<Annotation>>) {
+    private fun assertHasAuthorizationTripAndBody(parameterAnnotations: Array<Array<Annotation>>) {
         assertTrue(
             parameterAnnotations[0].any {
                 it is Header && it.value == "Authorization"
@@ -99,13 +97,9 @@ class TripApiTest {
         )
         assertTrue(
             parameterAnnotations[1].any {
-                it is Path && it.value == "car_id"
-            }
-        )
-        assertTrue(
-            parameterAnnotations[2].any {
                 it is Path && it.value == "trip_id"
             }
         )
+        assertTrue(parameterAnnotations[2].any { it is Body })
     }
 }

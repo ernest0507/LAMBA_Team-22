@@ -238,14 +238,17 @@ private fun HistoryEventCard(
                     item.occurredAt?.let {
                         HistoryDetailRow(label = "Дата", value = it)
                     }
-                    item.receiptTime?.let {
-                        HistoryDetailRow(label = "Время", value = it)
+                    item.pumpNumber?.let {
+                        HistoryDetailRow(label = "Номер колонки", value = it)
                     }
                     item.fuelType?.let {
-                        HistoryDetailRow(label = "Топливо", value = it)
+                        HistoryDetailRow(label = "Тип топлива", value = it)
                     }
-                    item.vendor?.let {
-                        HistoryDetailRow(label = "Продавец", value = it)
+                    item.gasStation?.let {
+                        HistoryDetailRow(label = "Заправка", value = it)
+                    }
+                    item.address?.let {
+                        HistoryDetailRow(label = "Адрес", value = it)
                     }
 
                     HistoryPhotosSection(
@@ -523,10 +526,13 @@ private data class HistoryItem(
     val subtitle: String,
     val amount: String,
     val category: String? = null,
-    val mileageKm: Int? = null,
+    val mileageKm: Long? = null,
     val occurredAt: String? = null,
     val receiptTime: String? = null,
+    val pumpNumber: String? = null,
     val fuelType: String? = null,
+    val gasStation: String? = null,
+    val address: String? = null,
     val vendor: String? = null
 )
 
@@ -546,7 +552,10 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
                         mileageKm = record.mileageKm,
                         occurredAt = record.occurredAt,
                         receiptTime = record.description.extractReceiptField("Receipt time"),
+                        pumpNumber = record.description.extractReceiptField("Pump number"),
                         fuelType = record.description.extractReceiptField("Fuel type"),
+                        gasStation = record.description.extractReceiptField("Gas station") ?: record.vendor,
+                        address = record.description.extractReceiptField("Address"),
                         vendor = record.vendor
                     )
                 }
@@ -555,6 +564,14 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
 }
 
 private fun TimelineItemResponse.subtitleText(): String {
+    if (category == "заправка") {
+        return listOfNotNull(
+            description.extractReceiptField("Gas station") ?: vendor,
+            description.extractReceiptField("Fuel type"),
+            description.extractReceiptField("Pump number")?.let { "Колонка $it" }
+        ).joinToString(" | ").ifBlank { "Заправка" }
+    }
+
     return listOfNotNull(
         category.toRecordTypeName().takeIf { it != "-" },
         description.extractReceiptField("Receipt time"),
@@ -580,6 +597,8 @@ private fun String.formatAmount(): String {
 private fun String?.toRecordTypeName(): String {
     return when (this) {
         "expense" -> "Трата"
+        "заправка" -> "Заправка"
+        "fuel" -> "Заправка"
         "maintenance" -> "Обслуживание"
         "repair" -> "Поломка"
         else -> this ?: "-"

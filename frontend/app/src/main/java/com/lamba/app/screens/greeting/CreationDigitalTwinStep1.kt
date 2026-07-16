@@ -1,6 +1,7 @@
 package com.lamba.app.screens.greeting
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,11 +12,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lamba.app.ui.theme.LambaAccentStrong
@@ -38,17 +46,23 @@ fun CreationDigitalTwinStep1(
     onBack: () -> Unit = {},
     onContinue: (CarDraft) -> Unit = { _ -> }
 ) {
+    var selectedBrand by remember { mutableStateOf("") }
     var carModel by remember { mutableStateOf("") }
     var carYear by remember { mutableStateOf("") }
     var mileage by remember { mutableStateOf("") }
     var notes by remember { mutableStateOf("") }
+    var expandedDropdown by remember { mutableStateOf<String?>(null) }
 
     var showValidation by remember { mutableStateOf(false) }
     val year = carYear.toIntOrNull()
+    val modelOptions = remember(selectedBrand) {
+        CarModelsByBrand[selectedBrand].orEmpty()
+    }
+    val isBrandValid = selectedBrand.isNotBlank()
     val isCarModelValid = carModel.isNotBlank()
     val isCarYearValid = carYear.length == 4 && year in 1950..2026
     val isMileageValid = mileage.isNotBlank()
-    val isFormValid = isCarModelValid && isMileageValid && isCarYearValid
+    val isFormValid = isBrandValid && isCarModelValid && isMileageValid && isCarYearValid
 
     Box(
         modifier = Modifier
@@ -104,15 +118,46 @@ fun CreationDigitalTwinStep1(
                 )
             }
             Spacer(modifier = Modifier.height(44.dp))
-            LambaTextField(
+
+            TwinDropdownField(
+                label = "Марка автомобиля",
+                value = selectedBrand,
+                placeholder = "Выберите марку",
+                options = CarBrands,
+                expanded = expandedDropdown == TwinDropdownKeyBrand,
+                onExpandedChange = { expanded ->
+                    expandedDropdown = if (expanded) TwinDropdownKeyBrand else null
+                },
+                onOptionSelected = { brand ->
+                    selectedBrand = brand
+                    carModel = CarModelsByBrand[brand]?.firstOrNull().orEmpty()
+                    expandedDropdown = null
+                },
+                modifier = Modifier.fillMaxWidth(),
+                isError = showValidation && !isBrandValid,
+                errorMessage = "Заполните обязательное поле"
+            )
+
+            Spacer(modifier = Modifier.height(LambaSpacing.CardPadding))
+
+            TwinDropdownField(
                 label = "Модель автомобиля",
                 value = carModel,
-                onValueChange = { carModel = it },
-                placeholder = "Введите модель",
+                placeholder = "Выберите модель",
+                options = modelOptions,
+                expanded = expandedDropdown == TwinDropdownKeyModel,
+                onExpandedChange = { expanded ->
+                    if (selectedBrand.isNotBlank()) {
+                        expandedDropdown = if (expanded) TwinDropdownKeyModel else null
+                    }
+                },
+                onOptionSelected = { model ->
+                    carModel = model
+                    expandedDropdown = null
+                },
                 modifier = Modifier.fillMaxWidth(),
                 isError = showValidation && !isCarModelValid,
                 errorMessage = "Заполните обязательное поле"
-
             )
 
             Spacer(modifier = Modifier.height(LambaSpacing.CardPadding))
@@ -170,6 +215,7 @@ fun CreationDigitalTwinStep1(
                     if (isFormValid && year != null && mileageValue != null) {
                         onContinue(
                             CarDraft(
+                                make = selectedBrand.trim(),
                                 model = carModel.trim(),
                                 year = year,
                                 currentMileageKm = mileageValue,
@@ -184,5 +230,69 @@ fun CreationDigitalTwinStep1(
         }
     }
 
+}
+
+private const val TwinDropdownKeyBrand = "brand"
+private const val TwinDropdownKeyModel = "model"
+
+@Composable
+private fun TwinDropdownField(
+    label: String,
+    value: String,
+    placeholder: String,
+    options: List<String>,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onOptionSelected: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+    errorMessage: String? = null
+) {
+    Box(modifier = modifier.fillMaxWidth()) {
+        LambaTextField(
+            label = label,
+            value = value,
+            onValueChange = {},
+            placeholder = placeholder,
+            modifier = Modifier.fillMaxWidth(),
+            isError = isError,
+            errorMessage = errorMessage,
+            trailingContent = {
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowDown,
+                    contentDescription = null
+                )
+            }
+        )
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable { onExpandedChange(!expanded) }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) },
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(Color.White)
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = option,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    },
+                    onClick = { onOptionSelected(option) },
+                    colors = MenuDefaults.itemColors(
+                        textColor = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+            }
+        }
+    }
 }
 
