@@ -108,7 +108,7 @@ recommendations if the backend accepted them without validation.
 
 **Linked quality requirement tests:** [QRT-008](quality-requirement-tests.md#qrt-008-receipt-qr-scan-backend-handling)
 
-**Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md)
+**Related ADRs:** [ADR-001: Backend implementation](architecture/adr/ADR-001-backend-implementation.md), [ADR-004: Use receipt provider for QR receipt scanning](architecture/adr/ADR-004-use-receipt-provider-for-qr-scanning.md)
 
 
 ## QR-009: Trip distance tracking integrity
