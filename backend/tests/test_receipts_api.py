@@ -176,7 +176,7 @@ async def test_scan_receipt_maps_missing_token_to_service_unavailable(monkeypatc
         (0, status.HTTP_400_BAD_REQUEST),
         (2, status.HTTP_202_ACCEPTED),
         (3, status.HTTP_429_TOO_MANY_REQUESTS),
-        (5, status.HTTP_502_BAD_GATEWAY),
+        (5, status.HTTP_422_UNPROCESSABLE_CONTENT),
     ],
 )
 async def test_scan_receipt_maps_provider_error_codes(monkeypatch, error_code, expected_status):
