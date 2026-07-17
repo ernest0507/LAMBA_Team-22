@@ -25,6 +25,7 @@ Relevant ADRs:
 - [ADR-001: Use the FastAPI for backend implementation](adr/ADR-001-backend-implementation.md)
 - [ADR-002: Use AI-agent for maintenance records](adr/ADR-002-use-ai-agent-for-maintenance-records.md)
 - [ADR-003: Use database for persistent storage](adr/ADR-003-database-for-persistent-storage.md)
+- [ADR-004: Use receipt provider for QR receipt scanning](adr/ADR-004-use-receipt-provider-for-qr-scanning.md)
 
 These decisions explain why the project uses a FastAPI backend, an AI-agent integration for maintenance-record workflows, and PostgreSQL-backed persistent storage. The related quality requirements are linked from each ADR and from [quality requirements](../quality-requirements.md).
 
