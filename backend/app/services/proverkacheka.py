@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any
+from urllib.parse import parse_qs
 
 import httpx
 
@@ -44,23 +45,25 @@ async def scan_receipt_qrraw(
         async with httpx.AsyncClient(timeout=settings.proverkacheka_request_timeout_seconds) as client:
             response = await client.post(
                 settings.proverkacheka_api_url,
-                data={
-                    "token": settings.proverkacheka_api_token,
-                    "qrraw": qrraw,
-                },
+                data=_qrraw_request_data(
+                    token=settings.proverkacheka_api_token,
+                    qrraw=qrraw,
+                ),
             )
             response.raise_for_status()
             payload = response.json()
             if not isinstance(payload, dict):
                 raise ValueError("expected JSON object")
     except httpx.HTTPStatusError as exc:
-        raise ProverkachekaError("Proverkacheka API returned an error") from exc
+        raise ProverkachekaError(
+            f"Proverkacheka API returned HTTP {exc.response.status_code}"
+        ) from exc
     except httpx.HTTPError as exc:
         raise ProverkachekaError("Could not reach Proverkacheka API") from exc
     except ValueError as exc:
         raise ProverkachekaError("Proverkacheka API returned invalid JSON") from exc
 
-    return normalize_receipt_response(payload)
+    return normalize_receipt_response(payload, qrraw=qrraw)
 
 
 async def scan_receipt_qrfile(
@@ -86,7 +89,9 @@ async def scan_receipt_qrfile(
             if not isinstance(payload, dict):
                 raise ValueError("expected JSON object")
     except httpx.HTTPStatusError as exc:
-        raise ProverkachekaError("Proverkacheka API returned an error") from exc
+        raise ProverkachekaError(
+            f"Proverkacheka API returned HTTP {exc.response.status_code}"
+        ) from exc
     except httpx.HTTPError as exc:
         raise ProverkachekaError("Could not reach Proverkacheka API") from exc
     except ValueError as exc:
@@ -95,16 +100,23 @@ async def scan_receipt_qrfile(
     return normalize_receipt_response(payload)
 
 
-def normalize_receipt_response(payload: dict[str, Any]) -> ReceiptRead:
+def normalize_receipt_response(payload: dict[str, Any], *, qrraw: str | None = None) -> ReceiptRead:
     code = _optional_int(payload.get("code"))
     if code is None:
         raise ProverkachekaError("Proverkacheka API response does not include code")
     if code != 1:
-        raise ProverkachekaError(CODE_MESSAGES.get(code, "Receipt data was not received"), code=code)
+        message = CODE_MESSAGES.get(code, "Receipt data was not received")
+        provider_detail = _optional_str(payload.get("data"))
+        if provider_detail and provider_detail != message:
+            message = f"{message}: {provider_detail}"
+        raise ProverkachekaError(message, code=code)
 
     receipt_json = _receipt_json(payload)
-    ticket_date = _optional_datetime(receipt_json.get("ticketDate"))
-    fiscal_sign = _optional_str(receipt_json.get("fiscalSign"))
+    qr_params = _parse_qr_params(qrraw)
+    ticket_date = _optional_datetime(receipt_json.get("ticketDate")) or _optional_datetime(
+        _first_qr_value(qr_params, "t")
+    )
+    fiscal_sign = _optional_str(receipt_json.get("fiscalSign")) or _first_qr_value(qr_params, "fp")
     try:
         receipt_id = build_receipt_id(ticket_date=ticket_date, fiscal_sign=fiscal_sign)
     except ReceiptIdentityError as exc:
@@ -126,15 +138,51 @@ def normalize_receipt_response(payload: dict[str, Any]) -> ReceiptRead:
         shift_number=_optional_int(receipt_json.get("shiftNumber")),
         operator=_optional_str(receipt_json.get("operator")),
         operation_type=_optional_int(receipt_json.get("operationType")),
-        total_amount=_kopecks_to_rubles(receipt_json.get("totalSum")),
+        total_amount=_kopecks_to_rubles(receipt_json.get("totalSum"))
+        or _optional_decimal(_first_qr_value(qr_params, "s")),
         cash_total_amount=_kopecks_to_rubles(receipt_json.get("cashTotalSum")),
         ecash_total_amount=_kopecks_to_rubles(receipt_json.get("ecashTotalSum")),
-        fiscal_drive_number=_optional_str(receipt_json.get("fiscalDriveNumber")),
-        fiscal_document_number=_optional_str(receipt_json.get("fiscalDocumentNumber")),
+        fiscal_drive_number=_optional_str(receipt_json.get("fiscalDriveNumber")) or _first_qr_value(qr_params, "fn"),
+        fiscal_document_number=_optional_str(receipt_json.get("fiscalDocumentNumber"))
+        or _first_qr_value(qr_params, "i", "fd"),
         fiscal_sign=fiscal_sign,
         items=_receipt_items(receipt_json.get("items")),
         raw=payload,
     )
+
+
+def _qrraw_request_data(*, token: str, qrraw: str) -> dict[str, str]:
+    data = {
+        "token": token,
+        "qrraw": qrraw,
+    }
+    params = _parse_qr_params(qrraw)
+    manual_fields = {
+        "fn": _first_qr_value(params, "fn"),
+        "fd": _first_qr_value(params, "i", "fd"),
+        "fp": _first_qr_value(params, "fp"),
+        "t": _first_qr_value(params, "t"),
+        "n": _first_qr_value(params, "n"),
+        "s": _first_qr_value(params, "s"),
+    }
+    data.update({key: value for key, value in manual_fields.items() if value})
+    if manual_fields["fn"] and manual_fields["fd"] and manual_fields["fp"]:
+        data["qr"] = "1"
+    return data
+
+
+def _parse_qr_params(qrraw: str | None) -> dict[str, list[str]]:
+    if not qrraw:
+        return {}
+    return {key.lower(): values for key, values in parse_qs(qrraw).items()}
+
+
+def _first_qr_value(params: dict[str, list[str]], *keys: str) -> str | None:
+    for key in keys:
+        values = params.get(key)
+        if values and values[0].strip():
+            return values[0].strip()
+    return None
 
 
 def _receipt_json(payload: dict[str, Any]) -> dict[str, Any]:

@@ -29,6 +29,7 @@ class RecordCategory(StrEnum):
     OTHER = "other"
 
 
+
 class MaintenanceRecord(Base):
     __tablename__ = "maintenance_records"
     __table_args__ = (

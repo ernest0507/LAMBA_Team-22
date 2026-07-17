@@ -422,7 +422,14 @@ fun AppNavigation(
 
     LaunchedEffect(recordsState.receiptScanSuccessId) {
         if (recordsState.receiptScanSuccessId != null) {
+            recordsViewModel.loadTimeline(authState.accessToken, currentCarId)
             navController.navigateSingleTop(LambaRoute.QrSuccess.path)
+        }
+    }
+
+    LaunchedEffect(recordsState.isDuplicateReceipt) {
+        if (recordsState.isDuplicateReceipt) {
+            navController.navigateSingleTop(LambaRoute.QrDuplicate.path)
         }
     }
 
@@ -545,7 +552,6 @@ fun AppNavigation(
                                 }
 
                                 scannedQrValue = qrValue
-                                navController.navigateSingleTop(LambaRoute.QrSuccess.path)
                                 Toast.makeText(
                                     context,
                                     "QR-код считан. Добавляю к машине #$currentCarId...",
@@ -879,11 +885,27 @@ fun AppNavigation(
             SuccessScreen(
                 title = "QR-код сканирован",
                 message = "Данные чека отправлены на обработку",
-                buttonText = "В главное меню",
+                buttonText = "Перейти к истории",
                 onContinue = {
                     recordsViewModel.consumeScannedReceipt()
-                    navController.navigateSingleTop(LambaRoute.Home.path) {
+                    navController.navigateSingleTop(LambaRoute.History.path) {
                         popUpTo(LambaRoute.QrSuccess.path) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
+        }
+
+        composable(LambaRoute.QrDuplicate.path) {
+            SuccessScreen(
+                title = "Чек уже добавлен",
+                message = "Этот чек уже есть в истории выбранного автомобиля. Операция отменена.",
+                buttonText = "Перейти к истории",
+                onContinue = {
+                    recordsViewModel.consumeDuplicateReceipt()
+                    navController.navigateSingleTop(LambaRoute.History.path) {
+                        popUpTo(LambaRoute.QrDuplicate.path) {
                             inclusive = true
                         }
                     }
@@ -952,6 +974,7 @@ fun AppNavigation(
             containerColor = LambaSurface
         )
     }
+
 }
 
 @Composable
@@ -1010,6 +1033,7 @@ private val ProtectedRoutes = OnboardingRoutes + setOf(
     LambaRoute.RecordSuccess.path,
     LambaRoute.TripFinished.path,
     LambaRoute.QrSuccess.path,
+    LambaRoute.QrDuplicate.path,
     LambaRoute.TripHistory.path
 )
 
@@ -1251,5 +1275,6 @@ private enum class LambaRoute(
     RecordSuccess("record_success"),
     TripFinished("trip_finished"),
     QrSuccess("qr_success"),
+    QrDuplicate("qr_duplicate"),
     TripHistory("trip_history")
 }

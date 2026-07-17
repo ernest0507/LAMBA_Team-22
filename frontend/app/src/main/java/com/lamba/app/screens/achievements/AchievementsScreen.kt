@@ -1,5 +1,6 @@
 package com.lamba.app.screens.achievements
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,11 +35,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.lamba.app.R
 import com.lamba.app.data.achievements.AchievementResponse
 import com.lamba.app.data.achievements.CategoryTitles
 import com.lamba.app.ui.theme.LambaRadius
@@ -204,21 +208,24 @@ private fun AchievementCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                if (unlocked) {
-                    Text(
-                        text = achievement.name.take(2),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                } else {
-                    Text(
-                        text = "?",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                Image(
+                    painter = painterResource(
+                        id = if (unlocked) {
+                            R.drawable.achievement_unlocked
+                        } else {
+                            R.drawable.achievement_locked
+                        }
+                    ),
+                    contentDescription = if (unlocked) {
+                        "Открытая ачивка"
+                    } else {
+                        "Закрытая ачивка"
+                    },
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(10.dp))

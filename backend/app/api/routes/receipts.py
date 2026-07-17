@@ -1,4 +1,5 @@
 from collections.abc import Awaitable, Callable
+import logging
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
@@ -19,6 +20,7 @@ from app.services.proverkacheka import (
 
 router = APIRouter(prefix="/cars/{car_id}/receipts", tags=["receipts"])
 MAX_RECEIPT_QR_FILE_SIZE_BYTES = 5 * 1024 * 1024
+logger = logging.getLogger(__name__)
 
 
 @router.post("/scan", response_model=ReceiptRead)
@@ -78,12 +80,15 @@ async def _scan_with_provider(scan_call: Callable[[], Awaitable[ReceiptRead]]) -
             detail=str(exc),
         ) from exc
     except ProverkachekaError as exc:
+        logger.warning("Receipt provider scan failed: code=%s detail=%s", exc.code, str(exc))
         if exc.code in {2, 4}:
             status_code = status.HTTP_202_ACCEPTED
         elif exc.code == 3:
             status_code = status.HTTP_429_TOO_MANY_REQUESTS
         elif exc.code == 0:
             status_code = status.HTTP_400_BAD_REQUEST
+        elif exc.code == 5:
+            status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
         else:
             status_code = status.HTTP_502_BAD_GATEWAY
         raise HTTPException(status_code=status_code, detail=str(exc)) from exc
