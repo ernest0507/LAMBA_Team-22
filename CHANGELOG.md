@@ -9,6 +9,7 @@ All notable changes to the LAMBA project are documented in this file.
 ### Added
 
 - Added ability to edit information about digital twin in profile screen. Closes #273
+- Added icons for locked and unlocked achievements. Closes #285
 
 ### Fixed
 
