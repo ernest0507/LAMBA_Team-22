@@ -4,6 +4,10 @@ import android.content.ContentResolver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.io.IOException
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,7 +24,8 @@ data class RecordsUiState(
     val recordPhotos: Map<Int, RecordPhotosUiState> = emptyMap(),
     val isScanningReceipt: Boolean = false,
     val scannedReceipt: ReceiptResponse? = null,
-    val receiptScanSuccessId: Int? = null
+    val receiptScanSuccessId: Int? = null,
+    val isDuplicateReceipt: Boolean = false
 )
 
 data class RecordPhotoImage(
@@ -231,6 +236,12 @@ class RecordsViewModel(
         }
     }
 
+    fun consumeDuplicateReceipt() {
+        _uiState.update {
+            it.copy(isDuplicateReceipt = false)
+        }
+    }
+
     fun clearError() {
         _uiState.update {
             it.copy(errorMessage = null)
@@ -273,22 +284,34 @@ class RecordsViewModel(
                     errorMessage = null,
                     scannedReceipt = null,
                     receiptScanSuccessId = null,
+                    isDuplicateReceipt = false,
                     createdRecord = null
                 )
             }
 
             runCatching {
-                val receipt = repository.scanReceipt(
-                    accessToken = accessToken,
-                    carId = carId,
-                    qrRaw = qrRaw
-                )
+                var scannedReceipt: ReceiptResponse? = null
+                val request = try {
+                    val receipt = repository.scanReceipt(
+                        accessToken = accessToken,
+                        carId = carId,
+                        qrRaw = qrRaw
+                    )
+                    scannedReceipt = receipt
+                    receipt.toRecordRequest(qrRaw)
+                } catch (error: Throwable) {
+                    if (error.canFallbackToQrRecord()) {
+                        qrRaw.toFallbackReceiptRecordRequest()
+                    } else {
+                        throw error
+                    }
+                }
                 val record = repository.createRecord(
                     accessToken = accessToken,
                     carId = carId,
-                    request = receipt.toRecordRequest(qrRaw)
+                    request = request
                 )
-                receipt to record
+                scannedReceipt to record
             }.onSuccess { (receipt, record) ->
                 _uiState.update {
                     it.copy(
@@ -298,6 +321,7 @@ class RecordsViewModel(
                         receiptScanSuccessId = record.id,
                         timeline = it.timeline.withRecord(record),
                         createdRecord = null,
+                        isDuplicateReceipt = false,
                         errorMessage = null
                     )
                 }
@@ -306,12 +330,25 @@ class RecordsViewModel(
                     it.copy(
                         isScanningReceipt = false,
                         isSaving = false,
-                        errorMessage = error.toRecordsMessage()
+                        isDuplicateReceipt = error.isDuplicateReceiptError(),
+                        errorMessage = if (error.isDuplicateReceiptError()) {
+                            null
+                        } else {
+                            error.toRecordsMessage()
+                        }
                     )
                 }
             }
         }
     }
+}
+
+private fun Throwable.canFallbackToQrRecord(): Boolean {
+    return this !is HttpException || code() !in setOf(401, 404, 409)
+}
+
+private fun Throwable.isDuplicateReceiptError(): Boolean {
+    return this is HttpException && code() == 409
 }
 
 private fun List<TimelineItemResponse>.withRecord(
@@ -338,27 +375,108 @@ private fun MaintenanceRecordResponse.toTimelineItem(): TimelineItemResponse {
     )
 }
 
+private fun String.toFallbackReceiptRecordRequest(): MaintenanceRecordCreateRequest {
+    val params = parseQrParams()
+    val amount = params["s"].toReceiptAmount()
+    val occurredAt = params["t"]?.toQrDate()
+    val receiptTime = params["t"]?.toQrTime()
+    val description = listOfNotNull(
+        "Receipt category: траты",
+        amount.takeIf { it != "0.00" }?.let { "Receipt amount: $it" },
+        receiptTime?.let { "Receipt time: $it" },
+        params["fn"]?.let { "Fiscal drive number: $it" },
+        params["i"]?.let { "Fiscal document number: $it" },
+        params["fp"]?.let { "Fiscal sign: $it" },
+        "QR: $this"
+    ).joinToString(separator = "\n")
+
+    return MaintenanceRecordCreateRequest(
+        category = "заправка",
+        title = "Заправка",
+        description = description,
+        occurredAt = occurredAt,
+        costAmount = amount
+    )
+}
+
 private fun ReceiptResponse.toRecordRequest(qrRaw: String): MaintenanceRecordCreateRequest {
     val gasStation = sellerName?.trim().orEmpty()
     val receiptDate = ticketDate?.take(10)
     val fuelType = primaryFuelItemName()
+    val fuelLiters = primaryFuelQuantity()
     val pumpNumber = pumpNumberFromReceipt()
     val description = listOfNotNull(
         pumpNumber?.let { "Pump number: $it" },
-        fuelType?.let { "Fuel type: $it" },
+        fuelType?.let { "Fuel mark: $it" },
+        fuelLiters?.let { "Liters: $it" },
         gasStation.takeIf { it.isNotBlank() }?.let { "Gas station: $it" },
         retailPlaceAddress?.trim()?.takeIf { it.isNotBlank() }?.let { "Address: $it" }
     ).joinToString(separator = "\n")
 
     return MaintenanceRecordCreateRequest(
         category = "заправка",
-        title = "заправка",
+        title = "Заправка",
         description = description,
         occurredAt = receiptDate,
         costAmount = totalAmount?.takeIf { it.isNotBlank() } ?: "0.00",
         vendor = gasStation.takeIf { it.isNotBlank() },
         receipt = toRecordReceiptPayload()
     )
+}
+
+private fun String.parseQrParams(): Map<String, String> {
+    return split("&")
+        .mapNotNull { part ->
+            val separatorIndex = part.indexOf("=")
+            if (separatorIndex <= 0) {
+                null
+            } else {
+                val key = part.substring(0, separatorIndex).trim().lowercase()
+                val value = part.substring(separatorIndex + 1).urlDecode().trim()
+                key to value
+            }
+        }
+        .toMap()
+}
+
+private fun String.urlDecode(): String {
+    return runCatching {
+        URLDecoder.decode(this, StandardCharsets.UTF_8.name())
+    }.getOrDefault(this)
+}
+
+private fun String?.toReceiptAmount(): String {
+    val normalized = this
+        ?.trim()
+        ?.replace(",", ".")
+        ?.filter { it.isDigit() || it == '.' }
+        ?.takeIf { it.isNotBlank() }
+        ?: return "0.00"
+
+    return runCatching {
+        BigDecimal(normalized).setScale(2, RoundingMode.HALF_UP).toPlainString()
+    }.getOrDefault("0.00")
+}
+
+private fun String.toQrDate(): String? {
+    val compactDate = take(8)
+    if (compactDate.length != 8 || compactDate.any { !it.isDigit() }) {
+        return null
+    }
+    return "${compactDate.substring(0, 4)}-${compactDate.substring(4, 6)}-${compactDate.substring(6, 8)}"
+}
+
+private fun String.toQrTime(): String? {
+    val markerIndex = indexOf('T')
+    if (markerIndex < 0 || length < markerIndex + 5) {
+        return null
+    }
+    val hour = substring(markerIndex + 1, markerIndex + 3)
+    val minute = substring(markerIndex + 3, markerIndex + 5)
+    if ((hour + minute).any { !it.isDigit() }) {
+        return null
+    }
+    return "$hour:$minute"
 }
 
 private fun ReceiptResponse.toRecordReceiptPayload(): RecordReceiptPayload {
@@ -384,6 +502,26 @@ private fun ReceiptResponse.primaryFuelItemName(): String? {
             ?.takeIf { name -> name.isLikelyFuelName() }
             ?.extractFuelType()
     } ?: items.firstOrNull()?.name?.trim()?.takeIf { it.isNotBlank() }
+}
+
+private fun ReceiptResponse.primaryFuelQuantity(): String? {
+    val quantity = items.firstNotNullOfOrNull { item ->
+        item.quantity
+            ?.trim()
+            ?.takeIf { value -> value.isNotBlank() }
+            ?.takeIf { item.name?.isLikelyFuelName() == true }
+    }
+
+    return quantity.trimReceiptNumber()
+}
+
+private fun String?.trimReceiptNumber(): String? {
+    return this
+        ?.trim()
+        ?.replace(',', '.')
+        ?.trimEnd('0')
+        ?.trimEnd('.')
+        ?.takeIf { it.isNotBlank() }
 }
 
 private fun String.extractFuelType(): String {

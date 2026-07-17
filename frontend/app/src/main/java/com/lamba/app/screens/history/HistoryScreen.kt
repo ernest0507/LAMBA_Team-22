@@ -54,6 +54,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.lamba.app.data.records.RecordPhotoImage
 import com.lamba.app.data.records.RecordPhotosUiState
+import com.lamba.app.data.records.RecordReceiptPayload
+import com.lamba.app.data.records.ReceiptItemResponse
 import com.lamba.app.data.records.TimelineItemResponse
 import com.lamba.app.ui.theme.LAMBA_MVPv0Theme
 
@@ -230,25 +232,58 @@ private fun HistoryEventCard(
                 Column(
                     modifier = Modifier.padding(top = 12.dp, start = 64.dp)
                 ) {
-                    HistoryDetailRow(label = "Тип", value = item.category.toRecordTypeName())
-                    HistoryDetailRow(label = "Категория", value = item.title)
-                    item.mileageKm?.let {
-                        HistoryDetailRow(label = "Пробег", value = "$it км")
-                    }
-                    item.occurredAt?.let {
-                        HistoryDetailRow(label = "Дата", value = it)
-                    }
-                    item.pumpNumber?.let {
-                        HistoryDetailRow(label = "Номер колонки", value = it)
-                    }
-                    item.fuelType?.let {
-                        HistoryDetailRow(label = "Тип топлива", value = it)
-                    }
-                    item.gasStation?.let {
-                        HistoryDetailRow(label = "Заправка", value = it)
-                    }
-                    item.address?.let {
-                        HistoryDetailRow(label = "Адрес", value = it)
+                    if (item.isReceipt) {
+                        HistoryDetailRow(label = "Категория", value = "траты")
+                        item.fuelMark?.let {
+                            HistoryDetailRow(label = "Маркировка", value = it)
+                        }
+                        item.liters?.let {
+                            HistoryDetailRow(label = "Литры", value = it)
+                        }
+                        item.seller?.let {
+                            HistoryDetailRow(label = "Продавец", value = it)
+                        }
+                        item.receiptTime?.let {
+                            HistoryDetailRow(label = "Время", value = it)
+                        }
+                        item.address?.let {
+                            HistoryDetailRow(label = "Адрес", value = it)
+                        }
+                        item.sellerInn?.let {
+                            HistoryDetailRow(label = "ИНН", value = it)
+                        }
+                        item.receiptAmount?.let {
+                            HistoryDetailRow(label = "Сумма", value = "$it ₽")
+                        }
+                        item.fiscalDriveNumber?.let {
+                            HistoryDetailRow(label = "ФН", value = it)
+                        }
+                        item.fiscalDocumentNumber?.let {
+                            HistoryDetailRow(label = "ФД", value = it)
+                        }
+                        item.fiscalSign?.let {
+                            HistoryDetailRow(label = "ФП", value = it)
+                        }
+                    } else {
+                        HistoryDetailRow(label = "Категория", value = item.category.toRecordTypeName())
+                        item.mileageKm?.let {
+                            HistoryDetailRow(label = "Пробег", value = "$it км")
+                        }
+                        item.occurredAt?.let {
+                            HistoryDetailRow(label = "Дата", value = it)
+                        }
+                        item.pumpNumber?.let {
+                            HistoryDetailRow(label = "Номер колонки", value = it)
+                        }
+                        item.fuelType?.let {
+                            HistoryDetailRow(label = "Тип топлива", value = it)
+                        }
+                        item.gasStation?.let {
+                            HistoryDetailRow(label = "Заправка", value = it)
+                        }
+                        item.address?.let {
+                            HistoryDetailRow(label = "Адрес", value = it)
+                        }
                     }
 
                     HistoryPhotosSection(
@@ -531,9 +566,18 @@ private data class HistoryItem(
     val receiptTime: String? = null,
     val pumpNumber: String? = null,
     val fuelType: String? = null,
+    val fuelMark: String? = null,
+    val liters: String? = null,
+    val seller: String? = null,
+    val sellerInn: String? = null,
+    val receiptAmount: String? = null,
+    val fiscalDriveNumber: String? = null,
+    val fiscalDocumentNumber: String? = null,
+    val fiscalSign: String? = null,
     val gasStation: String? = null,
     val address: String? = null,
-    val vendor: String? = null
+    val vendor: String? = null,
+    val isReceipt: Boolean = false
 )
 
 private fun rememberHistorySections(records: List<TimelineItemResponse>): List<HistorySection> {
@@ -544,9 +588,11 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
                 title = date,
                 items = items.map { record ->
                     val receipt = record.receipt
+                    val fuelItem = receipt?.primaryFuelItem()
+                    val isReceipt = receipt != null || record.category in setOf("заправка", "fuel")
                     HistoryItem(
                         id = record.id,
-                        title = record.title ?: "Событие",
+                        title = if (isReceipt) "Заправка" else record.title ?: "Событие",
                         subtitle = record.subtitleText(),
                         amount = record.costAmount.formatAmount(),
                         category = record.category,
@@ -556,12 +602,31 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
                             ?: record.description.extractReceiptField("Receipt time"),
                         pumpNumber = record.description.extractReceiptField("Pump number"),
                         fuelType = record.description.extractReceiptField("Fuel type"),
+                        fuelMark = fuelItem?.name.extractFuelMark()
+                            ?: record.description.extractReceiptField("Fuel mark")
+                            ?: record.description.extractReceiptField("Fuel type"),
+                        liters = fuelItem?.quantity.formatQuantity()
+                            ?: record.description.extractReceiptField("Liters"),
+                        seller = receipt?.sellerName
+                            ?: record.description.extractReceiptField("Seller")
+                            ?: record.description.extractReceiptField("Gas station")
+                            ?: record.vendor,
+                        sellerInn = receipt?.sellerInn,
+                        receiptAmount = receipt?.totalAmount
+                            ?: record.description.extractReceiptField("Receipt amount"),
+                        fiscalDriveNumber = receipt?.fiscalDriveNumber
+                            ?: record.description.extractReceiptField("Fiscal drive number"),
+                        fiscalDocumentNumber = receipt?.fiscalDocumentNumber
+                            ?: record.description.extractReceiptField("Fiscal document number"),
+                        fiscalSign = receipt?.fiscalSign
+                            ?: record.description.extractReceiptField("Fiscal sign"),
                         gasStation = receipt?.sellerName
                             ?: record.description.extractReceiptField("Gas station")
                             ?: record.vendor,
                         address = receipt?.retailPlaceAddress
                             ?: record.description.extractReceiptField("Address"),
-                        vendor = record.vendor
+                        vendor = record.vendor,
+                        isReceipt = isReceipt
                     )
                 }
             )
@@ -569,10 +634,15 @@ private fun rememberHistorySections(records: List<TimelineItemResponse>): List<H
 }
 
 private fun TimelineItemResponse.subtitleText(): String {
-    if (category == "заправка") {
+    if (receipt != null || category in setOf("заправка", "fuel")) {
+        val fuelItem = receipt?.primaryFuelItem()
         return listOfNotNull(
-            receipt?.sellerName ?: description.extractReceiptField("Gas station") ?: vendor,
-            description.extractReceiptField("Fuel type"),
+            receipt?.sellerName ?: description.extractReceiptField("Seller")
+                ?: description.extractReceiptField("Gas station") ?: vendor,
+            fuelItem?.name.extractFuelMark() ?: description.extractReceiptField("Fuel mark")
+                ?: description.extractReceiptField("Fuel type"),
+            fuelItem?.quantity.formatQuantity()?.let { "$it л" },
+            description.extractReceiptField("Receipt amount")?.let { "$it ₽" },
             description.extractReceiptField("Pump number")?.let { "Колонка $it" }
         ).joinToString(" | ").ifBlank { "Заправка" }
     }
@@ -583,6 +653,47 @@ private fun TimelineItemResponse.subtitleText(): String {
         description.extractReceiptField("Fuel type"),
         mileageKm?.let { "$it км" }
     ).joinToString(" | ")
+}
+
+private fun RecordReceiptPayload.primaryFuelItem(): ReceiptItemResponse? =
+    items.firstOrNull { it.name.isLikelyFuelName() }
+
+private fun String?.isLikelyFuelName(): Boolean {
+    if (isNullOrBlank()) return false
+    val normalized = uppercase().replace('Ё', 'Е')
+    return extractFuelMark() != null || listOf("АИ", "AI", "А-", "A-", "БЕНЗ", "ДТ", "ДИЗ", "DIESEL", "GAS", "FUEL").any {
+        normalized.contains(it)
+    }
+}
+
+private fun String?.extractFuelMark(): String? {
+    if (isNullOrBlank()) return null
+    val normalized = replace('Ё', 'Е').replace('ё', 'е')
+    val gasolineMatch = Regex(
+        pattern = """(?i)(?:АИ|AI|А|A)\s*[- ]?\s*(80|92|95|98|100|101|102)(?:[- ]?[A-ZА-Я0-9]+)?"""
+    ).find(normalized)
+    if (gasolineMatch != null) {
+        return "А${gasolineMatch.groupValues[1]}"
+    }
+
+    if (Regex("""(?i)\b(ДТ|ДИЗЕЛЬ|DIESEL)\b""").containsMatchIn(normalized)) {
+        return "ДТ"
+    }
+
+    if (Regex("""(?i)\b(ГАЗ|LPG|CNG|GAS)\b""").containsMatchIn(normalized)) {
+        return "Газ"
+    }
+
+    return null
+}
+
+private fun String?.formatQuantity(): String? {
+    return this
+        ?.trim()
+        ?.replace(',', '.')
+        ?.trimEnd('0')
+        ?.trimEnd('.')
+        ?.takeIf { it.isNotBlank() }
 }
 
 private fun String?.extractReceiptField(label: String): String? {

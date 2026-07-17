@@ -74,8 +74,10 @@ async def create_record(
 ) -> MaintenanceRecord:
     if receipt_id is None and data.receipt is not None:
         receipt_id = data.receipt.receipt_id
-    if receipt_id and await get_record_by_receipt_id(db, car_id, receipt_id):
-        raise DuplicateReceiptError
+    if receipt_id:
+        existing_record = await get_record_by_receipt_id(db, car_id, receipt_id)
+        if existing_record:
+            raise DuplicateReceiptError
 
     record = MaintenanceRecord(
         car_id=car_id,
