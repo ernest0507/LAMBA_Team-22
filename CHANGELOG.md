@@ -4,6 +4,20 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [Unreleased]
 
+## [v0.4.0] - 2026-07-18
+
+### Added
+
+- Added ability to edit information about digital twin in profile screen. Closes #273
+- Added icons for locked and unlocked achievements. Closes #285
+
+### Fixed
+
+- Fixed size of the car images in registration and main screens. Closes #267
+- Fixed bug when the same receipt can be added multiple times using QR scanning. Closes #275
+- Fixed bug when navigation breaks after QR scanning and correctness of statistics display when large numbers append. Closes #277
+- Fixed ability of adding receipt for different accounts or cars, but only once. Closes #279
+
 ## [v0.3.1] - 2026-07-12
 
 This release maps to the Assignment 6 final course increment, MVP v3.
