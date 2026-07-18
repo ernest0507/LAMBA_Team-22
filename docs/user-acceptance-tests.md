@@ -601,8 +601,8 @@ chat so that I do not have to manually fill in an expense form.
 - If the user confirms sign-out, the session ends and the user is returned to the login/authentication flow
 - The application does not freeze, crash, lose saved data, or leave the user without feedback
 
-**Assignment 6 execution results:** 
+**Assignment 6 execution results:** Passed
 
-**Customer comments or observed issues:** 
+**Customer comments or observed issues:**  From the user side, everything is clear and intuitive 
 
-**Resulting PBIs or issues:** 
+**Resulting PBIs or issues:**  No follow-up PBI or issue was created because the customer accepted the View and Use User Profile Screen during UAT
