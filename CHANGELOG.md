@@ -4,7 +4,7 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [Unreleased]
 
-## [v0.3.2] - 2026-07-17
+## [v0.4.0] - 2026-07-18
 
 ### Added
 
