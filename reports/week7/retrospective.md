@@ -2,76 +2,50 @@
 
 ## Overview
 
-Week 7 was the final project stage focused on completing MVP v4, preparing the final delivery package, and transitioning the product towards customer-side use.
-
-The team reviewed the final development process, release preparation, documentation work, and collaboration practices.
+Week 7 was the final Sprint of the course project. The team completed MVP v4, prepared release `v0.4.0`, resolved the remaining customer-trial findings, and completed the final delivery and handover package.
 
 ## What went well
 
-### Final product delivery
-
-The team successfully completed the final MVP v4 version and prepared the required delivery materials, including:
-
-- final Android APK;
-- source-code archive;
-- customer handover documentation;
-- deployment documentation;
-- final project reports.
-
-### Customer transition preparation
-
-The team improved the transition process by documenting:
-
-- deployment requirements;
-- ownership responsibilities;
-- access instructions;
-- environment configuration;
-- future maintenance expectations.
-
-This made the project easier to understand and continue after the development phase.
-
-### Team collaboration
-
-Communication between team members improved during the final stage. The team had clearer task ownership and better visibility of remaining work before the final delivery.
-
-### Quality and testing
-
-Final verification helped identify and resolve remaining issues before delivery. The team used customer feedback and internal testing results to improve the final product state.
+- The team completed the final 24 Story Point Sprint and linked delivered work to reviewed issues and pull requests.
+- The final APK, source archive, SHA-256 checksum, deployment guide, customer handover, public demo, and Week 7 evidence were prepared.
+- Customer UAT covered authentication, profile and settings, receipt QR scanning, achievements, trip mode, and the AI assistant.
+- Responsibilities were distributed clearly, and all six team members participated in the final Sprint.
+- The rehearsal and Demo Day materials were completed before submission.
 
 ## What could be improved
 
-### Earlier documentation preparation
+- Delivery documentation and release packaging should have started earlier.
+- The exact APK and release version should have been verified before the customer session.
+- A single final-delivery checklist should have covered GitHub, Drive, Moodle, screenshots, links, archive contents, and checksum verification.
+- Repository status documents should have been updated in the same release pull request.
 
-Some documentation tasks were completed close to the final deadline. Preparing delivery documentation earlier would reduce pressure during the final week.
+## What the team changed based on the previous Sprint Retrospective and what results were observed
 
-### Release coordination
+The previous Sprint identified the need for clearer ownership, stronger final documentation, improved feedback tracking, and explicit transition planning.
 
-The team experienced challenges keeping all project parts synchronized, including:
+During Sprint 5 the team:
 
-- frontend changes;
-- backend updates;
-- documentation updates;
-- release materials.
+- assigned final documentation and release responsibilities explicitly;
+- converted customer findings into issue-linked implementation work;
+- added dedicated deployment and customer-handover documentation;
+- prepared a public demo and structured Week 7 evidence;
+- verified the final source archive with a SHA-256 checksum.
 
-A more structured release checklist would help avoid last-minute verification.
+Observed results:
 
-### Requirement tracking
+- the major Week 6 findings were completed and traceable;
+- customer-facing access and deployment information became clearer;
+- the final package reached **Ready for independent use**;
+- no blocking transition item remained.
 
-Although the team successfully completed the required materials, some assignment requirements required additional checking near the deadline.
+## Action points
 
-A more regular review of requirements during the sprint would make final preparation easier.
+1. Maintain one release-and-handover checklist from Sprint planning through final submission.
+2. Freeze and verify all customer-facing artifacts before the final review, including version, links, archive, checksum, documentation, and demo.
 
-## Action items
+## Final transition outcome
 
-| Action | Purpose |
-|---|---|
-| Maintain a delivery checklist from the beginning of the project | Avoid missing final artifacts |
-| Prepare customer-facing documentation earlier | Reduce final-week workload |
-| Add release verification steps before publishing versions | Improve consistency between code and delivered artifacts |
-| Keep ownership of documentation tasks clear | Improve collaboration efficiency |
+- **Customer confirmation:** Accepted
+- **Remaining blockers:** None
 
-## Final retrospective summary
-
-The final sprint showed the importance of combining development, testing, documentation, and customer communication into one delivery process.
-
-The team successfully completed MVP v4 and prepared the project for customer use. The experience highlighted the value of early documentation, structured release preparation, and continuous requirement tracking.
+Private customer-confirmation evidence is supplied through the final Moodle submission and is intentionally excluded from the public repository.

@@ -149,6 +149,8 @@ The product materials are available for independent customer-side deployment and
 
 The customer accepted the final MVP v4 delivery, including the application build, source-code package, customer-facing documentation, deployment guidance, and final handover materials.
 
+Private customer-confirmation evidence is supplied through the final Moodle submission and is intentionally excluded from the public repository.
+
 ### Remaining blockers
 
 No blocking transition issues remain.
@@ -211,7 +213,7 @@ The delivered APK currently references the team's temporary backend. Long-term c
 | Retrospective | [retrospective.md](retrospective.md) |
 | Reflection | [reflection.md](reflection.md) |
 | LLM usage report | [llm-report.md](llm-report.md) |
-| Private meeting recording | Moodle/private evidence only |
+| Private meeting recording and customer-confirmation evidence | Moodle submission only; intentionally excluded from the public repository |
 | Public demo video | [Final MVP v4 demo](https://drive.google.com/file/d/1UUY_8EvetCl70JN_CmoVUoLNK4dsDsgT/view?usp=drive_link) |
 
 ## 12. Retrospective and reflection summary

@@ -6,6 +6,9 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [v0.4.0] - 2026-07-18
 
+This release is the final Assignment 6 course increment: **MVP v3** in the
+assignment terminology and **MVP v4** in the repository's internal sequence.
+
 ### Added
 
 - Added ability to edit information about digital twin in profile screen. Closes #273
@@ -20,7 +23,7 @@ All notable changes to the LAMBA project are documented in this file.
 
 ## [v0.3.1] - 2026-07-12
 
-This release maps to the Assignment 6 final course increment, MVP v3.
+This release was the Week 6 trial / handover-candidate increment.
 
 ### Added
 

@@ -2,65 +2,40 @@
 
 ## Overview
 
-During Week 7, the team focused on completing the final MVP v4 delivery,
-preparing the customer handover package, and ensuring that the product
-was ready for independent customer use.
+Week 7 completed Sprint 5 and the final Assignment 6 delivery. The team moved from active feature development to release verification, customer UAT, documentation completion, and product handover.
 
-The main goal of this stage was not only to finish product improvements,
-but also to prepare all required delivery materials, documentation, and
-release artifacts.
+## Learning points
 
-## What went well
+- A complete delivery requires source code, a runnable product artifact, deployment guidance, access instructions, ownership boundaries, recovery information, and traceable evidence—not only implemented features.
+- Final release coordination must keep Android, backend, documentation, screenshots, links, version numbers, archive contents, and the checksum synchronized.
+- Customer-executed UAT provides stronger evidence than a team-only demonstration because it exposes installation, usability, configuration, and documentation gaps.
+- Private evidence and public repository evidence must be separated carefully so credentials, recordings, and customer communications are not exposed.
 
-The team successfully completed the final release preparation and
-delivered the final Android APK together with the complete source
-archive.
+## Validated assumptions
 
-The final MVP v4 version included improvements based on customer
-feedback and internal testing. The team improved product stability, user
-experience, and completed the remaining features required for the final
-delivery.
+- The final product could be prepared for independent customer-side use without transferring the team's temporary server.
+- Environment-variable documentation and a deployment guide were sufficient to explain customer-owned backend configuration and external-service setup.
+- The final APK, source archive, maintained documentation, and test account formed a workable handover package.
+- The main Week 6 findings could be resolved within the final 24 Story Point Sprint.
 
-The customer handover process was more structured compared with earlier
-stages because the team prepared dedicated documentation covering
-deployment, ownership responsibilities, access instructions, and future
-maintenance.
+## Friction and gaps
 
-## What we learned
+- Final documentation work began later than ideal and created additional deadline pressure.
+- A build/version mismatch during the review showed that release artifacts must be verified immediately before a customer session.
+- Frontend, backend, release, Drive artifacts, screenshots, and public links required repeated synchronization.
+- Customer-side production deployment was not demonstrated, so the achieved handover level is correctly limited to **Ready for independent use**.
 
-We learned that a successful software delivery requires more than
-implementing features. A complete product transition also requires clear
-documentation, deployment instructions, release management, and
-communication with the customer.
+## Planned response
 
-The final stage improved our understanding of preparing production-ready
-releases, organizing delivery artifacts, and transferring project
-knowledge to external users.
+- Use a delivery checklist from the beginning of future release cycles.
+- Freeze and verify the candidate APK, archive, checksum, links, and documentation before the final customer review.
+- Keep customer-facing documentation updated throughout development.
+- Continue separating private evidence from public repository materials.
 
-## Challenges
+## Final outcome
 
-One of the main challenges was maintaining consistency between different
-project areas during the final stage. Frontend, backend, documentation,
-and release materials needed to stay synchronized as changes were
-introduced.
+- **Handover level:** Ready for independent use
+- **Customer confirmation:** Accepted
+- **Remaining blockers:** None
 
-Another challenge was ensuring that the final delivery package
-accurately represented the current state of MVP v4 and included all
-necessary materials for customer use.
-
-## Process improvements
-
-During the final stage, the team improved the development process by:
-
--   organizing delivery materials earlier;
--   documenting important technical decisions;
--   verifying requirements before preparing reports;
--   maintaining clearer ownership of tasks;
--   improving communication around final release preparation.
-
-## Final reflection
-
-Overall, Week 7 demonstrated the importance of professional delivery and
-transition practices. The team successfully moved from active
-development into final product delivery and prepared MVP v4 for customer
-use and future maintenance.
+Private customer-confirmation evidence is supplied through the final Moodle submission and is intentionally excluded from the public repository.
