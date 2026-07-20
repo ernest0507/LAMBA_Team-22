@@ -1,112 +1,101 @@
 # Sprint 5 Review Summary
 
-## Overview
+## Meeting information
 
-Sprint 5 was the final development sprint focused on completing MVP v4, preparing the final delivery package, and transitioning the product towards customer-side use.
+- **Project:** LAMBA
+- **Sprint:** Sprint 5 / Week 7
+- **Sprint period:** 13.07.2026–19.07.2026
+- **Delivered increment:** Final MVP v4 / Assignment 6 MVP v3
+- **Participants by role:** customer, team lead, documentation/reporter
+- **Session purpose:** final Sprint Review, customer-executed UAT, delivery review, and handover confirmation
 
-The sprint focused on final feature improvements, release preparation, documentation completion, and customer handover readiness.
+The public repository contains a sanitized English transcript. The full recording is private assignment evidence and is supplied only through Moodle.
 
 ## Sprint Goal
 
-The goal of Sprint 5 was to finalize MVP v4, resolve remaining issues identified through testing and customer feedback, prepare the final release artifacts, and ensure that the customer could independently access and maintain the product.
+Complete the final delivery by resolving the remaining Week 6 customer-trial findings, improving product polish and reliability, finalizing customer-facing and deployment documentation, preparing release artifacts, and completing the agreed product transition.
 
-## Completed Work
+## Completed work
 
-During Sprint 5, the team completed:
+Sprint 5 completed 24 Story Points and delivered:
 
-- final MVP v4 improvements;
-- final Android APK preparation;
-- source-code archive preparation;
-- customer handover documentation;
-- deployment documentation;
-- final testing and verification;
-- customer review preparation.
+- profile, vehicle editing, logout, application settings, and theme support;
+- receipt duplicate protection and persisted receipt-history data;
+- improved achievement and vehicle visuals;
+- navigation and large-number input fixes;
+- updated backend, ADR, testing, quality, changelog, deployment, and handover documentation;
+- final release `v0.4.0`, Android APK, source archive, and integrity checksum;
+- final Week 7 reporting and Demo Day materials.
 
-## Product Improvements
+## Demonstrated product areas
 
-The final version included improvements in several areas:
-
-### User experience
-
-- improved profile management;
-- logout functionality;
-- dark theme support;
-- updated car information options.
-
-### Car management
-
-- improved vehicle information handling;
-- updated available body types and car categories.
-
-### Receipts and expenses
-
-- improved receipt processing;
-- prevented duplicate receipt creation;
-- improved receipt-related validation.
-
-### Achievements
-
-- updated achievement icons;
-- improved achievement presentation.
-
-### Assistant and trip functionality
-
-- verified AI assistant functionality;
-- verified trip mode functionality;
-- verified main user flows through customer testing.
-
-## Sprint Review Results
-
-During the Sprint Review, the team demonstrated:
-
-- final Android application;
-- customer-facing features;
-- AI assistant;
-- receipt functionality;
+- final Android build and product access;
+- authentication, persistent login, and logout;
+- profile and vehicle-information management;
+- light and dark themes;
+- receipt QR scanning, history details, and duplicate prevention;
+- achievements;
 - trip functionality;
-- statistics;
-- achievements;
-- profile management;
-- final delivery materials.
+- AI assistant interaction;
+- delivery package, deployment guidance, and ownership boundaries.
 
-The customer reviewed the application and confirmed that the main product functionality was available.
+## Customer-executed UAT results
 
-## Customer Feedback
+| Area | Result | Notes |
+|---|---|---|
+| Installation and access | Passed with comments | The current APK was provided after build/version clarification. |
+| Authentication and logout | Passed | Persistent login and explicit logout were reviewed. |
+| Profile and settings | Passed | Profile, vehicle editing, settings, and theme switching were reviewed. |
+| Receipt QR scanning | Passed with known limitation | Duplicate creation was prevented; liters are not always available in receipt data. |
+| Achievements | Accepted for current scope | Unlock notifications were not part of the agreed scope. |
+| Trip functionality | Reviewed | Updated behavior was demonstrated and tested. |
+| AI assistant | Passed with comments | Results depend on available stored context. |
+| Handover documentation | Accepted | Archive, APK, deployment, access, ownership, and limitations were reviewed. |
 
-The customer feedback received during the final review was mainly related to:
+## Customer feedback and response
 
-- improving clarity of some product flows;
-- confirming deployment and handover responsibilities;
-- ensuring that all delivery materials were available.
+| Finding or request | Response | Status |
+|---|---|---|
+| Prevent repeated receipt creation | Added stable identification and car-scoped duplicate checks | Completed |
+| Preserve receipt details in history | Persisted normalized receipt data | Completed |
+| Increase vehicle-image visibility | Updated image presentation | Completed |
+| Improve achievement placeholders | Added locked and unlocked visual states | Completed |
+| Add profile and settings flows | Added profile, vehicle editing, logout, and settings | Completed |
+| Provide detailed deployment information | Added deployment and customer-handover documentation | Completed |
+| Provide archive integrity verification | Generated and delivered a SHA-256 checksum file | Completed |
 
-The team incorporated the relevant feedback before final delivery.
+## Resulting backlog and scope decisions
 
-## Testing and UAT Summary
+- Customer-side production deployment remains outside the completed course scope and is the customer's responsibility.
+- Achievement unlock notifications remain outside the delivered scope.
+- Receipt fields unavailable from the source data remain a documented limitation.
+- No new blocking Sprint item was created after the final handover review.
 
-The final review included verification of:
+## Risks and known limitations
 
-- authentication;
-- profile management;
-- logout;
-- dark theme;
-- receipt creation;
-- duplicate receipt prevention;
-- achievements;
-- trip mode;
-- AI assistant interaction.
+- The delivered APK references the team's temporary backend and must be rebuilt with a customer-managed backend URL for long-term operation.
+- Customer-owned infrastructure, secrets, PostgreSQL, external-service credentials, backups, and monitoring must be configured by the customer.
+- Receipt parsing depends on fields available from the receipt provider.
+- AI assistant answers depend on available user and vehicle context.
 
-The tested functionality was considered ready for final delivery.
+## Final transition decision
 
-## Final Product Status
+- **Handover level:** Ready for independent use
+- **Customer confirmation:** Accepted
+- **Remaining blockers:** None
 
-At the end of Sprint 5:
+The customer confirmed that the documentation was sufficient and that the main delivery requirements were covered.
 
-- MVP v4 was completed;
-- final APK was prepared;
-- source archive was prepared;
-- customer handover documentation was completed;
-- the product was ready for customer-side deployment and further maintenance.
+## Action points
 
-## Final Notes
+| Action | Owner | Status |
+|---|---|---|
+| Deliver archive SHA-256 checksum separately with the archive | Team | Completed |
+| Supply private acceptance evidence through Moodle | Team | Completed as submission evidence |
+| Deploy backend on customer-managed infrastructure when required | Customer | Post-handover responsibility |
 
-Sprint 5 completed the transition from active development into final delivery. The team successfully prepared the product, documentation, and supporting materials required for customer use.
+## Evidence handling
+
+Private customer-confirmation evidence is supplied through the final Moodle submission and is intentionally excluded from the public repository.
+
+The public repository contains only the sanitized transcript, summary, delivery status, implementation traceability, screenshots, and public product links.
